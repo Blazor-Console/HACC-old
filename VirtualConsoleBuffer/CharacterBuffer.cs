@@ -2,7 +2,7 @@
 
 namespace HACC.VirtualConsoleBuffer
 {
-    public class FrameBuffer<T>
+    public class CharacterBuffer<T>
     {
         private readonly int CharacterWidth;
         private readonly int CharacterHeight;
@@ -10,7 +10,7 @@ namespace HACC.VirtualConsoleBuffer
         private readonly bool[,] CharacterChanged;
         private bool CharacterBufferChanged;
 
-        public FrameBuffer(int characterWidth, int characterHeight)
+        public CharacterBuffer(int characterWidth, int characterHeight)
         {
             this.CharacterWidth = characterWidth;
             this.CharacterHeight = characterHeight;
@@ -53,9 +53,9 @@ namespace HACC.VirtualConsoleBuffer
 
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
 
-        public FrameBuffer<T> Resize(int newCharacterWidth, int newCharacterHeight)
+        public CharacterBuffer<T> Resize(int newCharacterWidth, int newCharacterHeight)
         {
-            var newBuffer = new FrameBuffer<T>(
+            var newBuffer = new CharacterBuffer<T>(
                 characterWidth: newCharacterWidth,
                 characterHeight: newCharacterHeight);
 
@@ -63,22 +63,6 @@ namespace HACC.VirtualConsoleBuffer
             throw new NotImplementedException();
 
             return newBuffer;
-        }
-
-        public Bitmap RenderFull(int imageWidth, int imageHeight)
-        {
-            var bitmap = new Bitmap(
-                width: imageWidth,
-                height: imageHeight);
-
-            // fill
-            throw new NotImplementedException();
-            return bitmap;
-        }
-
-        public void RenderUpdates(Bitmap inplaceBitmap)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace HACC.VirtualConsoleBuffer
 {
-    using HACC.VirtualConsoleBuffer.EventArgs;
+    using EventArgs;
     using Spectre.Console;
     using Spectre.Console.Rendering;
     using System.Drawing;
@@ -13,7 +13,7 @@
     //     This class cannot be inherited.
     public class VirtualConsoleBuffer<T> : IAnsiConsole
     {
-        private FrameBuffer<T> InternalFrameBuffer;
+        private CharacterBuffer<T> InternalCharacterBuffer;
         public delegate void NewFrameHandler(object sender, NewFrameEventArgs<T> e);
         public delegate void ConsoleResizedHandler(object sender, ConsoleResizedEventArgs<T> e);
         public event NewFrameHandler NewFrame;
@@ -24,7 +24,7 @@
         public VirtualConsoleBuffer(TerminalSettings? terminalSettings = null)
         {
             TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
-            this.InternalFrameBuffer = new FrameBuffer<T>(
+            this.InternalCharacterBuffer = new CharacterBuffer<T>(
                 characterWidth: this.TerminalSettings.CharacterWidth,
                 characterHeight: this.TerminalSettings.CharacterHeight);
         }
