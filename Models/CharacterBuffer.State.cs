@@ -40,8 +40,8 @@ public partial class CharacterBuffer
                         startChange = true;
                     if (includeEffectsChanges)
                         // if either dirty or differing from effects style being printed, break into section
-                        if (!InternalBuffer[y].RowCharacters[x].CharacterEffects.Equals(obj: lastEffects) ||
-                            InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged)
+                        if (lastEffects != null && (!InternalBuffer[y].RowCharacters[x].CharacterEffects.Equals(obj: lastEffects) ||
+                                                    InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged))
                             startChange = true;
                     if (startChange)
                         changeStart = x;

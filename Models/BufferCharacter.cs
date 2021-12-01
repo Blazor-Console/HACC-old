@@ -2,7 +2,14 @@
 
 public struct BufferCharacter
 {
+    /// <summary>
+    /// Committed state
+    /// </summary>
     private string CharacterOriginal;
+
+    /// <summary>
+    /// Current state
+    /// </summary>
     private string CharacterState;
     private CharacterEffects CharacterEffectsOriginal;
     private CharacterEffects CharacterEffectsState;
@@ -17,7 +24,7 @@ public struct BufferCharacter
 
     public bool CharacterChanged
     {
-        get => ForceCharacterDirty || CharacterState.Equals(value: CharacterOriginal);
+        get => ForceCharacterDirty || !CharacterState.Equals(value: CharacterOriginal);
         internal set => ForceCharacterDirty = true;
     }
 
@@ -29,19 +36,20 @@ public struct BufferCharacter
 
     public bool CharacterEffectsChanged
     {
-        get => ForceEffectsDirty || CharacterEffectsState.Equals(other: CharacterEffectsOriginal);
+        get => ForceEffectsDirty || !CharacterEffectsState.Equals(other: CharacterEffectsOriginal);
         internal set => ForceEffectsDirty = true;
     }
 
     public BufferCharacter(string character, bool characterChanged, CharacterEffects characterEffects,
-        bool characterEffectsChanged, string originalCharacterState = null,
+        bool characterEffectsChanged, string? originalCharacterState = null,
         CharacterEffects? originalEffectsState = null)
     {
         CharacterOriginal =
             new string(value: string.IsNullOrEmpty(value: originalCharacterState) ? character : originalCharacterState);
         CharacterState = new string(value: character);
         ForceCharacterDirty = characterChanged;
-        CharacterEffectsState = originalEffectsState is null ? characterEffects.Copy() : originalEffectsState.Value;
+        // ReSharper disable once MergeConditionalExpression
+        CharacterEffectsState = originalEffectsState.HasValue ? originalEffectsState.Value : characterEffects.Copy(); 
         CharacterEffectsOriginal = characterEffects.Copy();
         ForceEffectsDirty = characterEffectsChanged;
     }
