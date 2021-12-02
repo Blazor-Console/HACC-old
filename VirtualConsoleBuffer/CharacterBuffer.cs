@@ -14,6 +14,7 @@ namespace HACC.VirtualConsoleBuffer
         /// </summary>
         private readonly string[,] InternalBuffer;
         private readonly bool[,] CharacterChanged;
+        private readonly CharacterEffects[,] CharacterEffects;
         private bool CharacterBufferChanged;
         private bool ForceFullRender;
         private readonly ILogger Logger;
@@ -25,6 +26,7 @@ namespace HACC.VirtualConsoleBuffer
             this.CharacterHeight = characterHeight;
             this.InternalBuffer = new string[characterWidth, characterHeight];
             this.CharacterChanged = new bool[characterWidth, characterHeight];
+            this.CharacterEffects = new CharacterEffects[characterWidth, characterHeight];
             this.ForceFullRender = true;
         }
 
@@ -43,6 +45,25 @@ namespace HACC.VirtualConsoleBuffer
                     }
                 }
                 return newBuffer;
+            }
+        }
+
+        public void SetCharacterEffects(int x, int y, CharacterEffects effects)
+        {
+            var changed = !this.CharacterEffects[x, y].Equals(effects);
+            this.CharacterEffects[x, y] = effects;
+            this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
+            this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+        }
+
+        public void SetCharacterEffects(int xStart, int xEnd, int y, CharacterEffects effects)
+        {
+            for (int x = xStart; x <= xEnd; x++)
+            {
+                var changed = !this.CharacterEffects[x, y].Equals(effects);
+                this.CharacterEffects[x, y] = effects;
+                this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
+                this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
             }
         }
 
