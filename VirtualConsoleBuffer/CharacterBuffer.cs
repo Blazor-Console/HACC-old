@@ -15,7 +15,9 @@ namespace HACC.VirtualConsoleBuffer
         private readonly string[,] InternalBuffer;
         private readonly bool[,] CharacterChanged;
         private readonly CharacterEffects[,] CharacterEffects;
-        private bool CharacterBufferChanged;
+        private readonly bool[,] CharacterEffectsChanged;
+        private bool CharacterEffectsDirty;
+        private bool CharacterBufferDirty;
         private bool ForceFullRender;
         private readonly ILogger Logger;
 
@@ -27,10 +29,11 @@ namespace HACC.VirtualConsoleBuffer
             this.InternalBuffer = new string[characterWidth, characterHeight];
             this.CharacterChanged = new bool[characterWidth, characterHeight];
             this.CharacterEffects = new CharacterEffects[characterWidth, characterHeight];
+            this.CharacterEffectsChanged = new bool[characterWidth, characterHeight];
             this.ForceFullRender = true;
         }
 
-        public bool Dirty => this.CharacterBufferChanged;
+        public bool Dirty => this.CharacterBufferDirty;
 
         public string[,] Buffer
         {
@@ -52,8 +55,8 @@ namespace HACC.VirtualConsoleBuffer
         {
             var changed = !this.CharacterEffects[x, y].Equals(effects);
             this.CharacterEffects[x, y] = effects;
-            this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
-            this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+            this.CharacterEffectsChanged[x, y] = this.CharacterEffectsChanged[x, y] || changed;
+            this.CharacterEffectsDirty = this.CharacterEffectsDirty || changed;
         }
 
         public void SetCharacterEffects(int xStart, int xEnd, int y, CharacterEffects effects)
@@ -62,8 +65,8 @@ namespace HACC.VirtualConsoleBuffer
             {
                 var changed = !this.CharacterEffects[x, y].Equals(effects);
                 this.CharacterEffects[x, y] = effects;
-                this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
-                this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+                this.CharacterEffectsChanged[x, y] = this.CharacterEffectsChanged[x, y] || changed;
+                this.CharacterEffectsDirty = this.CharacterEffectsDirty || changed;
             }
         }
 
@@ -90,7 +93,7 @@ namespace HACC.VirtualConsoleBuffer
             var changed = !oldValue.Equals(value);
             this.InternalBuffer[x, y] = value;
             this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
-            this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+            this.CharacterBufferDirty = this.CharacterBufferDirty || changed;
             return oldValue;
         }
 
@@ -142,7 +145,7 @@ namespace HACC.VirtualConsoleBuffer
 
                 this.InternalBuffer[x + i, y] = newCharacter;
                 this.CharacterChanged[x + i, y] = this.CharacterChanged[x + i, y] || changed;
-                this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+                this.CharacterBufferDirty = this.CharacterBufferDirty || changed;
             }
 
             return oldLine;
@@ -150,21 +153,20 @@ namespace HACC.VirtualConsoleBuffer
 
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
 
-        public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges
+        public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges(bool includeEffectsChanges = true)
         {
-            get
-            {
                 var list = new List<(int y, int xStart, int xEnd)>();
                 for (int y = 0; y < CharacterHeight; y++)
                 {
                     int changeStart = -1;
                     for (int x = 0; x < CharacterWidth; x++)
                     {
-                        if (this.CharacterChanged[x, y] && (changeStart < -1))
+                        var changed = this.CharacterChanged[x, y] && (!includeEffectsChanges || this.CharacterEffectsChanged[x, y]);
+                        if (changed && (changeStart < -1))
                         {
                             changeStart = x;
                         }
-                        if ((changeStart >= 0) && !this.CharacterChanged[x, y])
+                        if ((changeStart >= 0) && !changed)
                         {
                             list.Add((y: y, xStart: changeStart, xEnd: x));
                             changeStart = -1;
@@ -178,29 +180,25 @@ namespace HACC.VirtualConsoleBuffer
                 }
 
                 return list;
-            }
         }
 
-        public IEnumerable<(int xStart, int xEnd, int y, string value)> DirtyRangeStrings
+        public IEnumerable<(int xStart, int xEnd, int y, string value)> DirtyRangeStrings(bool includeEffectsChanges = true)
         {
-            get
+            var list = new List<(int xStart, int xEnd, int y, string value)>();
+            var ranges = DirtyRanges(includeEffectsChanges: includeEffectsChanges);
+            foreach (var range in ranges)
             {
-                var list = new List<(int xStart, int xEnd, int y, string value)>();
-                var ranges = DirtyRanges;
-                foreach (var range in ranges)
-                {
-                    list.Add((
-                        xStart: range.xStart,
-                        xEnd: range.xEnd,
+                list.Add((
+                    xStart: range.xStart,
+                    xEnd: range.xEnd,
+                    y: range.y,
+                    value: GetLine(
+                        x: range.xStart,
                         y: range.y,
-                        value: GetLine(
-                            x: range.xStart,
-                            y: range.y,
-                            length: range.xEnd - range.xStart + 1)));
-                }
-                return list;
+                        length: range.xEnd - range.xStart + 1)));
             }
-        }
+            return list;
+    }
 
         public CharacterBuffer Resize(int newCharacterWidth, int newCharacterHeight)
         {
