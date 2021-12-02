@@ -60,6 +60,23 @@ public class CharacterBuffer
         CharacterEffectsChanged = new bool[columns, rows];
         ForceFullRender = true;
         CursorPosition = new Point(0, 0);
+        for (int x = 0; x < columns; x++)
+        {
+            for (int y = 0; y < rows; y++)
+            {
+                this.InternalBuffer[x, y] = "";
+                this.CharacterChanged[x, y] = false;
+                this.CharacterEffects[x, y] = new CharacterEffects(
+                    bold: false,
+                    italic: false,
+                    underline: false,
+                    inverse: false,
+                    blink: false,
+                    background: Defaults.BackgroundColor,
+                    foreground: Defaults.ForegroundColor);
+                this.CharacterChanged[x, y] = false;
+            }
+        }
     }
 
     /// <summary>

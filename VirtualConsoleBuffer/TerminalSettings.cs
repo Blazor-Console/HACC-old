@@ -2,7 +2,7 @@
 
 namespace HACC.VirtualConsoleBuffer;
 
-public struct TerminalSettings
+public struct TerminalSettings : IEquatable<TerminalSettings>
 {
     /// <summary>
     ///     Window/Terminal title
@@ -96,5 +96,10 @@ public struct TerminalSettings
         TerminalBackground = Defaults.BackgroundColor;
         TerminalForeground = Defaults.ForegroundColor;
         CursorType = Defaults.CursorShape;
+    }
+
+    public bool Equals(TerminalSettings other)
+    {
+        throw new NotImplementedException();
     }
 }

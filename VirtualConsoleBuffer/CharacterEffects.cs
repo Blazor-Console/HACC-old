@@ -34,4 +34,15 @@ public struct CharacterEffects : IEquatable<CharacterEffects>
         Background = background;
         Foreground = foreground;
     }
+
+    public CharacterEffects()
+    {
+        Bold = false;
+        Italic = false;
+        Underline = false;
+        Inverse = false;
+        Blink = false;
+        Background = Defaults.BackgroundColor;
+        Foreground = Defaults.ForegroundColor;
+    }
 }
