@@ -1,38 +1,36 @@
-﻿namespace HACC.Components
+﻿using Blazor.Extensions;
+using Blazor.Extensions.Canvas.Canvas2D;
+using HACC.VirtualConsoleBuffer;
+
+namespace HACC.Components;
+
+public partial class Console
 {
-    using Blazor.Extensions;
-    using Blazor.Extensions.Canvas.Canvas2D;
-    using HACC.VirtualConsoleBuffer;
+    protected BECanvasComponent _canvasReference;
+    private Canvas2DContext _context;
 
-    public partial class Console
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        private Canvas2DContext _context;
+        _context = await _canvasReference.CreateCanvas2DAsync();
+        await _context.SetFillStyleAsync("green");
 
-        protected BECanvasComponent _canvasReference;
+        await _context.FillRectAsync(10, 100, 100, 100);
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            this._context = await this._canvasReference.CreateCanvas2DAsync();
-            await this._context.SetFillStyleAsync("green");
+        await _context.SetFontAsync("48px serif");
+        await _context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+    }
 
-            await this._context.FillRectAsync(10, 100, 100, 100);
+    public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
+    {
+        characterBuffer.RenderFull(
+            _context,
+            _canvasReference);
+    }
 
-            await this._context.SetFontAsync("48px serif");
-            await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
-        }
-
-        public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
-        {
-            characterBuffer.RenderFull(
-                context: _context,
-                canvas: _canvasReference);
-        }
-
-        public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
-        {
-            characterBuffer.RenderUpdates(
-                context: _context,
-                canvas: _canvasReference);
-        }
+    public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
+    {
+        characterBuffer.RenderUpdates(
+            _context,
+            _canvasReference);
     }
 }

@@ -1,31 +1,34 @@
-﻿namespace HACC.Logging
+﻿using System.Collections.Concurrent;
+using Microsoft.Extensions.Options;
+
+namespace HACC.Logging;
+
+public sealed class LoggingProvider : ILoggerProvider
 {
-    using System.Collections.Concurrent;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
+    private readonly ConcurrentDictionary<string, CustomLogger> _loggers = new();
+    private readonly IDisposable _onChangeToken;
+    private LoggingConfiguration _currentConfig;
 
-    public sealed class LoggingProvider : ILoggerProvider
+    public LoggingProvider(
+        IOptionsMonitor<LoggingConfiguration> config)
     {
-        private readonly IDisposable _onChangeToken;
-        private LoggingConfiguration _currentConfig;
-        private readonly ConcurrentDictionary<string, CustomLogger> _loggers = new();
+        _currentConfig = config.CurrentValue;
+        _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
+    }
 
-        public LoggingProvider(
-            IOptionsMonitor<LoggingConfiguration> config)
-        {
-            _currentConfig = config.CurrentValue;
-            _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
-        }
+    public ILogger CreateLogger(string categoryName)
+    {
+        return _loggers.GetOrAdd(categoryName, name => new CustomLogger(name, GetCurrentConfig));
+    }
 
-        public ILogger CreateLogger(string categoryName) =>
-            _loggers.GetOrAdd(categoryName, name => new CustomLogger(name, GetCurrentConfig));
+    public void Dispose()
+    {
+        _loggers.Clear();
+        _onChangeToken.Dispose();
+    }
 
-        private LoggingConfiguration GetCurrentConfig() => _currentConfig;
-
-        public void Dispose()
-        {
-            _loggers.Clear();
-            _onChangeToken.Dispose();
-        }
+    private LoggingConfiguration GetCurrentConfig()
+    {
+        return _currentConfig;
     }
 }

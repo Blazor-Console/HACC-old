@@ -1,15 +1,15 @@
-﻿namespace HACC.VirtualConsoleBuffer.EventArgs
-{
-    using System.Drawing;
+﻿using System.Drawing;
 
-    public record NewFrameEventArgs : VirtualConsoleEventArgs
+namespace HACC.VirtualConsoleBuffer.EventArgs;
+
+public record NewFrameEventArgs : VirtualConsoleEventArgs
+{
+    public readonly Bitmap NewFrame;
+    public readonly Bitmap? OldFrame;
+
+    public NewFrameEventArgs(VirtualConsoleBuffer sender, Bitmap? oldFrame, Bitmap newFrame) : base(sender)
     {
-        public readonly Bitmap? OldFrame;
-        public readonly Bitmap NewFrame;
-        public NewFrameEventArgs(VirtualConsoleBuffer sender, Bitmap? oldFrame, Bitmap newFrame) : base(sender: sender)
-        {
-            OldFrame = oldFrame;
-            NewFrame = newFrame;
-        }
+        OldFrame = oldFrame;
+        NewFrame = newFrame;
     }
 }

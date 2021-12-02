@@ -1,45 +1,46 @@
-﻿namespace HACC.Logging
+﻿namespace HACC.Logging;
+
+public class CustomLogger : ILogger
 {
-    using Microsoft.Extensions.Logging;
+    private readonly Func<LoggingConfiguration> _getCurrentConfig;
+    private readonly string _name;
 
-    public class CustomLogger : ILogger
+    public CustomLogger(
+        string name,
+        Func<LoggingConfiguration> getCurrentConfig)
     {
-        private readonly string _name;
-        private readonly Func<LoggingConfiguration> _getCurrentConfig;
+        (_name, _getCurrentConfig) = (name, getCurrentConfig);
+    }
 
-        public CustomLogger(
-            string name,
-            Func<LoggingConfiguration> getCurrentConfig) =>
-            (_name, _getCurrentConfig) = (name, getCurrentConfig);
+    public IDisposable BeginScope<TState>(TState state)
+    {
+        return default!;
+    }
 
-        public IDisposable BeginScope<TState>(TState state) => default!;
+    public bool IsEnabled(LogLevel logLevel)
+    {
+        return _getCurrentConfig().LogLevels.ContainsKey(logLevel);
+    }
 
-        public bool IsEnabled(LogLevel logLevel) =>
-            _getCurrentConfig().LogLevels.ContainsKey(logLevel);
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception exception,
+        Func<TState, Exception, string> formatter)
+    {
+        if (!IsEnabled(logLevel)) return;
 
-        public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception exception,
-            Func<TState, Exception, string> formatter)
+        var config = _getCurrentConfig();
+        if (config.EventId == 0 || config.EventId == eventId.Id)
         {
-            if (!IsEnabled(logLevel))
-            {
-                return;
-            }
+            //ConsoleColor originalColor = Console.ForegroundColor;
 
-            LoggingConfiguration config = _getCurrentConfig();
-            if (config.EventId == 0 || config.EventId == eventId.Id)
-            {
-                //ConsoleColor originalColor = Console.ForegroundColor;
+            //Console.ForegroundColor = config.LogLevels[logLevel];
+            //Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");
 
-                //Console.ForegroundColor = config.LogLevels[logLevel];
-                //Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");
-
-                //Console.ForegroundColor = originalColor;
-                //Console.WriteLine($"     {_name} - {formatter(state, exception)}");
-            }
+            //Console.ForegroundColor = originalColor;
+            //Console.WriteLine($"     {_name} - {formatter(state, exception)}");
         }
     }
 }

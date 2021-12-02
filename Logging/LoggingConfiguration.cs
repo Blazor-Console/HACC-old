@@ -1,13 +1,11 @@
-﻿namespace HACC.Logging
-{
-    using Microsoft.Extensions.Logging;
-    public class LoggingConfiguration
-    {
-        public int EventId { get; set; }
+﻿namespace HACC.Logging;
 
-        public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
-        {
-            [LogLevel.Information] = ConsoleColor.Green
-        };
-    }
+public class LoggingConfiguration
+{
+    public int EventId { get; set; }
+
+    public Dictionary<LogLevel, ConsoleColor> LogLevels { get; set; } = new()
+    {
+        [LogLevel.Information] = ConsoleColor.Green
+    };
 }

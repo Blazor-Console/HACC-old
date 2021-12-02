@@ -1,9 +1,8 @@
-namespace HACC.VirtualConsoleBuffer
+namespace HACC.VirtualConsoleBuffer;
+
+public enum CursorType
 {
-    public enum CursorType
-    {
-        Block,
-        Underline,
-        Bar
-    }
+    Block,
+    Underline,
+    Bar
 }

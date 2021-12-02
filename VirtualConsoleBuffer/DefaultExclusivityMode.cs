@@ -1,53 +1,49 @@
-﻿namespace HACC.VirtualConsoleBuffer
+﻿using Spectre.Console;
+
+namespace HACC.VirtualConsoleBuffer;
+
+internal sealed class DefaultExclusivityMode : IExclusivityMode
 {
-    using Spectre.Console;
+    private readonly SemaphoreSlim _semaphore;
 
-    internal sealed class DefaultExclusivityMode : IExclusivityMode
+    public DefaultExclusivityMode()
     {
-        private readonly SemaphoreSlim _semaphore;
+        _semaphore = new SemaphoreSlim(1, 1);
+    }
 
-        public DefaultExclusivityMode()
+    public T Run<T>(Func<T> func)
+    {
+        // Try acquiring the exclusivity semaphore
+        if (!_semaphore.Wait(0)) throw CreateExclusivityException();
+
+        try
         {
-            _semaphore = new SemaphoreSlim(1, 1);
+            return func();
         }
-
-        public T Run<T>(Func<T> func)
+        finally
         {
-            // Try acquiring the exclusivity semaphore
-            if (!_semaphore.Wait(0))
-            {
-                throw CreateExclusivityException();
-            }
-
-            try
-            {
-                return func();
-            }
-            finally
-            {
-                _semaphore.Release(1);
-            }
+            _semaphore.Release(1);
         }
+    }
 
-        public async Task<T> Run<T>(Func<Task<T>> func)
+    public async Task<T> Run<T>(Func<Task<T>> func)
+    {
+        // Try acquiring the exclusivity semaphore
+        if (!await _semaphore.WaitAsync(0).ConfigureAwait(false)) throw CreateExclusivityException();
+
+        try
         {
-            // Try acquiring the exclusivity semaphore
-            if (!await _semaphore.WaitAsync(0).ConfigureAwait(false))
-            {
-                throw CreateExclusivityException();
-            }
-
-            try
-            {
-                return await func().ConfigureAwait(false);
-            }
-            finally
-            {
-                _semaphore.Release(1);
-            }
+            return await func().ConfigureAwait(false);
         }
+        finally
+        {
+            _semaphore.Release(1);
+        }
+    }
 
-        private static Exception CreateExclusivityException() => new InvalidOperationException(
+    private static Exception CreateExclusivityException()
+    {
+        return new InvalidOperationException(
             "Trying to run one or more interactive functions concurrently. " +
             "Operations with dynamic displays (e.g. a prompt and a progress display) " +
             "cannot be running at the same time.");
