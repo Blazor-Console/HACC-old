@@ -2,11 +2,11 @@
 {
     using System.Drawing;
 
-    public record NewFrameEventArgs<T> : VirtualConsoleEventArgs<T>
+    public record NewFrameEventArgs : VirtualConsoleEventArgs
     {
         public readonly Bitmap? OldFrame;
         public readonly Bitmap NewFrame;
-        public NewFrameEventArgs(VirtualConsoleBuffer<T> sender, Bitmap? oldFrame, Bitmap newFrame) : base(sender: sender)
+        public NewFrameEventArgs(VirtualConsoleBuffer sender, Bitmap? oldFrame, Bitmap newFrame) : base(sender: sender)
         {
             OldFrame = oldFrame;
             NewFrame = newFrame;

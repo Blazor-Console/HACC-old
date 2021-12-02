@@ -21,14 +21,14 @@
             await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
         }
 
-        public void RenderFullCharacterBuffer<T>(CharacterBuffer<T> characterBuffer)
+        public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
         {
             characterBuffer.RenderFull(
                 context: _context,
                 canvas: _canvasReference);
         }
 
-        public void RenderUpdatesFromCharacterBuffer<T>(CharacterBuffer<T> characterBuffer)
+        public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
         {
             characterBuffer.RenderUpdates(
                 context: _context,

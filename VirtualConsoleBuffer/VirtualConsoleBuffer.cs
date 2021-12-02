@@ -11,11 +11,11 @@
     // Summary:
     //     Represents the standard input, output, and error streams for console applications.
     //     This class cannot be inherited.
-    public class VirtualConsoleBuffer<T> : IAnsiConsole
+    public class VirtualConsoleBuffer : IAnsiConsole
     {
-        private CharacterBuffer<T> InternalCharacterBuffer;
-        public delegate void NewFrameHandler(object sender, NewFrameEventArgs<T> e);
-        public delegate void ConsoleResizedHandler(object sender, ConsoleResizedEventArgs<T> e);
+        private CharacterBuffer InternalCharacterBuffer;
+        public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
+        public delegate void ConsoleResizedHandler(object sender, ConsoleResizedEventArgs e);
         public event NewFrameHandler NewFrame;
         public event ConsoleResizedHandler ConsoleResized;
 
@@ -24,7 +24,7 @@
         public VirtualConsoleBuffer(TerminalSettings? terminalSettings = null)
         {
             TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
-            this.InternalCharacterBuffer = new CharacterBuffer<T>(
+            this.InternalCharacterBuffer = new CharacterBuffer(
                 characterWidth: this.TerminalSettings.CharacterWidth,
                 characterHeight: this.TerminalSettings.CharacterHeight);
         }
@@ -87,7 +87,7 @@
             }
             set
             {
-                var eventArgs = new ConsoleResizedEventArgs<T>(
+                var eventArgs = new ConsoleResizedEventArgs(
                      sender: this,
                      oldWidth: TerminalSettings.CharacterWidth,
                      oldHeight: TerminalSettings.CharacterHeight,
@@ -131,7 +131,7 @@
             }
             set
             {
-                var eventArgs = new ConsoleResizedEventArgs<T>(
+                var eventArgs = new ConsoleResizedEventArgs(
                      sender: this,
                      oldWidth: TerminalSettings.CharacterWidth,
                      oldHeight: TerminalSettings.CharacterHeight,

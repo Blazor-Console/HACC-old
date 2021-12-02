@@ -1,9 +1,9 @@
 ﻿namespace HACC.VirtualConsoleBuffer.EventArgs
 {
-    public record VirtualConsoleEventArgs<T>
+    public record VirtualConsoleEventArgs
     {
-        public readonly VirtualConsoleBuffer<T> Console;
-        public VirtualConsoleEventArgs(VirtualConsoleBuffer<T> sender)
+        public readonly VirtualConsoleBuffer Console;
+        public VirtualConsoleEventArgs(VirtualConsoleBuffer sender)
         {
             Console = sender;
         }

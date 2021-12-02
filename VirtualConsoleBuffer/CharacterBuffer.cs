@@ -1,14 +1,18 @@
-﻿using System.Drawing;
-using Blazor.Extensions;
+﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using System.Globalization;
 
 namespace HACC.VirtualConsoleBuffer
 {
-    public class CharacterBuffer<T>
+    public class CharacterBuffer
     {
         private readonly int CharacterWidth;
         private readonly int CharacterHeight;
-        private readonly T[,] InternalBuffer;
+
+        /// <summary>
+        /// two-dimensional array of "strings" to support multi-byte
+        /// </summary>
+        private readonly string[,] InternalBuffer;
         private readonly bool[,] CharacterChanged;
         private bool CharacterBufferChanged;
         private bool ForceFullRender;
@@ -17,18 +21,18 @@ namespace HACC.VirtualConsoleBuffer
         {
             this.CharacterWidth = characterWidth;
             this.CharacterHeight = characterHeight;
-            this.InternalBuffer = new T[characterWidth, characterHeight];
+            this.InternalBuffer = new string[characterWidth, characterHeight];
             this.CharacterChanged = new bool[characterWidth, characterHeight];
             this.ForceFullRender = true;
         }
 
         public bool Dirty => this.CharacterBufferChanged;
 
-        public T[,] Buffer
+        public string[,] Buffer
         {
             get
             {
-                T[,] newBuffer = new T[CharacterWidth, CharacterHeight];
+                string[,] newBuffer = new string[CharacterWidth, CharacterHeight];
                 for (int x = 0; x < CharacterWidth; x++)
                 {
                     for (int y = 0; y < CharacterHeight; y++)
@@ -40,13 +44,25 @@ namespace HACC.VirtualConsoleBuffer
             }
         }
 
-        public T CharacterAt(int x, int y)
+        public string CharacterAt(int x, int y)
         {
             return this.InternalBuffer[x, y];
         }
 
-        public T SetCharacter(int x, int y, T value)
+        public string SetCharacter(int x, int y, string value)
         {
+            StringInfo stringInfo = new StringInfo(value);
+            if (stringInfo.LengthInTextElements > 1)
+            {
+                value = stringInfo.SubstringByTextElements(
+                    startingTextElement: 0,
+                    lengthInTextElements: 1);
+            }
+            else if (stringInfo.LengthInTextElements == 0)
+            {
+                value = "\0";
+            }
+
             var oldValue = this.InternalBuffer[x, y];
             var changed = !oldValue.Equals(value);
             this.InternalBuffer[x, y] = value;
@@ -55,11 +71,65 @@ namespace HACC.VirtualConsoleBuffer
             return oldValue;
         }
 
+        public string GetLine(int x, int y, int length = -1)
+        {
+            int maxLength = this.CharacterWidth - x;
+            if ((length < 0) || (length > maxLength))
+            {
+                length = maxLength;
+            }
+            string[] substrings = new string[length];
+            for (int i = 0; i < length; i++)
+            {
+                substrings[i] = this.InternalBuffer[x + i, y];
+            }
+            return string.Concat(values: substrings);
+        }
+
+        public string SetLine(int x, int y, string line, int length = -1)
+        {
+            StringInfo sourceStringInfo = new StringInfo(line);
+
+            int sourceLength = line.Count();
+            int maxLength = this.CharacterWidth - x;
+            if ((length < 0) || (length > maxLength))
+            {
+                length = maxLength;
+            }
+            if (length > sourceLength)
+            {
+                length = sourceLength;
+            }
+
+            var oldLine = GetLine(
+                x: x,
+                y: y,
+                length: length);
+
+            StringInfo oldStringInfo = new StringInfo(oldLine);
+            for (int i = 0; i < length; i++)
+            {
+                var oldCharacter = oldStringInfo.SubstringByTextElements(
+                    startingTextElement: i,
+                    lengthInTextElements: 1);
+                var newCharacter = sourceStringInfo.SubstringByTextElements(
+                    startingTextElement: i,
+                    lengthInTextElements: 1);
+                var changed = !oldCharacter.Equals(newCharacter);
+
+                this.InternalBuffer[x + i, y] = newCharacter;
+                this.CharacterChanged[x + i, y] = this.CharacterChanged[x + i, y] || changed;
+                this.CharacterBufferChanged = this.CharacterBufferChanged || changed;
+            }
+
+            return oldLine;
+        }
+
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
 
-        public CharacterBuffer<T> Resize(int newCharacterWidth, int newCharacterHeight)
+        public CharacterBuffer Resize(int newCharacterWidth, int newCharacterHeight)
         {
-            var newBuffer = new CharacterBuffer<T>(
+            var newBuffer = new CharacterBuffer(
                 characterWidth: newCharacterWidth,
                 characterHeight: newCharacterHeight);
 
