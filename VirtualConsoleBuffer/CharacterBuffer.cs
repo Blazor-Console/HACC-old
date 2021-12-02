@@ -170,7 +170,7 @@ namespace HACC.VirtualConsoleBuffer
         /// Sets the characters beginning at the specified coordinates, and extending up to the specified number of columns.
         /// Also applies character effects if specified.
         /// </summary>
-        public string SetLine(int x, int y, string line, int length = -1, CharacterEffects? characterEffects = null)
+        public (string oldLine, int lengthWritten) SetLine(int x, int y, string line, int length = -1, CharacterEffects? characterEffects = null)
         {
             if (x > this.BufferColumns || y > this.BufferRows)
             {
@@ -217,7 +217,7 @@ namespace HACC.VirtualConsoleBuffer
                 }
             }
 
-            return oldLine;
+            return (oldLine: oldLine, lengthWritten: length);
         }
 
         /// <summary>
@@ -263,13 +263,13 @@ namespace HACC.VirtualConsoleBuffer
         public void WriteLine(string line, CharacterEffects? characterEffects = null)
         {
             var newLength = GetLineElements(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
-            this.SetLine(
+            (string oldLine, int lengthWritten) = this.SetLine(
                 x: this.CursorPosition.X,
                 y: this.CursorPosition.Y,
                 line: line,
                 characterEffects: characterEffects);
 
-                this.CursorPosition.X += newLength;
+                this.CursorPosition.X += lengthWritten;
         }
 
         /// <summary>
