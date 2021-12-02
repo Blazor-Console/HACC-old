@@ -205,7 +205,7 @@ namespace HACC.VirtualConsoleBuffer
                 var changed = !oldCharacter.Equals(newCharacter);
 
                 this.InternalBuffer[x + i, y] = newCharacter;
-                this.CharacterChanged[x + i, y] = this.CharacterChanged[x + i, y] || changed;
+                this.CharacterChanged[x + i, y] = changed || this.CharacterChanged[x + i, y]; // TODO: Why is this failing to update x: 1, y: 1??
                 this.CharacterBufferDirty = this.CharacterBufferDirty || changed;
 
                 if (characterEffects.HasValue)
@@ -272,6 +272,8 @@ namespace HACC.VirtualConsoleBuffer
                 this.CursorPosition.X += lengthWritten;
                 this.CursorPosition.Y++;
         }
+
+        public CharacterEffects CharacterEffectsAt(int x, int y) => this.CharacterEffects[x, y];
 
         /// <summary>
         /// whether the character at the given position has changed
