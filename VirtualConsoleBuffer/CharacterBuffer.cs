@@ -16,9 +16,11 @@ namespace HACC.VirtualConsoleBuffer
         private readonly bool[,] CharacterChanged;
         private bool CharacterBufferChanged;
         private bool ForceFullRender;
+        private readonly ILogger Logger;
 
-        public CharacterBuffer(int characterWidth, int characterHeight)
+        public CharacterBuffer(ILogger logger, int characterWidth, int characterHeight)
         {
+            this.Logger = logger;
             this.CharacterWidth = characterWidth;
             this.CharacterHeight = characterHeight;
             this.InternalBuffer = new string[characterWidth, characterHeight];
@@ -127,9 +129,62 @@ namespace HACC.VirtualConsoleBuffer
 
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
 
+        public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges
+        {
+            get
+            {
+                var list = new List<(int y, int xStart, int xEnd)>();
+                for (int y = 0; y < CharacterHeight; y++)
+                {
+                    int changeStart = -1;
+                    for (int x = 0; x < CharacterWidth; x++)
+                    {
+                        if (this.CharacterChanged[x, y] && (changeStart < -1))
+                        {
+                            changeStart = x;
+                        }
+                        if ((changeStart >= 0) && !this.CharacterChanged[x, y])
+                        {
+                            list.Add((y: y, xStart: changeStart, xEnd: x));
+                            changeStart = -1;
+                        }
+                    }
+
+                    if (changeStart >= 0)
+                    {
+                        list.Add((y: y, xStart: changeStart, xEnd: CharacterWidth - 1));
+                    }
+                }
+
+                return list;
+            }
+        }
+
+        public IEnumerable<(int xStart, int xEnd, int y, string value)> DirtyRangeStrings
+        {
+            get
+            {
+                var list = new List<(int xStart, int xEnd, int y, string value)>();
+                var ranges = DirtyRanges;
+                foreach (var range in ranges)
+                {
+                    list.Add((
+                        xStart: range.xStart,
+                        xEnd: range.xEnd,
+                        y: range.y,
+                        value: GetLine(
+                            x: range.xStart,
+                            y: range.y,
+                            length: range.xEnd - range.xStart + 1)));
+                }
+                return list;
+            }
+        }
+
         public CharacterBuffer Resize(int newCharacterWidth, int newCharacterHeight)
         {
             var newBuffer = new CharacterBuffer(
+                logger: this.Logger,
                 characterWidth: newCharacterWidth,
                 characterHeight: newCharacterHeight);
 
@@ -146,6 +201,7 @@ namespace HACC.VirtualConsoleBuffer
         /// <param name="canvas"></param>
         public void RenderFull(Canvas2DContext context, BECanvasComponent canvas)
         {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -157,12 +213,15 @@ namespace HACC.VirtualConsoleBuffer
         {
             if (this.ForceFullRender)
             {
+                this.Logger.LogInformation("Full render forced");
                 RenderFull(
                     context: context,
                     canvas: canvas);
                 this.ForceFullRender = false;
                 return;
             }
+
+            throw new NotImplementedException();
         }
     }
 }

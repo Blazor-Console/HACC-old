@@ -20,11 +20,14 @@
         public event ConsoleResizedHandler ConsoleResized;
 
         private TerminalSettings TerminalSettings;
+        private readonly ILogger Logger;
 
-        public VirtualConsoleBuffer(TerminalSettings? terminalSettings = null)
+        public VirtualConsoleBuffer(ILogger logger, TerminalSettings? terminalSettings = null)
         {
+            this.Logger = logger;
             TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
             this.InternalCharacterBuffer = new CharacterBuffer(
+                logger: logger,
                 characterWidth: this.TerminalSettings.CharacterWidth,
                 characterHeight: this.TerminalSettings.CharacterHeight);
         }
