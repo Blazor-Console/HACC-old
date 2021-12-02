@@ -212,8 +212,8 @@ namespace HACC.VirtualConsoleBuffer
                 {
                     var effectsChanged = this.CharacterEffects[x + i, y].Equals(characterEffects.Value);
                     this.CharacterEffects[x + i, y] = characterEffects.Value;
-                    this.CharacterEffectsChanged[x + i, y] = this.CharacterEffectsChanged[x + i, y] || effectsChanged;
-                    this.CharacterEffectsDirty = this.CharacterEffectsDirty || effectsChanged;
+                    this.CharacterEffectsChanged[x + i, y] = effectsChanged || this.CharacterEffectsChanged[x + i, y];
+                    this.CharacterEffectsDirty = effectsChanged || this.CharacterEffectsDirty;
                 }
             }
 
@@ -297,21 +297,22 @@ namespace HACC.VirtualConsoleBuffer
                     CharacterEffects? lastEffects = null;
                     for (int x = 0; x < BufferColumns; x++)
                     {
-                        var effectsChanged = includeEffectsChanges && (!lastEffects.HasValue || lastEffects.Equals(this.CharacterEffects[x, y]));
-                        var changed = this.CharacterChanged[x, y] && !effectsChanged;
+                        var characterEffects = this.CharacterEffects[x, y];
+                        var effectsChanged = includeEffectsChanges && (!lastEffects.HasValue || lastEffects.Equals(characterEffects));
+                        var changed = this.CharacterChanged[x, y] || !effectsChanged;
 
-                        if (changed && (changeStart < -1))
+                        if (changed && (changeStart < 0))
                         {
                             changeStart = x;
                         }
 
-                        if ((changeStart >= 0) && (!changed || effectsChanged))
+                        if ((changeStart >= 0) && !(changed || effectsChanged))
                         {
                             list.Add((y: y, xStart: changeStart, xEnd: x));
                             changeStart = -1;
                         }
 
-                        lastEffects = this.CharacterEffects[x, y];
+                        lastEffects = characterEffects;
                     }
 
                     if (changeStart >= 0)
