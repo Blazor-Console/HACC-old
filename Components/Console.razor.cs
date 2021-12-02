@@ -2,6 +2,7 @@
 {
     using Blazor.Extensions;
     using Blazor.Extensions.Canvas.Canvas2D;
+    using HACC.VirtualConsoleBuffer;
 
     public partial class Console
     {
@@ -18,6 +19,20 @@
 
             await this._context.SetFontAsync("48px serif");
             await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+        }
+
+        public void RenderFullCharacterBuffer<T>(CharacterBuffer<T> characterBuffer)
+        {
+            characterBuffer.RenderFull(
+                context: _context,
+                canvas: _canvasReference);
+        }
+
+        public void RenderUpdatesFromCharacterBuffer<T>(CharacterBuffer<T> characterBuffer)
+        {
+            characterBuffer.RenderUpdates(
+                context: _context,
+                canvas: _canvasReference);
         }
     }
 }

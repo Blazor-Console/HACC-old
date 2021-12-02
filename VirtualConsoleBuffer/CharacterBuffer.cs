@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using Blazor.Extensions;
+using Blazor.Extensions.Canvas.Canvas2D;
 
 namespace HACC.VirtualConsoleBuffer
 {
@@ -9,6 +11,7 @@ namespace HACC.VirtualConsoleBuffer
         private readonly T[,] InternalBuffer;
         private readonly bool[,] CharacterChanged;
         private bool CharacterBufferChanged;
+        private bool ForceFullRender;
 
         public CharacterBuffer(int characterWidth, int characterHeight)
         {
@@ -16,6 +19,7 @@ namespace HACC.VirtualConsoleBuffer
             this.CharacterHeight = characterHeight;
             this.InternalBuffer = new T[characterWidth, characterHeight];
             this.CharacterChanged = new bool[characterWidth, characterHeight];
+            this.ForceFullRender = true;
         }
 
         public bool Dirty => this.CharacterBufferChanged;
@@ -63,6 +67,32 @@ namespace HACC.VirtualConsoleBuffer
             throw new NotImplementedException();
 
             return newBuffer;
+        }
+
+        /// <summary>
+        /// Redraws the entire canvas
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="canvas"></param>
+        public void RenderFull(Canvas2DContext context, BECanvasComponent canvas)
+        {
+        }
+
+        /// <summary>
+        /// Renders only the changes since last render
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="canvas"></param>
+        public void RenderUpdates(Canvas2DContext context, BECanvasComponent canvas)
+        {
+            if (this.ForceFullRender)
+            {
+                RenderFull(
+                    context: context,
+                    canvas: canvas);
+                this.ForceFullRender = false;
+                return;
+            }
         }
     }
 }
