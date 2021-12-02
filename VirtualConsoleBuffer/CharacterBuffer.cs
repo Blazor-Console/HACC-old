@@ -288,9 +288,9 @@ namespace HACC.VirtualConsoleBuffer
         /// <summary>
         /// Returns the coordinates of all section marked dirty
         /// </summary>
-        public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges(bool includeEffectsChanges = true)
+        public IEnumerable<(int xStart, int xEnd, int y)> DirtyRanges(bool includeEffectsChanges = true)
         {
-                var list = new List<(int y, int xStart, int xEnd)>();
+                var list = new List<(int xStart, int xEnd, int y)>();
                 for (int y = 0; y < BufferRows; y++)
                 {
                     int changeStart = -1;
@@ -298,26 +298,27 @@ namespace HACC.VirtualConsoleBuffer
                     for (int x = 0; x < BufferColumns; x++)
                     {
                         var characterEffects = this.CharacterEffects[x, y];
-                        var effectsChanged = includeEffectsChanges && (!lastEffects.HasValue || lastEffects.Equals(characterEffects));
-                        var changed = this.CharacterChanged[x, y] || !effectsChanged;
+                        var characterChanged = this.CharacterChanged[x, y];
+                        var effectsDifferFromLastCharacter = includeEffectsChanges && (!lastEffects.HasValue || !lastEffects.Equals(characterEffects));
 
-                        if (changed && (changeStart < 0))
+                        if (characterChanged && (changeStart < 0))
                         {
                             changeStart = x;
                         }
 
-                        if ((changeStart >= 0) && !(changed || effectsChanged))
+                        if ((changeStart >= 0) && (x > changeStart) && (!characterChanged || effectsDifferFromLastCharacter))
                         {
-                            list.Add((y: y, xStart: changeStart, xEnd: x));
+                            list.Add((xStart: changeStart, xEnd: x - 1, y: y));
                             changeStart = -1;
                         }
 
                         lastEffects = characterEffects;
                     }
 
+                    // if still changes pending after completing line
                     if (changeStart >= 0)
                     {
-                        list.Add((y: y, xStart: changeStart, xEnd: BufferColumns - 1));
+                        list.Add((xStart: changeStart, xEnd: BufferColumns - 1, y: y));
                     }
                 }
 
@@ -333,6 +334,9 @@ namespace HACC.VirtualConsoleBuffer
             var ranges = DirtyRanges(includeEffectsChanges: includeEffectsChanges);
             foreach (var range in ranges)
             {
+                var effectsForRange = this.CharacterEffects[range.xStart, range.y];
+                var rangeLength = range.xEnd - range.xStart + 1;
+
                 list.Add((
                     xStart: range.xStart,
                     xEnd: range.xEnd,
@@ -340,8 +344,8 @@ namespace HACC.VirtualConsoleBuffer
                     value: GetLine(
                         x: range.xStart,
                         y: range.y,
-                        length: range.xEnd - range.xStart + 1),
-                    effects: this.CharacterEffects[range.xStart, range.y]));
+                        length: rangeLength),
+                    effects: effectsForRange));
             }
             return list;
         }
