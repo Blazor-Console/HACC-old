@@ -75,7 +75,7 @@ namespace HACC.VirtualConsoleBuffer
             return this.InternalBuffer[x, y];
         }
 
-        public string SetCharacter(int x, int y, string value)
+        public string SetCharacter(int x, int y, string value, CharacterEffects? characterEffects = null)
         {
             StringInfo stringInfo = new StringInfo(value);
             if (stringInfo.LengthInTextElements > 1)
@@ -94,6 +94,13 @@ namespace HACC.VirtualConsoleBuffer
             this.InternalBuffer[x, y] = value;
             this.CharacterChanged[x, y] = this.CharacterChanged[x, y] || changed;
             this.CharacterBufferDirty = this.CharacterBufferDirty || changed;
+            if (characterEffects.HasValue)
+            {
+                var effectsChanged = this.CharacterEffects[x, y].Equals(characterEffects.Value);
+                this.CharacterEffects[x, y] = characterEffects.Value;
+                this.CharacterEffectsChanged[x, y] = this.CharacterEffectsChanged[x, y] || effectsChanged;
+                this.CharacterEffectsDirty = this.CharacterEffectsDirty || effectsChanged;
+            }
             return oldValue;
         }
 
@@ -112,7 +119,7 @@ namespace HACC.VirtualConsoleBuffer
             return string.Concat(values: substrings);
         }
 
-        public string SetLine(int x, int y, string line, int length = -1)
+        public string SetLine(int x, int y, string line, int length = -1, CharacterEffects? characterEffects = null)
         {
             StringInfo sourceStringInfo = new StringInfo(line);
 
@@ -146,12 +153,21 @@ namespace HACC.VirtualConsoleBuffer
                 this.InternalBuffer[x + i, y] = newCharacter;
                 this.CharacterChanged[x + i, y] = this.CharacterChanged[x + i, y] || changed;
                 this.CharacterBufferDirty = this.CharacterBufferDirty || changed;
+
+                if (characterEffects.HasValue)
+                {
+                    var effectsChanged = this.CharacterEffects[x + i, y].Equals(characterEffects.Value);
+                    this.CharacterEffects[x + i, y] = characterEffects.Value;
+                    this.CharacterEffectsChanged[x + i, y] = this.CharacterEffectsChanged[x + i, y] || effectsChanged;
+                    this.CharacterEffectsDirty = this.CharacterEffectsDirty || effectsChanged;
+                }
             }
 
             return oldLine;
         }
 
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
+        public bool EffectsDirty(int x, int y) => this.CharacterEffectsChanged[x, y];
 
         public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges(bool includeEffectsChanges = true)
         {
