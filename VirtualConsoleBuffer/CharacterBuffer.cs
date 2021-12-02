@@ -6,43 +6,77 @@ namespace HACC.VirtualConsoleBuffer
 {
     public class CharacterBuffer
     {
-        private readonly int CharacterWidth;
-        private readonly int CharacterHeight;
+        /// <summary>
+        /// The number of columns in the buffer
+        /// </summary>
+        private readonly int BufferColumns;
+        
+        /// <summary>
+        /// The number of rows in the buffer
+        /// </summary>
+        private readonly int BufferRows;
 
         /// <summary>
-        /// two-dimensional array of "strings" to support multi-byte
+        /// two-dimensional array of "strings" to support multi-byte, containing the actual character buffer
         /// </summary>
         private readonly string[,] InternalBuffer;
+
+        /// <summary>
+        /// two-dimensional array of dirty state for whether the character itself has changed
+        /// </summary>
         private readonly bool[,] CharacterChanged;
+
+        /// <summary>
+        /// two-dimensional array of visual state for each character
+        /// </summary>
         private readonly CharacterEffects[,] CharacterEffects;
+        
+        /// <summary>
+        /// two-dimensional array of dirty state for whether the character's appearance has changed
+        /// </summary>
         private readonly bool[,] CharacterEffectsChanged;
-        private bool CharacterEffectsDirty;
-        private bool CharacterBufferDirty;
+        
+        /// <summary>
+        /// whether any of the appearance state is dirty
+        /// </summary>
+        public bool CharacterEffectsDirty { get; private set;}
+        
+        /// <summary>
+        /// whether any of the character state is dirty
+        /// </summary>
+        public bool CharacterBufferDirty { get; private set; }
+        
+        /// <summary>
+        /// Force next partial redraw to be a full redraw
+        /// </summary>
         private bool ForceFullRender;
+        
+        /// <summary>
+        /// Logging provider
+        /// </summary>
         private readonly ILogger Logger;
 
-        public CharacterBuffer(ILogger logger, int characterWidth, int characterHeight)
+        public CharacterBuffer(ILogger logger, int columns, int rows)
         {
             this.Logger = logger;
-            this.CharacterWidth = characterWidth;
-            this.CharacterHeight = characterHeight;
-            this.InternalBuffer = new string[characterWidth, characterHeight];
-            this.CharacterChanged = new bool[characterWidth, characterHeight];
-            this.CharacterEffects = new CharacterEffects[characterWidth, characterHeight];
-            this.CharacterEffectsChanged = new bool[characterWidth, characterHeight];
+            this.BufferColumns = columns;
+            this.BufferRows = rows;
+            this.InternalBuffer = new string[columns, rows];
+            this.CharacterChanged = new bool[columns, rows];
+            this.CharacterEffects = new CharacterEffects[columns, rows];
+            this.CharacterEffectsChanged = new bool[columns, rows];
             this.ForceFullRender = true;
         }
 
-        public bool Dirty => this.CharacterBufferDirty;
 
         public string[,] Buffer
         {
             get
             {
-                string[,] newBuffer = new string[CharacterWidth, CharacterHeight];
-                for (int x = 0; x < CharacterWidth; x++)
+                string[,] newBuffer = new string[BufferColumns, BufferRows];
+                for (int x = 0; x < BufferColumns; x++)
                 {
-                    for (int y = 0; y < CharacterHeight; y++)
+                    for (int y = 0; y < BufferRows; y++)
                     {
                         newBuffer[x, y] = InternalBuffer[x, y];
                     }
@@ -104,9 +138,13 @@ namespace HACC.VirtualConsoleBuffer
             return oldValue;
         }
 
+        /// <summary>
+        /// Gets the characters beginning at the specified coordinates, and extending up to the specified number of columns.
+        /// Setting length -1 will return all characters from the start column to the end of the buffer.
+        /// </summary>
         public string GetLine(int x, int y, int length = -1)
         {
-            int maxLength = this.CharacterWidth - x;
+            int maxLength = this.BufferColumns - x;
             if ((length < 0) || (length > maxLength))
             {
                 length = maxLength;
@@ -119,12 +157,16 @@ namespace HACC.VirtualConsoleBuffer
             return string.Concat(values: substrings);
         }
 
+        /// <summary>
+        /// Sets the characters beginning at the specified coordinates, and extending up to the specified number of columns.
+        /// Also applies character effects if specified.
+        /// </summary>
         public string SetLine(int x, int y, string line, int length = -1, CharacterEffects? characterEffects = null)
         {
             StringInfo sourceStringInfo = new StringInfo(line);
 
             int sourceLength = line.Count();
-            int maxLength = this.CharacterWidth - x;
+            int maxLength = this.BufferColumns - x;
             if ((length < 0) || (length > maxLength))
             {
                 length = maxLength;
@@ -166,41 +208,60 @@ namespace HACC.VirtualConsoleBuffer
             return oldLine;
         }
 
+        /// <summary>
+        /// whether the character at the given position has changed
+        /// </summary>
         public bool CharacterDirty(int x, int y) => this.CharacterChanged[x, y];
+
+        /// <summary>
+        /// whether the character effects at the given position have changed
+        /// </summary>
         public bool EffectsDirty(int x, int y) => this.CharacterEffectsChanged[x, y];
 
+        /// <summary>
+        /// Returns the coordinates of all section marked dirty
+        /// </summary>
         public IEnumerable<(int y, int xStart, int xEnd)> DirtyRanges(bool includeEffectsChanges = true)
         {
                 var list = new List<(int y, int xStart, int xEnd)>();
-                for (int y = 0; y < CharacterHeight; y++)
+                for (int y = 0; y < BufferRows; y++)
                 {
                     int changeStart = -1;
-                    for (int x = 0; x < CharacterWidth; x++)
+                    CharacterEffects? lastEffects = null;
+                    for (int x = 0; x < BufferColumns; x++)
                     {
-                        var changed = this.CharacterChanged[x, y] && (!includeEffectsChanges || this.CharacterEffectsChanged[x, y]);
+                        var effectsChanged = includeEffectsChanges && (!lastEffects.HasValue || lastEffects.Equals(this.CharacterEffects[x, y]));
+                        var changed = this.CharacterChanged[x, y] && !effectsChanged;
+
                         if (changed && (changeStart < -1))
                         {
                             changeStart = x;
                         }
-                        if ((changeStart >= 0) && !changed)
+
+                        if ((changeStart >= 0) && (!changed || effectsChanged))
                         {
                             list.Add((y: y, xStart: changeStart, xEnd: x));
                             changeStart = -1;
                         }
+
+                        lastEffects = this.CharacterEffects[x, y];
                     }
 
                     if (changeStart >= 0)
                     {
-                        list.Add((y: y, xStart: changeStart, xEnd: CharacterWidth - 1));
+                        list.Add((y: y, xStart: changeStart, xEnd: BufferColumns - 1));
                     }
                 }
 
                 return list;
         }
 
-        public IEnumerable<(int xStart, int xEnd, int y, string value)> DirtyRangeStrings(bool includeEffectsChanges = true)
+        /// <summary>
+        /// Returns a collection of ranges marked dirty and their corresponding text and character effects
+        /// </summary>
+        public IEnumerable<(int xStart, int xEnd, int y, string value, CharacterEffects effects)> DirtyRangeValues(bool includeEffectsChanges = true)
         {
-            var list = new List<(int xStart, int xEnd, int y, string value)>();
+            var list = new List<(int xStart, int xEnd, int y, string value, CharacterEffects effects)>();
             var ranges = DirtyRanges(includeEffectsChanges: includeEffectsChanges);
             foreach (var range in ranges)
             {
@@ -211,17 +272,22 @@ namespace HACC.VirtualConsoleBuffer
                     value: GetLine(
                         x: range.xStart,
                         y: range.y,
-                        length: range.xEnd - range.xStart + 1)));
+                        length: range.xEnd - range.xStart + 1),
+                    effects: this.CharacterEffects[range.xStart, range.y]));
             }
             return list;
-    }
+        }
 
-        public CharacterBuffer Resize(int newCharacterWidth, int newCharacterHeight)
+        /// <summary>
+        /// Returns a new buffer with the given dimension changes applied.
+        /// Lines will be truncated if the new area is smaller.
+        /// </summary>
+        public CharacterBuffer Resize(int newColumns, int newRows)
         {
             var newBuffer = new CharacterBuffer(
                 logger: this.Logger,
-                characterWidth: newCharacterWidth,
-                characterHeight: newCharacterHeight);
+                columns: newColumns,
+                rows: newRows);
 
             // TODO: copy
             throw new NotImplementedException();
@@ -246,6 +312,8 @@ namespace HACC.VirtualConsoleBuffer
         /// <param name="canvas"></param>
         public void RenderUpdates(Canvas2DContext context, BECanvasComponent canvas)
         {
+            this.Logger.LogInformation("Partial rendering requested");
+
             if (this.ForceFullRender)
             {
                 this.Logger.LogInformation("Full render forced");
