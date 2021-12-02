@@ -237,7 +237,7 @@ public class CharacterBuffer
 
             InternalBuffer[x + i, y] = newCharacter;
             CharacterChanged[x + i, y] =
-                changed || CharacterChanged[x + i, y]; // TODO: Why is this failing to update x: 1, y: 1??
+                changed || CharacterChanged[x + i, y];
             CharacterBufferDirty = CharacterBufferDirty || changed;
 
             if (characterEffects.HasValue)
@@ -287,6 +287,7 @@ public class CharacterBuffer
 
     /// <summary>
     ///     Writes a string to the buffer at the specified coordinates and advances the cursor.
+    ///     TODO: Handle control characters or disclaim.
     /// </summary>
     public void WriteLine(string line, CharacterEffects? characterEffects = null)
     {
@@ -297,7 +298,7 @@ public class CharacterBuffer
             line,
             characterEffects: characterEffects);
 
-        CursorPosition.X += lengthWritten;
+        CursorPosition.X = 0;
         CursorPosition.Y++;
     }
 
@@ -353,7 +354,7 @@ public class CharacterBuffer
                 var characterEffects = CharacterEffects[x, y];
                 var characterChanged = CharacterChanged[x, y];
                 var effectsDifferFromLastCharacter = includeEffectsChanges &&
-                                                     (!lastEffects.HasValue || !lastEffects.Equals(characterEffects));
+                                                     (!lastEffects.HasValue || !lastEffects.Value.Equals(characterEffects));
 
                 if (characterChanged && changeStart < 0) changeStart = x;
 
