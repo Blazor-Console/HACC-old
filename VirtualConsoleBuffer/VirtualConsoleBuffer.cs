@@ -28,8 +28,8 @@
             TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
             this.InternalCharacterBuffer = new CharacterBuffer(
                 logger: logger,
-                characterWidth: this.TerminalSettings.CharacterWidth,
-                characterHeight: this.TerminalSettings.CharacterHeight);
+                columns: this.TerminalSettings.Columns,
+                rows: this.TerminalSettings.Rows);
         }
 
         //
@@ -86,18 +86,18 @@
         {
             get
             {
-                return TerminalSettings.CharacterHeight;
+                return TerminalSettings.Rows;
             }
             set
             {
                 var eventArgs = new ConsoleResizedEventArgs(
                      sender: this,
-                     oldWidth: TerminalSettings.CharacterWidth,
-                     oldHeight: TerminalSettings.CharacterHeight,
-                     newWidth: TerminalSettings.CharacterWidth,
+                     oldWidth: TerminalSettings.Columns,
+                     oldHeight: TerminalSettings.Rows,
+                     newWidth: TerminalSettings.Columns,
                      newHeight: value);
 
-                TerminalSettings.CharacterHeight = value;
+                TerminalSettings.Rows = value;
 
                 ConsoleResized?.Invoke(
                     sender: this,
@@ -130,18 +130,18 @@
         {
             get
             {
-                return TerminalSettings.CharacterWidth;
+                return TerminalSettings.Columns;
             }
             set
             {
                 var eventArgs = new ConsoleResizedEventArgs(
                      sender: this,
-                     oldWidth: TerminalSettings.CharacterWidth,
-                     oldHeight: TerminalSettings.CharacterHeight,
+                     oldWidth: TerminalSettings.Columns,
+                     oldHeight: TerminalSettings.Rows,
                      newWidth: value,
-                     newHeight: TerminalSettings.CharacterHeight);
+                     newHeight: TerminalSettings.Rows);
 
-                TerminalSettings.CharacterHeight = value;
+                TerminalSettings.Rows = value;
 
                 ConsoleResized?.Invoke(
                     sender: this,
@@ -461,7 +461,7 @@
         {
             get
             {
-                return Defaults.MaximumCharacterHeight;
+                return Defaults.MaximumRows;
             }
         }
 
@@ -476,7 +476,7 @@
         {
             get
             {
-                return Defaults.MaximumCharacterWidth;
+                return Defaults.MaximumColumns;
             }
         }
 
@@ -628,11 +628,11 @@
         {
             get
             {
-                return TerminalSettings.CharacterHeight;
+                return TerminalSettings.Rows;
             }
             set
             {
-                TerminalSettings.CharacterHeight = value;
+                TerminalSettings.Rows = value;
 
                 throw new NotImplementedException();
             }
@@ -724,11 +724,11 @@
         {
             get
             {
-                return TerminalSettings.CharacterWidth;
+                return TerminalSettings.Columns;
             }
             set
             {
-                TerminalSettings.CharacterWidth = value;
+                TerminalSettings.Columns = value;
 
                 throw new NotImplementedException();
             }

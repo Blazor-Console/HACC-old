@@ -121,7 +121,7 @@ namespace HACC.VirtualConsoleBuffer
             }
 
             var length = GetLineElementCount(line: value, sourceStringInfo: out StringInfo stringInfo);
-            if (length > 1)
+            if (!string.IsNullOrEmpty(value))
             {
                 value = stringInfo.SubstringByTextElements(
                     startingTextElement: 0,
@@ -129,7 +129,7 @@ namespace HACC.VirtualConsoleBuffer
             }
             else if (stringInfo.LengthInTextElements == 0)
             {
-                value = "\0";
+                value = "";
             }
 
             var oldValue = this.InternalBuffer[x, y];
@@ -196,7 +196,7 @@ namespace HACC.VirtualConsoleBuffer
             StringInfo oldStringInfo = new StringInfo(oldLine);
             for (int i = 0; i < length; i++)
             {
-                var oldCharacter = oldStringInfo.SubstringByTextElements(
+                var oldCharacter = string.IsNullOrEmpty(oldLine) ? "" : oldStringInfo.SubstringByTextElements(
                     startingTextElement: i,
                     lengthInTextElements: 1);
                 var newCharacter = sourceStringInfo.SubstringByTextElements(
@@ -270,6 +270,7 @@ namespace HACC.VirtualConsoleBuffer
                 characterEffects: characterEffects);
 
                 this.CursorPosition.X += lengthWritten;
+                this.CursorPosition.Y++;
         }
 
         /// <summary>
