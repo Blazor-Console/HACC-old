@@ -120,7 +120,7 @@ namespace HACC.VirtualConsoleBuffer
                 throw new ArgumentOutOfRangeException("x and y must be less than the buffer size");
             }
 
-            var length = GetLineElements(line: value, sourceStringInfo: out StringInfo stringInfo);
+            var length = GetLineElementCount(line: value, sourceStringInfo: out StringInfo stringInfo);
             if (length > 1)
             {
                 value = stringInfo.SubstringByTextElements(
@@ -177,7 +177,7 @@ namespace HACC.VirtualConsoleBuffer
                 throw new ArgumentOutOfRangeException("x and y must be less than the buffer size");
             }
 
-            int sourceLength = GetLineElements(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
+            int sourceLength = GetLineElementCount(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
             int maxLength = this.BufferColumns - x;
             if ((length < 0) || (length > maxLength))
             {
@@ -250,7 +250,7 @@ namespace HACC.VirtualConsoleBuffer
         /// <summary>
         /// Returns the number of characters in the specified string, taking into account multi-byte characters.
         /// </summary>
-        private int GetLineElements(string line, out StringInfo sourceStringInfo)
+        private int GetLineElementCount(string line, out StringInfo sourceStringInfo)
         {
             sourceStringInfo = new StringInfo(line);
 
@@ -262,7 +262,7 @@ namespace HACC.VirtualConsoleBuffer
         /// </summary>
         public void WriteLine(string line, CharacterEffects? characterEffects = null)
         {
-            var newLength = GetLineElements(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
+            var newLength = GetLineElementCount(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
             (string oldLine, int lengthWritten) = this.SetLine(
                 x: this.CursorPosition.X,
                 y: this.CursorPosition.Y,
