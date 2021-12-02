@@ -1,5 +1,6 @@
 ﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using System.Drawing;
 using System.Globalization;
 
 namespace HACC.VirtualConsoleBuffer
@@ -51,6 +52,8 @@ namespace HACC.VirtualConsoleBuffer
         /// </summary>
         private bool ForceFullRender;
         
+        private Point CursorPosition;
+
         /// <summary>
         /// Logging provider
         /// </summary>
@@ -66,6 +69,7 @@ namespace HACC.VirtualConsoleBuffer
             this.CharacterEffects = new CharacterEffects[columns, rows];
             this.CharacterEffectsChanged = new bool[columns, rows];
             this.ForceFullRender = true;
+            this.CursorPosition = new Point(0, 0);
         }
 
 
@@ -111,8 +115,13 @@ namespace HACC.VirtualConsoleBuffer
 
         public string SetCharacter(int x, int y, string value, CharacterEffects? characterEffects = null)
         {
-            StringInfo stringInfo = new StringInfo(value);
-            if (stringInfo.LengthInTextElements > 1)
+            if (x > this.BufferColumns || y > this.BufferRows)
+            {
+                throw new ArgumentOutOfRangeException("x and y must be less than the buffer size");
+            }
+
+            var length = GetLineElements(line: value, sourceStringInfo: out StringInfo stringInfo);
+            if (length > 1)
             {
                 value = stringInfo.SubstringByTextElements(
                     startingTextElement: 0,
@@ -163,9 +172,12 @@ namespace HACC.VirtualConsoleBuffer
         /// </summary>
         public string SetLine(int x, int y, string line, int length = -1, CharacterEffects? characterEffects = null)
         {
-            StringInfo sourceStringInfo = new StringInfo(line);
+            if (x > this.BufferColumns || y > this.BufferRows)
+            {
+                throw new ArgumentOutOfRangeException("x and y must be less than the buffer size");
+            }
 
-            int sourceLength = line.Count();
+            int sourceLength = GetLineElements(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
             int maxLength = this.BufferColumns - x;
             if ((length < 0) || (length > maxLength))
             {
@@ -206,6 +218,58 @@ namespace HACC.VirtualConsoleBuffer
             }
 
             return oldLine;
+        }
+
+        /// <summary>
+        /// Writes a character to the buffer at the specified coordinates and advances the cursor.
+        /// </summary>
+        public void WriteChar(string character, CharacterEffects? characterEffects = null)
+        {
+            
+            this.SetCharacter(
+                x: this.CursorPosition.X,
+                y: this.CursorPosition.Y,
+                value: character,
+                characterEffects: characterEffects);
+            
+
+            this.CursorPosition.X++;
+
+            if (this.CursorPosition.X >= this.BufferColumns)
+            {
+                this.CursorPosition.X = 0;
+                this.CursorPosition.Y++;
+            }
+
+            if (this.CursorPosition.Y >= this.BufferRows)
+            {
+                this.CursorPosition.Y = 0;
+            }
+        }
+
+        /// <summary>
+        /// Returns the number of characters in the specified string, taking into account multi-byte characters.
+        /// </summary>
+        private int GetLineElements(string line, out StringInfo sourceStringInfo)
+        {
+            sourceStringInfo = new StringInfo(line);
+
+            return sourceStringInfo.LengthInTextElements;
+        }
+
+        /// <summary>
+        /// Writes a string to the buffer at the specified coordinates and advances the cursor.
+        /// </summary>
+        public void WriteLine(string line, CharacterEffects? characterEffects = null)
+        {
+            var newLength = GetLineElements(line: line, sourceStringInfo: out StringInfo sourceStringInfo);
+            this.SetLine(
+                x: this.CursorPosition.X,
+                y: this.CursorPosition.Y,
+                line: line,
+                characterEffects: characterEffects);
+
+                this.CursorPosition.X += newLength;
         }
 
         /// <summary>
