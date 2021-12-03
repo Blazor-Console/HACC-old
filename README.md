@@ -10,11 +10,10 @@ C# DotNet 6 HTML ANSI Console Canvas.
 Will update readme once alpha is attained.
 
 ## Tests
-- https://github.com/JessicaMulein/HACC.Tests
+- https://github.com/HACC-ers/HACC.Tests
 
 ## Development
-* At the moment the HACC and HACC.Tests repos are nested onto a private repo with another game I am developing and I use that project to run the tests and keep the two repos in step.
-* I will need to create a HACC.Solution repo or something to contain them for any developers that wish to assist, or that can be your first project.
+* Clone git@github.com/HACC-ers/HACC.Development recursively
 * Would love a collaborator on this and other projects.
 
 ## Future
