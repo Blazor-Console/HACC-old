@@ -377,9 +377,9 @@ public class CharacterBuffer
     ///     Returns the coordinates of all section marked dirty.
     ///     When effects changes are included, also divides up ranges by changes to effects.
     /// </summary>
-    public IEnumerable<(int xStart, int xEnd, int y)> DirtyRanges(bool includeEffectsChanges = true)
+    public IEnumerable<DirtyRange> DirtyRanges(bool includeEffectsChanges = true)
     {
-        var list = new List<(int xStart, int xEnd, int y)>();
+        var list = new List<DirtyRange>();
         for (var y = 0; y < BufferRows; y++)
         {
             var changeStart = -1;
@@ -396,7 +396,10 @@ public class CharacterBuffer
                 if (changeStart >= 0 && x > changeStart && (!characterChanged || effectsDifferFromLastCharacter))
                 {
                     // ended on the previous character
-                    list.Add((xStart: changeStart, xEnd: x - 1, y));
+                    list.Add(new DirtyRange(
+                        xStart: changeStart,
+                        xEnd: x - 1,
+                        y: y));
                     if (effectsDifferFromLastCharacter)
                     {
                         // change started this character
@@ -413,7 +416,10 @@ public class CharacterBuffer
             }
 
             // if still changes pending after completing line
-            if (changeStart >= 0) list.Add((xStart: changeStart, xEnd: BufferColumns - 1, y));
+            if (changeStart >= 0) list.Add(new DirtyRange(
+                xStart: changeStart,
+                xEnd: BufferColumns - 1,
+                y: y));
         }
 
         return list;
@@ -422,25 +428,25 @@ public class CharacterBuffer
     /// <summary>
     ///     Returns a collection of ranges marked dirty and their corresponding text and character effects
     /// </summary>
-    public IEnumerable<(int xStart, int xEnd, int y, string value, CharacterEffects effects)> DirtyRangeValues(
+    public IEnumerable<DirtyRangeValue> DirtyRangeValues(
         bool includeEffectsChanges = true)
     {
-        var list = new List<(int xStart, int xEnd, int y, string value, CharacterEffects effects)>();
+        var list = new List<DirtyRangeValue>();
         var ranges = DirtyRanges(includeEffectsChanges);
         foreach (var range in ranges)
         {
-            var effectsForRange = CharacterEffects[range.xStart, range.y];
-            var rangeLength = range.xEnd - range.xStart + 1;
+            var effectsForRange = CharacterEffects[range.XStart, range.Y];
+            var rangeLength = range.XEnd - range.XStart + 1;
 
-            list.Add((
-                range.xStart,
-                range.xEnd,
-                range.y,
+            list.Add(new DirtyRangeValue(
+                xStart: range.XStart,
+                xEnd: range.XEnd,
+                y: range.Y,
                 value: GetLine(
-                    range.xStart,
-                    range.y,
+                    range.XStart,
+                    range.Y,
                     rangeLength),
-                effects: effectsForRange));
+                characterEffects: effectsForRange));
         }
 
         return list;
