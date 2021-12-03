@@ -481,6 +481,7 @@ public class CharacterBuffer
             return;
         }
 
+        var dirtyRanges = DirtyRangeValues();
         throw new NotImplementedException();
     }
 }
