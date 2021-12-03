@@ -13,7 +13,7 @@ Will update readme once alpha is attained.
 - https://github.com/HACC-ers/HACC.Tests
 
 ## Development
-* Clone git@github.com/HACC-ers/HACC.Development recursively
+* Clone git@github.com:HACC-ers/HACC.Development.git recursively
 * Would love a collaborator on this and other projects.
 
 ## Future
