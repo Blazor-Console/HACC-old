@@ -384,8 +384,18 @@ public class CharacterBuffer
 
                 if (changeStart >= 0 && x > changeStart && (!characterChanged || effectsDifferFromLastCharacter))
                 {
+                    // ended on the previous character
                     list.Add((xStart: changeStart, xEnd: x - 1, y));
-                    changeStart = -1;
+                    if (effectsDifferFromLastCharacter)
+                    {
+                        // change started this character
+                        changeStart = x;
+                    }
+                    else
+                    {
+                        // change ended normally
+                        changeStart = -1;
+                    }
                 }
 
                 lastEffects = characterEffects;
