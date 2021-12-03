@@ -97,6 +97,11 @@ public struct TerminalSettings : IEquatable<TerminalSettings>
         TerminalForeground = Defaults.ForegroundColor;
         CursorType = Defaults.CursorShape;
     }
+    
+    public void SetCursorPosition(int x, int y)
+    {
+        CursorPosition = new Point(x: x, y: y);
+    }
 
     public bool Equals(TerminalSettings other)
     {

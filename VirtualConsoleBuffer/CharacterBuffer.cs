@@ -171,6 +171,7 @@ public class CharacterBuffer
 
     /// <summary>
     ///     Sets the character at the specified position.
+    ///     Processes only the first character (or multi-byte character) of the string.
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
@@ -209,6 +210,9 @@ public class CharacterBuffer
     /// <summary>
     ///     Gets the characters beginning at the specified coordinates, and extending up to the specified number of columns.
     ///     Setting length -1 will return all characters from the start column to the end of the buffer.
+    /// <param name="x">X coordinate to write to</param>
+    /// <param name="y">Y coordinate to write to</param>
+    /// <param name="length">Maximum length- otherwise writes complete string until end of row.</param>
     /// </summary>
     public string GetLine(int x, int y, int length = -1)
     {
@@ -222,6 +226,12 @@ public class CharacterBuffer
     /// <summary>
     ///     Sets the characters beginning at the specified coordinates, and extending up to the specified number of columns.
     ///     Also applies character effects if specified.
+    ///     The SetCharacter and SetLine methods are quasi-internal and bypass some of the cursor movement logic.
+    /// <param name="x">X coordinate to write to</param>
+    /// <param name="y">Y coordinate to write to</param>
+    /// <param name="line">The line to write to the buffer.</param>
+    /// <param name="length">Maximum length- otherwise writes complete string until end of row.</param>
+    /// <param name="characterEffects">Optional character effects to apply.</param>
     /// </summary>
     public (string oldLine, int lengthWritten) SetLine(int x, int y, string line, int length = -1,
         CharacterEffects? characterEffects = null)
@@ -270,7 +280,8 @@ public class CharacterBuffer
     }
 
     /// <summary>
-    ///     Writes a character to the buffer at the specified coordinates and advances the cursor.
+    ///     Writes a character to the buffer at the current cursor position and advances the cursor.
+    ///     Processes only the first character (or multi-byte character) of the string.
     /// </summary>
     public void WriteChar(string character, CharacterEffects? characterEffects = null)
     {
@@ -306,13 +317,12 @@ public class CharacterBuffer
     ///     Writes a string to the buffer at the specified coordinates and advances the cursor.
     ///     TODO: Handle control characters or disclaim.
     /// </summary>
-    public void WriteLine(string line, CharacterEffects? characterEffects = null, bool automaticWrap = true)
+    public void WriteLine(string? line, CharacterEffects? characterEffects = null, bool automaticWrap = true)
     {
-        var newLength = GetLineElementCount(line, out var sourceStringInfo);
         var (oldLine, lengthWritten) = SetLine(
             CursorPosition.X,
             CursorPosition.Y,
-            line,
+            string.IsNullOrEmpty(line) ? string.Empty : line,
             characterEffects: characterEffects);
 
         if (automaticWrap)
@@ -364,7 +374,8 @@ public class CharacterBuffer
     }
 
     /// <summary>
-    ///     Returns the coordinates of all section marked dirty
+    ///     Returns the coordinates of all section marked dirty.
+    ///     When effects changes are included, also divides up ranges by changes to effects.
     /// </summary>
     public IEnumerable<(int xStart, int xEnd, int y)> DirtyRanges(bool includeEffectsChanges = true)
     {

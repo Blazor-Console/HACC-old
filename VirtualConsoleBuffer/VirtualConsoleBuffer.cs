@@ -1061,9 +1061,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void SetCursorPosition(int left, int top)
     {
-        TerminalSettings.CursorPosition = new Point(
-            left,
-            top);
+        TerminalSettings.SetCursorPosition(x: left, y: top);
 
         throw new NotImplementedException();
     }
@@ -1201,7 +1199,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(bool value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1217,7 +1218,9 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteChar(
+            character: Convert.ToString(value),
+            characterEffects: null);
     }
 
     //
@@ -1233,7 +1236,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char[]? buffer)
     {
-        throw new NotImplementedException();
+        string value = buffer is null ? string.Empty : new string(buffer);
+        this.InternalCharacterBuffer.WriteLine(
+            line: value,
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1264,7 +1271,13 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char[] buffer, int index, int count)
     {
-        throw new NotImplementedException();
+        string value = new string(buffer).Substring(
+            startIndex: index,
+            length: count);
+        this.InternalCharacterBuffer.WriteLine(
+            line: value,
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1281,7 +1294,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(decimal value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1298,7 +1314,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(double value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1315,7 +1334,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(int value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1332,7 +1354,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(long value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1349,7 +1374,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(object? value)
     {
-        throw new NotImplementedException();
+        string valueString = value is null ? string.Empty : Convert.ToString(value);
+        this.InternalCharacterBuffer.WriteLine(
+            line: valueString,
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1366,7 +1395,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(float value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1382,7 +1414,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(string? value)
     {
-        throw new NotImplementedException();
+        string nonNullString = string.IsNullOrEmpty(value) ? string.Empty : value;
+        this.InternalCharacterBuffer.WriteLine(
+            line: nonNullString,
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1408,7 +1444,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(format: format, arg0: arg0),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1437,7 +1476,13 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg0,
+                arg1: arg1),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1469,7 +1514,14 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1, object? arg2)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg0,
+                arg1: arg1,
+                arg2: arg2),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1495,7 +1547,12 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, params object?[]? arg)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1513,7 +1570,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     [CLSCompliant(false)]
     public void Write(uint value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1531,7 +1591,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     [CLSCompliant(false)]
     public void Write(ulong value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: false);
     }
 
     //
@@ -1543,7 +1606,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine()
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: "",
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1560,7 +1626,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(bool value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1577,7 +1646,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1594,7 +1666,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char[]? buffer)
     {
-        throw new NotImplementedException();
+        string value = buffer is null ? string.Empty : Convert.ToString(buffer);
+        this.InternalCharacterBuffer.WriteLine(
+            line: value,
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1626,7 +1702,14 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char[] buffer, int index, int count)
     {
-        throw new NotImplementedException();
+        string value = Convert.ToString(buffer)
+            .Substring(
+                startIndex: index,
+                length: count);
+        this.InternalCharacterBuffer.WriteLine(
+            line: value,
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1643,7 +1726,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(decimal value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1660,7 +1746,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(double value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1677,7 +1766,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(int value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1694,7 +1786,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(long value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1711,7 +1806,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(object? value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1728,7 +1826,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(float value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1745,7 +1846,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(string? value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: value,
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1771,7 +1875,12 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg0),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1800,8 +1909,13 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1)
     {
-        throw new NotImplementedException();
-    }
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg0,
+                arg1: arg1),
+            characterEffects: null,
+            automaticWrap: true);    }
 
     //
     // Summary:
@@ -1832,8 +1946,14 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1, object? arg2)
     {
-        throw new NotImplementedException();
-    }
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg0,
+                arg1: arg1,
+                arg2: arg2),
+            characterEffects: null,
+            automaticWrap: true);    }
 
     //
     // Summary:
@@ -1859,7 +1979,12 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, params object?[]? arg)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: string.Format(
+                format: format,
+                arg0: arg),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1877,7 +2002,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     [CLSCompliant(false)]
     public void WriteLine(uint value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 
     //
@@ -1895,6 +2023,9 @@ public class VirtualConsoleBuffer : IAnsiConsole
     [CLSCompliant(false)]
     public void WriteLine(ulong value)
     {
-        throw new NotImplementedException();
+        this.InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value),
+            characterEffects: null,
+            automaticWrap: true);
     }
 }
