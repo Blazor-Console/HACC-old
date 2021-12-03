@@ -306,7 +306,7 @@ public class CharacterBuffer
     ///     Writes a string to the buffer at the specified coordinates and advances the cursor.
     ///     TODO: Handle control characters or disclaim.
     /// </summary>
-    public void WriteLine(string line, CharacterEffects? characterEffects = null)
+    public void WriteLine(string line, CharacterEffects? characterEffects = null, bool automaticWrap = true)
     {
         var newLength = GetLineElementCount(line, out var sourceStringInfo);
         var (oldLine, lengthWritten) = SetLine(
@@ -315,8 +315,15 @@ public class CharacterBuffer
             line,
             characterEffects: characterEffects);
 
-        CursorPosition.X = 0;
-        CursorPosition.Y++;
+        if (automaticWrap)
+        {
+            CursorPosition.X = 0;
+            CursorPosition.Y++;
+        }
+        else
+        {
+            CursorPosition.X += lengthWritten;
+        }
     }
 
     /// <summary>
