@@ -18,4 +18,4 @@ Will update readme once alpha is attained.
 
 ## Future
 * https://github.com/JessicaMulein/PlayZMachine will be based on this
-* A possible BBS with door games like ZMachine and the private repo I mentioned (top secret!).
+* A possible BBS with door games like ZMachine and a sea-faring game I'm writing in a private repo, (top secret!) which used to have the only test harness solution containing both the source and test repos.
