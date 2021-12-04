@@ -317,15 +317,17 @@ public class CharacterBuffer
     ///     Writes a string to the buffer at the specified coordinates and advances the cursor.
     ///     TODO: Handle control characters or disclaim.
     /// </summary>
-    public void WriteLine(string? line, CharacterEffects? characterEffects = null, bool automaticWrap = true)
+    public void WriteLine(string? line, CharacterEffects? characterEffects = null, bool automaticNewLine = true, bool automaticWordWrap = false)
     {
         var (oldLine, lengthWritten) = SetLine(
             CursorPosition.X,
             CursorPosition.Y,
             string.IsNullOrEmpty(line) ? string.Empty : line,
             characterEffects: characterEffects);
+        
+        // TODO: handle word wrap
 
-        if (automaticWrap)
+        if (automaticNewLine)
         {
             CursorPosition.X = 0;
             CursorPosition.Y++;

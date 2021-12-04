@@ -1202,7 +1202,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1240,7 +1240,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1277,7 +1277,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1297,7 +1297,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1317,7 +1317,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1337,7 +1337,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1357,7 +1357,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1378,7 +1378,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: valueString,
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1398,7 +1398,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1418,7 +1418,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: nonNullString,
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1447,7 +1447,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: string.Format(format: format, arg0: arg0),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1482,7 +1482,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 arg0: arg0,
                 arg1: arg1),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1521,7 +1521,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 arg1: arg1,
                 arg2: arg2),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1552,7 +1552,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 format: format,
                 arg0: arg),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1573,7 +1573,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1594,7 +1594,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: false);
+            automaticNewLine: false);
     }
 
     //
@@ -1609,7 +1609,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: "",
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1629,7 +1629,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1649,7 +1649,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1670,7 +1670,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1709,7 +1709,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1729,7 +1729,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1749,7 +1749,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1769,7 +1769,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1789,7 +1789,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1809,7 +1809,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1829,7 +1829,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1849,7 +1849,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1880,7 +1880,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 format: format,
                 arg0: arg0),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -1915,7 +1915,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 arg0: arg0,
                 arg1: arg1),
             characterEffects: null,
-            automaticWrap: true);    }
+            automaticNewLine: true);    }
 
     //
     // Summary:
@@ -1953,7 +1953,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 arg1: arg1,
                 arg2: arg2),
             characterEffects: null,
-            automaticWrap: true);    }
+            automaticNewLine: true);    }
 
     //
     // Summary:
@@ -1984,7 +1984,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
                 format: format,
                 arg0: arg),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -2005,7 +2005,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 
     //
@@ -2026,6 +2026,6 @@ public class VirtualConsoleBuffer : IAnsiConsole
         this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value),
             characterEffects: null,
-            automaticWrap: true);
+            automaticNewLine: true);
     }
 }
