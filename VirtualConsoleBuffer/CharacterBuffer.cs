@@ -278,6 +278,43 @@ public class CharacterBuffer
             textOverflow: remainder);
     }
 
+    public RowCopy CopyRow(int oldRow, int newRow)
+    {
+        var rowCopy = new RowCopy(
+            buffer: new string[BufferColumns],
+            characterChanged: new bool[BufferColumns],
+            characterEffects: new CharacterEffects[BufferColumns],
+            characterEffectsChanged: new bool[BufferColumns]);
+
+        for (var x = 0; x < BufferColumns; x++)
+        {
+            rowCopy.Buffer[x] = InternalBuffer[x, oldRow];
+            rowCopy.CharacterChanged[x] = CharacterChanged[x, oldRow];
+            rowCopy.CharacterEffects[x] = CharacterEffects[x, oldRow];
+            rowCopy.CharacterEffectsChanged[x] = CharacterEffectsChanged[x, oldRow];
+
+            InternalBuffer[x, newRow] = InternalBuffer[x, oldRow];
+            CharacterChanged[x, newRow] = true;
+            CharacterEffects[x, newRow] = CharacterEffects[x, oldRow];
+            CharacterEffectsChanged[x, newRow] = true;
+        }
+
+        return rowCopy;
+    }
+
+    public RowCopy[] ScrollLine(int count = 1)
+    {
+        if (count < 1 || count > BufferRows) throw new ArgumentOutOfRangeException(paramName: nameof(count));
+
+        var removedLines = new RowCopy[count];
+        var startingRow = BufferRows - count - 1;
+
+        // Copy the lines to be removed
+        // shift the lines below the removed lines up
+        throw new NotImplementedException();
+        return removedLines;
+    }
+
     /// <summary>
     ///     Writes a character to the buffer at the current cursor position and advances the cursor.
     ///     Processes only the first character (or multi-byte character) of the string.
@@ -299,6 +336,7 @@ public class CharacterBuffer
             CursorPosition.Y++;
         }
 
+        // TODO: implement scroll
         if (CursorPosition.Y >= BufferRows) CursorPosition.Y = 0;
     }
 
@@ -327,6 +365,7 @@ public class CharacterBuffer
 
         if (automaticWordWrap && !string.IsNullOrEmpty(value: setLineResponse.TextOverflow))
         {
+            Logger.LogDebug(message: "Automatic word wrap");
             CursorPosition.X = 0;
             CursorPosition.Y++;
             WriteLine(
@@ -346,6 +385,9 @@ public class CharacterBuffer
         {
             CursorPosition.X += setLineResponse.LengthWritten;
         }
+
+        // TODO: implement scroll
+        if (CursorPosition.Y >= BufferRows) CursorPosition.Y = 0;
     }
 
     /// <summary>

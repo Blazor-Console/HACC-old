@@ -16,8 +16,9 @@ public class VirtualConsoleBuffer : IAnsiConsole
 
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
-    private readonly ILogger Logger;
     private readonly CharacterBuffer InternalCharacterBuffer;
+
+    private readonly ILogger Logger;
 
     private TerminalSettings TerminalSettings;
 
