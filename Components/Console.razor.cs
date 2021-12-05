@@ -12,25 +12,25 @@ public partial class Console
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _context = await _canvasReference.CreateCanvas2DAsync();
-        await _context.SetFillStyleAsync("green");
+        await _context.SetFillStyleAsync(value: "green");
 
-        await _context.FillRectAsync(10, 100, 100, 100);
+        await _context.FillRectAsync(x: 10, y: 100, width: 100, height: 100);
 
-        await _context.SetFontAsync("48px serif");
-        await _context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+        await _context.SetFontAsync(value: "48px serif");
+        await _context.StrokeTextAsync(text: "Hello Blazor!!!", x: 10, y: 100);
     }
 
     public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
     {
         characterBuffer.RenderFull(
-            _context,
-            _canvasReference);
+            context: _context,
+            canvas: _canvasReference);
     }
 
     public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
     {
         characterBuffer.RenderUpdates(
-            _context,
-            _canvasReference);
+            context: _context,
+            canvas: _canvasReference);
     }
 }

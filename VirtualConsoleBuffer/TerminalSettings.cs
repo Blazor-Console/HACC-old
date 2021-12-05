@@ -89,15 +89,15 @@ public struct TerminalSettings : IEquatable<TerminalSettings>
         StatusVisible = Defaults.StatusVisibility;
         TitleVisible = Defaults.TitleVisibility;
         CursorPosition = new Point(
-            0,
-            0);
+            x: 0,
+            y: 0);
         CursorHeight = 100;
         CursorSize = 100;
         TerminalBackground = Defaults.BackgroundColor;
         TerminalForeground = Defaults.ForegroundColor;
         CursorType = Defaults.CursorShape;
     }
-    
+
     public void SetCursorPosition(int x, int y)
     {
         CursorPosition = new Point(x: x, y: y);

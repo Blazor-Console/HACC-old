@@ -8,13 +8,13 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
 
     public DefaultExclusivityMode()
     {
-        _semaphore = new SemaphoreSlim(1, 1);
+        _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     }
 
     public T Run<T>(Func<T> func)
     {
         // Try acquiring the exclusivity semaphore
-        if (!_semaphore.Wait(0)) throw CreateExclusivityException();
+        if (!_semaphore.Wait(millisecondsTimeout: 0)) throw CreateExclusivityException();
 
         try
         {
@@ -22,30 +22,31 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
         }
         finally
         {
-            _semaphore.Release(1);
+            _semaphore.Release(releaseCount: 1);
         }
     }
 
     public async Task<T> Run<T>(Func<Task<T>> func)
     {
         // Try acquiring the exclusivity semaphore
-        if (!await _semaphore.WaitAsync(0).ConfigureAwait(false)) throw CreateExclusivityException();
+        if (!await _semaphore.WaitAsync(millisecondsTimeout: 0).ConfigureAwait(continueOnCapturedContext: false))
+            throw CreateExclusivityException();
 
         try
         {
-            return await func().ConfigureAwait(false);
+            return await func().ConfigureAwait(continueOnCapturedContext: false);
         }
         finally
         {
-            _semaphore.Release(1);
+            _semaphore.Release(releaseCount: 1);
         }
     }
 
     private static Exception CreateExclusivityException()
     {
         return new InvalidOperationException(
-            "Trying to run one or more interactive functions concurrently. " +
-            "Operations with dynamic displays (e.g. a prompt and a progress display) " +
-            "cannot be running at the same time.");
+            message: "Trying to run one or more interactive functions concurrently. " +
+                     "Operations with dynamic displays (e.g. a prompt and a progress display) " +
+                     "cannot be running at the same time.");
     }
 }

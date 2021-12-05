@@ -13,12 +13,13 @@ public sealed class LoggingProvider : ILoggerProvider
         IOptionsMonitor<LoggingConfiguration> config)
     {
         _currentConfig = config.CurrentValue;
-        _onChangeToken = config.OnChange(updatedConfig => _currentConfig = updatedConfig);
+        _onChangeToken = config.OnChange(listener: updatedConfig => _currentConfig = updatedConfig);
     }
 
     public ILogger CreateLogger(string categoryName)
     {
-        return _loggers.GetOrAdd(categoryName, name => new CustomLogger(name, GetCurrentConfig));
+        return _loggers.GetOrAdd(key: categoryName,
+            valueFactory: name => new CustomLogger(name: name, getCurrentConfig: GetCurrentConfig));
     }
 
     public void Dispose()

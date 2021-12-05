@@ -10,10 +10,10 @@ public struct DirtyRangeValue
 
     public DirtyRangeValue(int xStart, int xEnd, int y, string value, CharacterEffects characterEffects)
     {
-        this.XStart = xStart;
-        this.XEnd = xEnd;
-        this.Y = y;
-        this.Value = value;
-        this.CharacterEffects = characterEffects;
+        XStart = xStart;
+        XEnd = xEnd;
+        Y = y;
+        Value = value;
+        CharacterEffects = characterEffects;
     }
 }

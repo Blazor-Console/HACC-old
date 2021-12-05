@@ -17,7 +17,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
     private readonly ILogger Logger;
-    private CharacterBuffer InternalCharacterBuffer;
+    private readonly CharacterBuffer InternalCharacterBuffer;
 
     private TerminalSettings TerminalSettings;
 
@@ -26,9 +26,9 @@ public class VirtualConsoleBuffer : IAnsiConsole
         Logger = logger;
         TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
         InternalCharacterBuffer = new CharacterBuffer(
-            logger,
-            TerminalSettings.Columns,
-            TerminalSettings.Rows);
+            logger: logger,
+            columns: TerminalSettings.Columns,
+            rows: TerminalSettings.Rows);
     }
 
     //
@@ -81,17 +81,17 @@ public class VirtualConsoleBuffer : IAnsiConsole
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
-                this,
-                TerminalSettings.Columns,
-                TerminalSettings.Rows,
-                TerminalSettings.Columns,
-                value);
+                sender: this,
+                oldWidth: TerminalSettings.Columns,
+                oldHeight: TerminalSettings.Rows,
+                newWidth: TerminalSettings.Columns,
+                newHeight: value);
 
             TerminalSettings.Rows = value;
 
             ConsoleResized?.Invoke(
-                this,
-                eventArgs);
+                sender: this,
+                e: eventArgs);
         }
     }
 
@@ -122,17 +122,17 @@ public class VirtualConsoleBuffer : IAnsiConsole
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
-                this,
-                TerminalSettings.Columns,
-                TerminalSettings.Rows,
-                value,
-                TerminalSettings.Rows);
+                sender: this,
+                oldWidth: TerminalSettings.Columns,
+                oldHeight: TerminalSettings.Rows,
+                newWidth: value,
+                newHeight: TerminalSettings.Rows);
 
             TerminalSettings.Rows = value;
 
             ConsoleResized?.Invoke(
-                this,
-                eventArgs);
+                sender: this,
+                e: eventArgs);
         }
     }
 
@@ -172,8 +172,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
         set
         {
             TerminalSettings.CursorPosition = new Point(
-                value,
-                TerminalSettings.CursorPosition.Y);
+                x: value,
+                y: TerminalSettings.CursorPosition.Y);
 
             throw new NotImplementedException();
         }
@@ -233,8 +233,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
         set
         {
             TerminalSettings.CursorPosition = new Point(
-                TerminalSettings.CursorPosition.X,
-                value);
+                x: TerminalSettings.CursorPosition.X,
+                y: value);
 
             throw new NotImplementedException();
         }
@@ -1199,8 +1199,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(bool value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1218,8 +1218,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char value)
     {
-        this.InternalCharacterBuffer.WriteChar(
-            character: Convert.ToString(value),
+        InternalCharacterBuffer.WriteChar(
+            character: Convert.ToString(value: value),
             characterEffects: null);
     }
 
@@ -1236,8 +1236,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char[]? buffer)
     {
-        string value = buffer is null ? string.Empty : new string(buffer);
-        this.InternalCharacterBuffer.WriteLine(
+        var value = buffer is null ? string.Empty : new string(value: buffer);
+        InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: false);
@@ -1271,10 +1271,10 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char[] buffer, int index, int count)
     {
-        string value = new string(buffer).Substring(
+        var value = new string(value: buffer).Substring(
             startIndex: index,
             length: count);
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: false);
@@ -1294,8 +1294,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(decimal value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1314,8 +1314,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(double value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1334,8 +1334,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(int value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1354,8 +1354,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(long value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1374,8 +1374,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(object? value)
     {
-        string valueString = value is null ? string.Empty : Convert.ToString(value);
-        this.InternalCharacterBuffer.WriteLine(
+        var valueString = value is null ? string.Empty : Convert.ToString(value: value);
+        InternalCharacterBuffer.WriteLine(
             line: valueString,
             characterEffects: null,
             automaticNewLine: false);
@@ -1395,8 +1395,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(float value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1414,8 +1414,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void Write(string? value)
     {
-        string nonNullString = string.IsNullOrEmpty(value) ? string.Empty : value;
-        this.InternalCharacterBuffer.WriteLine(
+        var nonNullString = string.IsNullOrEmpty(value: value) ? string.Empty : value;
+        InternalCharacterBuffer.WriteLine(
             line: nonNullString,
             characterEffects: null,
             automaticNewLine: false);
@@ -1444,7 +1444,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(format: format, arg0: arg0),
             characterEffects: null,
             automaticNewLine: false);
@@ -1476,7 +1476,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -1514,7 +1514,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1, object? arg2)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -1547,7 +1547,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, params object?[]? arg)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg),
@@ -1567,11 +1567,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     // Exceptions:
     //   T:System.IO.IOException:
     //     An I/O error occurred.
-    [CLSCompliant(false)]
+    [CLSCompliant(isCompliant: false)]
     public void Write(uint value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1588,11 +1588,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     // Exceptions:
     //   T:System.IO.IOException:
     //     An I/O error occurred.
-    [CLSCompliant(false)]
+    [CLSCompliant(isCompliant: false)]
     public void Write(ulong value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
     }
@@ -1606,7 +1606,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine()
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: "",
             characterEffects: null,
             automaticNewLine: true);
@@ -1626,8 +1626,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(bool value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1646,8 +1646,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1666,8 +1666,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char[]? buffer)
     {
-        string value = buffer is null ? string.Empty : Convert.ToString(buffer);
-        this.InternalCharacterBuffer.WriteLine(
+        var value = buffer is null ? string.Empty : Convert.ToString(value: buffer);
+        InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -1702,11 +1702,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(char[] buffer, int index, int count)
     {
-        string value = Convert.ToString(buffer)
+        var value = Convert.ToString(value: buffer)
             .Substring(
                 startIndex: index,
                 length: count);
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -1726,8 +1726,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(decimal value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1746,8 +1746,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(double value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1766,8 +1766,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(int value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1786,8 +1786,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(long value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1806,8 +1806,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(object? value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1826,8 +1826,8 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(float value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -1846,7 +1846,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     An I/O error occurred.
     public void WriteLine(string? value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -1875,7 +1875,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0),
@@ -1909,13 +1909,14 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
                 arg1: arg1),
             characterEffects: null,
-            automaticNewLine: true);    }
+            automaticNewLine: true);
+    }
 
     //
     // Summary:
@@ -1946,14 +1947,15 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1, object? arg2)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
                 arg1: arg1,
                 arg2: arg2),
             characterEffects: null,
-            automaticNewLine: true);    }
+            automaticNewLine: true);
+    }
 
     //
     // Summary:
@@ -1979,7 +1981,7 @@ public class VirtualConsoleBuffer : IAnsiConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, params object?[]? arg)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg),
@@ -1999,11 +2001,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     // Exceptions:
     //   T:System.IO.IOException:
     //     An I/O error occurred.
-    [CLSCompliant(false)]
+    [CLSCompliant(isCompliant: false)]
     public void WriteLine(uint value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }
@@ -2020,11 +2022,11 @@ public class VirtualConsoleBuffer : IAnsiConsole
     // Exceptions:
     //   T:System.IO.IOException:
     //     An I/O error occurred.
-    [CLSCompliant(false)]
+    [CLSCompliant(isCompliant: false)]
     public void WriteLine(ulong value)
     {
-        this.InternalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value),
+        InternalCharacterBuffer.WriteLine(
+            line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
     }

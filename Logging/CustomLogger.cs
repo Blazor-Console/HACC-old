@@ -19,7 +19,7 @@ public class CustomLogger : ILogger
 
     public bool IsEnabled(LogLevel logLevel)
     {
-        return _getCurrentConfig().LogLevels.ContainsKey(logLevel);
+        return _getCurrentConfig().LogLevels.ContainsKey(key: logLevel);
     }
 
     public void Log<TState>(
@@ -29,7 +29,7 @@ public class CustomLogger : ILogger
         Exception exception,
         Func<TState, Exception, string> formatter)
     {
-        if (!IsEnabled(logLevel)) return;
+        if (!IsEnabled(logLevel: logLevel)) return;
 
         var config = _getCurrentConfig();
         if (config.EventId == 0 || config.EventId == eventId.Id)

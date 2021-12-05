@@ -8,7 +8,7 @@ public record ConsoleResizedEventArgs : VirtualConsoleEventArgs
     public readonly int OldWidth;
 
     public ConsoleResizedEventArgs(VirtualConsoleBuffer sender, int oldWidth, int oldHeight, int newWidth,
-        int newHeight) : base(sender)
+        int newHeight) : base(sender: sender)
     {
         OldWidth = oldWidth;
         OldHeight = oldHeight;

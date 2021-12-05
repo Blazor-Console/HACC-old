@@ -12,10 +12,10 @@ public static class LoggingExtensions
         builder.AddConfiguration();
 
         builder.Services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<ILoggerProvider, LoggingProvider>());
+            descriptor: ServiceDescriptor.Singleton<ILoggerProvider, LoggingProvider>());
 
         LoggerProviderOptions.RegisterProviderOptions
-            <LoggingConfiguration, LoggingProvider>(builder.Services);
+            <LoggingConfiguration, LoggingProvider>(services: builder.Services);
 
         return builder;
     }
@@ -25,7 +25,7 @@ public static class LoggingExtensions
         Action<LoggingConfiguration> configure)
     {
         builder.AddCustomLogging();
-        builder.Services.Configure(configure);
+        builder.Services.Configure(configureOptions: configure);
 
         return builder;
     }
