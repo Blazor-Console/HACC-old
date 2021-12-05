@@ -233,7 +233,7 @@ public class CharacterBuffer
     /// <param name="length">Maximum length- otherwise writes complete string until end of row.</param>
     /// <param name="characterEffects">Optional character effects to apply.</param>
     /// </summary>
-    public (string oldLine, int lengthWritten) SetLine(int x, int y, string line, int length = -1,
+    public SetLineResponse SetLine(int x, int y, string line, int length = -1,
         CharacterEffects? characterEffects = null)
     {
         if (x > BufferColumns || y > BufferRows)
@@ -275,8 +275,14 @@ public class CharacterBuffer
                 CharacterEffectsDirty = effectsChanged || CharacterEffectsDirty;
             }
         }
+        var remainder = sourceStringInfo.SubstringByTextElements(
+            length,
+            sourceLength - length);
 
-        return (oldLine, lengthWritten: length);
+        return new SetLineResponse(
+            textReplaced: oldLine,
+            lengthWritten: length,
+            textOverflow: remainder);
     }
 
     /// <summary>
@@ -319,22 +325,33 @@ public class CharacterBuffer
     /// </summary>
     public void WriteLine(string? line, CharacterEffects? characterEffects = null, bool automaticNewLine = true, bool automaticWordWrap = false)
     {
-        var (oldLine, lengthWritten) = SetLine(
+        var setLineResponse = SetLine(
             CursorPosition.X,
             CursorPosition.Y,
             string.IsNullOrEmpty(line) ? string.Empty : line,
             characterEffects: characterEffects);
         
         // TODO: handle word wrap
-
-        if (automaticNewLine)
+        // determine if text printed exceeds the buffer width
+        if (automaticWordWrap && !string.IsNullOrEmpty(setLineResponse.TextOverflow))
+        {
+            CursorPosition.X = 0;
+            CursorPosition.Y++;
+            WriteLine(
+                line: setLineResponse.TextOverflow,
+                characterEffects: characterEffects,
+                automaticNewLine: automaticNewLine,
+                automaticWordWrap: automaticWordWrap);
+            return;
+        }
+        else if (automaticNewLine)
         {
             CursorPosition.X = 0;
             CursorPosition.Y++;
         }
         else
         {
-            CursorPosition.X += lengthWritten;
+            CursorPosition.X += setLineResponse.LengthWritten;
         }
     }
 
