@@ -1,7 +1,7 @@
-﻿using System.Drawing;
-using System.Globalization;
-using Blazor.Extensions;
+﻿using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using System.Drawing;
+using System.Globalization;
 
 namespace HACC.VirtualConsoleBuffer;
 
@@ -17,25 +17,7 @@ public class CharacterBuffer
     /// </summary>
     private readonly int BufferRows;
 
-    /// <summary>
-    ///     two-dimensional array of dirty state for whether the character itself has changed
-    /// </summary>
-    private readonly bool[,] CharacterChanged;
-
-    /// <summary>
-    ///     two-dimensional array of visual state for each character
-    /// </summary>
-    private readonly CharacterEffects[,] CharacterEffects;
-
-    /// <summary>
-    ///     two-dimensional array of dirty state for whether the character's appearance has changed
-    /// </summary>
-    private readonly bool[,] CharacterEffectsChanged;
-
-    /// <summary>
-    ///     two-dimensional array of "strings" to support multi-byte, containing the actual character buffer
-    /// </summary>
-    private readonly string[,] InternalBuffer;
+    private readonly BufferRow[] InternalBuffer;
 
     /// <summary>
     ///     Logging provider
@@ -43,43 +25,57 @@ public class CharacterBuffer
     private readonly ILogger Logger;
 
     private Point CursorPosition;
+    public CursorType CursorType { get; internal set; }
 
     /// <summary>
     ///     Force next partial redraw to be a full redraw
     /// </summary>
     private bool ForceFullRender;
 
-    public CharacterBuffer(ILogger logger, int columns, int rows)
+    public CharacterBuffer(ILogger logger, int columns = Defaults.InitialColumns, int rows = Defaults.InitialRows, CursorType cursorType = Defaults.CursorShape)
     {
         Logger = logger;
         BufferColumns = columns;
         BufferRows = rows;
-        InternalBuffer = new string[columns, rows];
-        CharacterChanged = new bool[columns, rows];
-        CharacterEffects = new CharacterEffects[columns, rows];
-        CharacterEffectsChanged = new bool[columns, rows];
+        InternalBuffer = new BufferRow[rows];
         ForceFullRender = true;
         CursorPosition = new Point(x: 0, y: 0);
-        for (var x = 0; x < columns; x++)
         for (var y = 0; y < rows; y++)
+            InternalBuffer[y] = new BufferRow(rowColumns: columns);
+        CursorType = cursorType;
+    }
+
+    public CharacterBuffer()
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool BufferDirty
+    {
+        get
         {
-            InternalBuffer[x, y] = "";
-            CharacterChanged[x, y] = false;
-            CharacterEffects[x, y] = new CharacterEffects(
-                bold: false);
-            CharacterChanged[x, y] = false;
+            for (int y = 0; y < BufferRows; y++)
+            {
+                if (InternalBuffer[y].RowDirty)
+                    return true;
+            }
+            return false;
         }
     }
 
-    /// <summary>
-    ///     whether any of the appearance state is dirty
-    /// </summary>
-    public bool CharacterEffectsDirty { get; private set; }
+    public bool BufferEffectsDirty
+    {
+        get
+        {
+            for (int y = 0; y < BufferRows; y++)
+            {
+                if (InternalBuffer[y].RowEffectsDirty)
+                    return true;
+            }
+            return false;
+        }
+    }
 
-    /// <summary>
-    ///     whether any of the character state is dirty
-    /// </summary>
-    public bool CharacterBufferDirty { get; private set; }
 
     /// <summary>
     ///     Cursor can be moved by VT commands and/or can be used as a pointer/magnifier to give information about the
@@ -91,20 +87,32 @@ public class CharacterBuffer
                 x: CursorPosition.X,
                 y: CursorPosition.Y),
             character: CharacterAt(position: CursorPosition),
-            characterEffects: CharacterEffectsAt(position: CursorPosition));
+            type: CursorType);
 
     /// <summary>
     ///     Retrieves a cloned copy of the private internal buffer.
     /// </summary>
-    public string[,] Buffer
+    public BufferCharacter[,] BufferCharactersCopy
     {
         get
         {
-            var newBuffer = new string[BufferColumns, BufferRows];
+            var newBuffer = new BufferCharacter[BufferColumns, BufferRows];
             for (var x = 0; x < BufferColumns; x++)
-            for (var y = 0; y < BufferRows; y++)
-                newBuffer[x, y] = InternalBuffer[x, y];
+                for (var y = 0; y < BufferRows; y++)
+                    newBuffer[x, y] = this
+                        .CharacterAt(
+                            x: x,
+                            y: y)
+                        .Copy();
             return newBuffer;
+        }
+    }
+
+    public BufferRow[] BufferRowsCopy
+    {
+        get
+        {
+            return InternalBuffer.Select(r => r.Copy()).ToArray();
         }
     }
 
@@ -116,10 +124,15 @@ public class CharacterBuffer
     /// <param name="effects"></param>
     public void SetCharacterEffects(int x, int y, CharacterEffects effects)
     {
-        var changed = !CharacterEffects[x, y].Equals(other: effects);
-        CharacterEffects[x, y] = effects;
-        CharacterEffectsChanged[x, y] = CharacterEffectsChanged[x, y] || changed;
-        CharacterEffectsDirty = CharacterEffectsDirty || changed;
+        InternalBuffer[y].RowCharacters[x].CharacterEffects = effects.Copy();
+    }
+
+    public void SetCharacterEffects(Point position, CharacterEffects effects)
+    {
+        SetCharacterEffects(
+            x: position.X,
+            y: position.Y,
+            effects: effects);
     }
 
     /// <summary>
@@ -132,12 +145,10 @@ public class CharacterBuffer
     public void SetCharacterEffects(int xStart, int xEnd, int y, CharacterEffects effects)
     {
         for (var x = xStart; x <= xEnd; x++)
-        {
-            var changed = !CharacterEffects[x, y].Equals(other: effects);
-            CharacterEffects[x, y] = effects;
-            CharacterEffectsChanged[x, y] = CharacterEffectsChanged[x, y] || changed;
-            CharacterEffectsDirty = CharacterEffectsDirty || changed;
-        }
+            SetCharacterEffects(
+                x: x,
+                y: y,
+                effects: effects);
     }
 
     /// <summary>
@@ -146,9 +157,9 @@ public class CharacterBuffer
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    public string CharacterAt(int x, int y)
+    public BufferCharacter CharacterAt(int x, int y)
     {
-        return InternalBuffer[x, y];
+        return InternalBuffer[y].RowCharacters[x].Copy();
     }
 
     /// <summary>
@@ -156,9 +167,9 @@ public class CharacterBuffer
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
-    public string CharacterAt(Point position)
+    public BufferCharacter CharacterAt(Point position)
     {
-        return InternalBuffer[position.X, position.Y];
+        return InternalBuffer[position.Y].RowCharacters[position.X].Copy();
     }
 
     /// <summary>
@@ -173,30 +184,39 @@ public class CharacterBuffer
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public string SetCharacter(int x, int y, string value, CharacterEffects? characterEffects = null)
     {
-        if (x > BufferColumns || y > BufferRows)
-            throw new ArgumentOutOfRangeException(paramName: "x and y must be less than the buffer size");
+        if (x >= BufferColumns || y >= BufferRows)
+            throw new ArgumentException(message: "x and y must be less than the buffer size");
+        if (x < 0)
+            throw new ArgumentOutOfRangeException(paramName: nameof(x));
+        if (y < 0)
+            throw new ArgumentOutOfRangeException(paramName: nameof(y));
 
-        var length = GetLineElementCount(line: value, sourceStringInfo: out var stringInfo);
-        if (!string.IsNullOrEmpty(value: value))
-            value = stringInfo.SubstringByTextElements(
-                startingTextElement: 0,
-                lengthInTextElements: 1);
-        else if (stringInfo.LengthInTextElements == 0) value = "";
+        var length = GetLineElementCount(
+            line: value,
+            sourceStringInfo: out var stringInfo);
 
-        var oldValue = InternalBuffer[x, y];
-        var changed = !oldValue.Equals(value: value);
-        InternalBuffer[x, y] = value;
-        CharacterChanged[x, y] = CharacterChanged[x, y] || changed;
-        CharacterBufferDirty = CharacterBufferDirty || changed;
+        value = !string.IsNullOrEmpty(value: value) && (stringInfo.LengthInTextElements == 0) ? stringInfo.SubstringByTextElements(
+            startingTextElement: 0,
+            lengthInTextElements: 1) : string.Empty;
+
+        string oldValue = new string(InternalBuffer[y].RowCharacters[x].Character);
+        InternalBuffer[y].RowCharacters[x].Character = new string(value);
         if (characterEffects.HasValue)
-        {
-            var effectsChanged = CharacterEffects[x, y].Equals(other: characterEffects.Value);
-            CharacterEffects[x, y] = characterEffects.Value;
-            CharacterEffectsChanged[x, y] = CharacterEffectsChanged[x, y] || effectsChanged;
-            CharacterEffectsDirty = CharacterEffectsDirty || effectsChanged;
-        }
+            SetCharacterEffects(
+                x: x,
+                y: y,
+                effects: characterEffects.Value);
 
         return oldValue;
+    }
+
+    public string SetCharacter(Point position, string value, CharacterEffects? characterEffects = null)
+    {
+        return SetCharacter(
+            x: position.X,
+            y: position.Y,
+            value: value,
+            characterEffects: characterEffects);
     }
 
     /// <summary>
@@ -211,8 +231,16 @@ public class CharacterBuffer
         var maxLength = BufferColumns - x;
         if (length < 0 || length > maxLength) length = maxLength;
         var substrings = new string[length];
-        for (var i = 0; i < length; i++) substrings[i] = InternalBuffer[x + i, y];
+        for (var i = 0; i < length; i++) substrings[i] = new string(InternalBuffer[y].RowCharacters[x + i].Character);
         return string.Concat(values: substrings);
+    }
+
+    public string GetLine(Point position, int length = -1)
+    {
+        return GetLine(
+            x: position.X,
+            y: position.Y,
+            length: length);
     }
 
     /// <summary>
@@ -228,8 +256,12 @@ public class CharacterBuffer
     public SetLineResponse SetLine(int x, int y, string line, int length = -1,
         CharacterEffects? characterEffects = null)
     {
-        if (x > BufferColumns || y > BufferRows)
-            throw new ArgumentOutOfRangeException(paramName: "x and y must be less than the buffer size");
+        if (x >= BufferColumns || y >= BufferRows)
+            throw new ArgumentException(message: "x and y must be less than the buffer size");
+        if (x < 0)
+            throw new ArgumentOutOfRangeException(paramName: nameof(x));
+        if (y < 0)
+            throw new ArgumentOutOfRangeException(paramName: nameof(y));
 
         var sourceLength = GetLineElementCount(line: line, sourceStringInfo: out var sourceStringInfo);
         var maxLength = BufferColumns - x;
@@ -241,36 +273,22 @@ public class CharacterBuffer
             y: y,
             length: length);
 
-        var oldStringInfo = new StringInfo(value: oldLine);
         for (var i = 0; i < length; i++)
         {
-            var oldCharacter = string.IsNullOrEmpty(value: oldLine)
-                ? ""
-                : oldStringInfo.SubstringByTextElements(
-                    startingTextElement: i,
-                    lengthInTextElements: 1);
             var newCharacter = sourceStringInfo.SubstringByTextElements(
                 startingTextElement: i,
                 lengthInTextElements: 1);
-            var changed = !oldCharacter.Equals(value: newCharacter);
-
-            InternalBuffer[x + i, y] = newCharacter;
-            CharacterChanged[x + i, y] =
-                changed || CharacterChanged[x + i, y];
-            CharacterBufferDirty = CharacterBufferDirty || changed;
-
-            if (characterEffects.HasValue)
-            {
-                var effectsChanged = CharacterEffects[x + i, y].Equals(other: characterEffects.Value);
-                CharacterEffects[x + i, y] = characterEffects.Value;
-                CharacterEffectsChanged[x + i, y] = effectsChanged || CharacterEffectsChanged[x + i, y];
-                CharacterEffectsDirty = effectsChanged || CharacterEffectsDirty;
-            }
+            SetCharacter(
+                x: x + i,
+                y: y,
+                value: newCharacter,
+                characterEffects: characterEffects);
         }
 
-        var remainder = sourceStringInfo.SubstringByTextElements(
+        var remaining = sourceLength - length;
+        var remainder = remaining <= 0 ? string.Empty : sourceStringInfo.SubstringByTextElements(
             startingTextElement: length,
-            lengthInTextElements: sourceLength - length);
+            lengthInTextElements: remaining);
 
         return new SetLineResponse(
             textReplaced: oldLine,
@@ -278,40 +296,43 @@ public class CharacterBuffer
             textOverflow: remainder);
     }
 
-    public RowCopy CopyRow(int oldRow, int newRow)
+    public SetLineResponse SetLine(Point position, string line, int length = -1)
     {
-        var rowCopy = new RowCopy(
-            buffer: new string[BufferColumns],
-            characterChanged: new bool[BufferColumns],
-            characterEffects: new CharacterEffects[BufferColumns],
-            characterEffectsChanged: new bool[BufferColumns]);
-
-        for (var x = 0; x < BufferColumns; x++)
-        {
-            rowCopy.Buffer[x] = InternalBuffer[x, oldRow];
-            rowCopy.CharacterChanged[x] = CharacterChanged[x, oldRow];
-            rowCopy.CharacterEffects[x] = CharacterEffects[x, oldRow];
-            rowCopy.CharacterEffectsChanged[x] = CharacterEffectsChanged[x, oldRow];
-
-            InternalBuffer[x, newRow] = InternalBuffer[x, oldRow];
-            CharacterChanged[x, newRow] = true;
-            CharacterEffects[x, newRow] = CharacterEffects[x, oldRow];
-            CharacterEffectsChanged[x, newRow] = true;
-        }
-
-        return rowCopy;
+        return SetLine(
+            x: position.X,
+            y: position.Y,
+            line: line,
+            length: length);
     }
 
-    public RowCopy[] ScrollLine(int count = 1)
+    public BufferRow CopyRow(int y)
+    {
+        return InternalBuffer[y].Copy();
+    }
+
+    public BufferRow[] ScrollLine(int count = 1)
     {
         if (count < 1 || count > BufferRows) throw new ArgumentOutOfRangeException(paramName: nameof(count));
 
-        var removedLines = new RowCopy[count];
+        var removedLines = new BufferRow[count];
         var startingRow = BufferRows - count - 1;
 
         // Copy the lines to be removed
-        // shift the lines below the removed lines up
-        throw new NotImplementedException();
+        for (int y = startingRow; y < BufferRows; y++)
+        {
+            removedLines[y] = InternalBuffer[y].Copy();
+        }
+        // move down the lines above the starting row
+        for (int y = startingRow - count; y > count; y--)
+        {
+            InternalBuffer[y] = InternalBuffer[y - count];
+        }
+        // replace the top N empty rows
+        for (int y = 0; y < count; y++)
+        {
+            InternalBuffer[y] = new BufferRow(rowColumns: BufferColumns);
+        }
+
         return removedLines;
     }
 
@@ -345,7 +366,7 @@ public class CharacterBuffer
     /// </summary>
     private int GetLineElementCount(string line, out StringInfo sourceStringInfo)
     {
-        sourceStringInfo = new StringInfo(value: line);
+        sourceStringInfo = new StringInfo(value: string.IsNullOrEmpty(line) ? String.Empty : line);
 
         return sourceStringInfo.LengthInTextElements;
     }
@@ -398,7 +419,7 @@ public class CharacterBuffer
     /// <returns></returns>
     public CharacterEffects CharacterEffectsAt(int x, int y)
     {
-        return CharacterEffects[x, y];
+        return InternalBuffer[y].RowCharacters[x].CharacterEffects.Copy();
     }
 
     /// <summary>
@@ -408,62 +429,90 @@ public class CharacterBuffer
     /// <returns></returns>
     public CharacterEffects CharacterEffectsAt(Point position)
     {
-        return CharacterEffects[position.X, position.Y];
+        return InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffects.Copy();
     }
 
     /// <summary>
     ///     whether the character at the given position has changed
     /// </summary>
-    public bool CharacterDirty(int x, int y)
+    public bool CharacterDirtyAt(int x, int y)
     {
-        return CharacterChanged[x, y];
+        return InternalBuffer[y].RowCharacters[x].CharacterChanged;
+    }
+
+    public bool CharacterDirtyAt(Point position)
+    {
+        return InternalBuffer[position.Y].RowCharacters[position.X].CharacterChanged;
     }
 
     /// <summary>
     ///     whether the character effects at the given position have changed
     /// </summary>
-    public bool EffectsDirty(int x, int y)
+    public bool CharacterEffectsDirtyAt(int x, int y)
     {
-        return CharacterEffectsChanged[x, y];
+        return InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged;
+    }
+
+    public bool CharacterEffectsDirtyAt(Point position)
+    {
+        return InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffectsChanged;
     }
 
     /// <summary>
     ///     Returns the coordinates of all section marked dirty.
     ///     When effects changes are included, also divides up ranges by changes to effects.
     /// </summary>
-    public IEnumerable<DirtyRange> DirtyRanges(bool includeEffectsChanges = true)
+    public IEnumerable<DirtyRange> DirtyRanges(bool includeCharacterChanges = true, bool includeEffectsChanges = true)
     {
         var list = new List<DirtyRange>();
         for (var y = 0; y < BufferRows; y++)
         {
             var changeStart = -1;
             CharacterEffects? lastEffects = null;
+
+            // Break into sections beginning with 
+
             for (var x = 0; x < BufferColumns; x++)
             {
-                var characterEffects = CharacterEffects[x, y];
-                var characterChanged = CharacterChanged[x, y];
-                var effectsDifferFromLastCharacter = includeEffectsChanges &&
-                                                     (!lastEffects.HasValue ||
-                                                      !lastEffects.Value.Equals(other: characterEffects));
-
-                if (characterChanged && changeStart < 0) changeStart = x;
-
-                if (changeStart >= 0 && x > changeStart && (!characterChanged || effectsDifferFromLastCharacter))
+                if (changeStart < 0)
                 {
-                    // ended on the previous character
-                    list.Add(item: new DirtyRange(
-                        xStart: changeStart,
-                        xEnd: x - 1,
-                        y: y));
-                    if (effectsDifferFromLastCharacter)
-                        // change started this character
+                    bool startChange = false;
+                    if (includeCharacterChanges && InternalBuffer[y].RowCharacters[x].CharacterChanged)
+                    {
+                        startChange = true;
+                    }
+                    if (includeEffectsChanges)
+                    {
+                        // if either dirty or differing from effects style being printed, break into section
+                        if (!InternalBuffer[y].RowCharacters[x].CharacterEffects.Equals(lastEffects) || InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged)
+                            startChange = true;
+
+                    }
+                    if (startChange)
                         changeStart = x;
-                    else
-                        // change ended normally
+                }
+                // if change started and advanced past change
+                if ((changeStart >= 0) && (x > changeStart))
+                {
+                    var charactersChanged = includeCharacterChanges &&
+                        InternalBuffer[y].RowCharacters[x].CharacterChanged;
+
+                    var effectsChangedFromLast = includeEffectsChanges && !lastEffects.Equals(InternalBuffer[y].RowCharacters[x].CharacterEffects);
+                    var effectsChanged = includeEffectsChanges && InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged;
+
+                    if (!charactersChanged && !effectsChangedFromLast && !effectsChanged)
+                    {
+                        list.Add(item: new DirtyRange(
+                            xStart: changeStart,
+                            xEnd: x,
+                            y: y));
+
+                        // change ended
                         changeStart = -1;
+                    }
                 }
 
-                lastEffects = characterEffects;
+                lastEffects = InternalBuffer[y].RowCharacters[x].CharacterEffects.Copy();
             }
 
             // if still changes pending after completing line
@@ -481,27 +530,21 @@ public class CharacterBuffer
     ///     Returns a collection of ranges marked dirty and their corresponding text and character effects
     /// </summary>
     public IEnumerable<DirtyRangeValue> DirtyRangeValues(
+        bool includeCharacterChanges = true,
         bool includeEffectsChanges = true)
     {
-        var list = new List<DirtyRangeValue>();
-        var ranges = DirtyRanges(includeEffectsChanges: includeEffectsChanges);
-        foreach (var range in ranges)
-        {
-            var effectsForRange = CharacterEffects[range.XStart, range.Y];
-            var rangeLength = range.XEnd - range.XStart + 1;
-
-            list.Add(item: new DirtyRangeValue(
+        return DirtyRanges(
+            includeCharacterChanges: includeCharacterChanges,
+            includeEffectsChanges: includeEffectsChanges).Select(range => new DirtyRangeValue(
                 xStart: range.XStart,
                 xEnd: range.XEnd,
                 y: range.Y,
                 value: GetLine(
                     x: range.XStart,
                     y: range.Y,
-                    length: rangeLength),
-                characterEffects: effectsForRange));
-        }
-
-        return list;
+                    length: range.XEnd - range.XStart + 1),
+                characterEffects: InternalBuffer[range.Y].RowCharacters[range.XStart].CharacterEffects.Copy()))
+            .ToArray();
     }
 
     /// <summary>
@@ -528,6 +571,7 @@ public class CharacterBuffer
     /// <param name="canvas"></param>
     public void RenderFull(Canvas2DContext context, BECanvasComponent canvas)
     {
+        AcceptChanges();
         throw new NotImplementedException();
     }
 
@@ -551,6 +595,23 @@ public class CharacterBuffer
         }
 
         var dirtyRanges = DirtyRangeValues();
+        AcceptChanges();
         throw new NotImplementedException();
+    }
+
+    public void AcceptChanges(bool character = true, bool effects = true)
+    {
+        for (int y = 0; y < BufferRows; y++)
+        {
+            InternalBuffer[y].AcceptChanges(character: character, effects: effects);
+        }
+    }
+
+    public void RevertChanges(bool character = true, bool effects = true)
+    {
+        for (int y = 0; y < BufferRows; y++)
+        {
+            InternalBuffer[y].RevertChanges(character: character, effects: effects);
+        }
     }
 }

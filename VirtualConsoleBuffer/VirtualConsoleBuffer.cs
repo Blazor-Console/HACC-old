@@ -1,8 +1,8 @@
-﻿using System.Drawing;
-using System.Text;
-using HACC.VirtualConsoleBuffer.EventArgs;
+﻿using HACC.VirtualConsoleBuffer.EventArgs;
 using Spectre.Console;
 using Spectre.Console.Rendering;
+using System.Drawing;
+using System.Text;
 
 namespace HACC.VirtualConsoleBuffer;
 

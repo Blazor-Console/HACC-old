@@ -22,6 +22,16 @@ public struct CharacterEffects : IEquatable<CharacterEffects>
             Foreground == other.Foreground;
     }
 
+    public static bool operator ==(CharacterEffects a, CharacterEffects? b)
+    {
+        return b is null ? false : a.Equals(b);
+    }
+
+    public static bool operator !=(CharacterEffects a, CharacterEffects? b)
+    {
+        return b is null ? false : !a.Equals(b);
+    }
+
     public CharacterEffects(bool bold = false, bool italic = false, bool underline = false, bool inverse = false,
         bool blink = false, ConsoleColor background = Defaults.BackgroundColor,
         ConsoleColor foreground = Defaults.ForegroundColor)
@@ -44,5 +54,17 @@ public struct CharacterEffects : IEquatable<CharacterEffects>
         Blink = false;
         Background = Defaults.BackgroundColor;
         Foreground = Defaults.ForegroundColor;
+    }
+
+    public CharacterEffects Copy()
+    {
+        return new CharacterEffects(
+            bold: Bold,
+            italic: Italic,
+            underline: Underline,
+            inverse: Inverse,
+            blink: Blink,
+            background: Background,
+            foreground: Foreground);
     }
 }
