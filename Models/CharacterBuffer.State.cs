@@ -26,29 +26,29 @@ public partial class CharacterBuffer
         var list = new List<DirtyRange>();
         for (var y = 0; y < BufferRows; y++)
         {
-            var changeStart = -1;
+            var rangeStartIndex = -1;
             CharacterEffects? lastEffects = null;
 
             // Break into sections beginning with 
 
             for (var x = 0; x < BufferColumns; x++)
             {
-                if (changeStart < 0)
+                if (rangeStartIndex < 0)
                 {
-                    var startChange = false;
+                    var changed = false;
                     if (includeCharacterChanges && InternalBuffer[y].RowCharacters[x].CharacterChanged)
-                        startChange = true;
+                        changed = true;
                     if (includeEffectsChanges)
                         // if either dirty or differing from effects style being printed, break into section
                         if (lastEffects != null && (!InternalBuffer[y].RowCharacters[x].CharacterEffects.Equals(obj: lastEffects) ||
                                                     InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged))
-                            startChange = true;
-                    if (startChange)
-                        changeStart = x;
+                            changed = true;
+                    if (changed)
+                        rangeStartIndex = x;
                 }
 
                 // if change started and advanced past change
-                if (changeStart >= 0 && x > changeStart)
+                if (rangeStartIndex >= 0 && x > rangeStartIndex)
                 {
                     var charactersChanged = includeCharacterChanges &&
                                             InternalBuffer[y].RowCharacters[x].CharacterChanged;
@@ -62,12 +62,12 @@ public partial class CharacterBuffer
                     if (!charactersChanged && !effectsChangedFromLast && !effectsChanged)
                     {
                         list.Add(item: new DirtyRange(
-                            xStart: changeStart,
+                            xStart: rangeStartIndex,
                             xEnd: x,
                             y: y));
 
                         // change ended
-                        changeStart = -1;
+                        rangeStartIndex = -1;
                     }
                 }
 
@@ -75,9 +75,9 @@ public partial class CharacterBuffer
             }
 
             // if still changes pending after completing line
-            if (changeStart >= 0)
+            if (rangeStartIndex >= 0)
                 list.Add(item: new DirtyRange(
-                    xStart: changeStart,
+                    xStart: rangeStartIndex,
                     xEnd: BufferColumns - 1,
                     y: y));
         }
