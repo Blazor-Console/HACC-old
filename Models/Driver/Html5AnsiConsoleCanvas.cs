@@ -12,15 +12,17 @@ namespace HACC.Models.Driver;
 //     This class cannot be inherited.
 public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 {
+    private readonly Components.Console _console;
     private readonly ILogger Logger;
 
     private TerminalSettings TerminalSettings;
 
-    protected const int BeepFrequency = 800;
-    protected const int BeepDurationMsec = 50;
+    private const int BeepFrequency = 800;
+    private const int BeepDurationMsec = 50;
 
-    public Html5AnsiConsoleCanvas(ILogger logger, TerminalSettings? terminalSettings = null)
+    public Html5AnsiConsoleCanvas(ILogger logger, Components.Console console, TerminalSettings? terminalSettings = null)
     {
+        this._console = console;
         this.Logger = logger;
         this.TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
         this.InternalCharacterBuffer = new CharacterBuffer(
