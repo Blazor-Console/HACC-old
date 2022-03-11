@@ -2,7 +2,7 @@
 using HACC.Models.EventArgs;
 using Spectre.Console;
 
-namespace HACC.Models.Driver;
+namespace HACC.Models.Drivers;
 
 //
 // Summary:
@@ -401,7 +401,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void SetBufferSize(int width, int height)
+    public void SetInternalBufferSize(int width, int height)
     {
         throw new NotImplementedException();
     }
@@ -431,7 +431,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void SetWindowPosition(int left, int top)
+    public void SetInternalWindowPosition(int left, int top)
     {
         throw new NotImplementedException();
     }
@@ -462,7 +462,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void SetWindowSize(int width, int height)
+    public void SetInternalWindowSize(int width, int height)
     {
         throw new NotImplementedException();
     }

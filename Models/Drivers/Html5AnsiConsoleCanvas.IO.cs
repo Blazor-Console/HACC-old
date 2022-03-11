@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Spectre.Console;
 
-namespace HACC.Models.Driver;
+namespace HACC.Models.Drivers;
 
 //
 // Summary:

@@ -1,10 +1,11 @@
-﻿using HACC.Spectre;
+﻿using System.Runtime.InteropServices;
+using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Terminal.Gui;
 
-namespace HACC.Models.Driver;
+namespace HACC.Models.Drivers;
 
 //
 // Summary:
@@ -29,6 +30,8 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
             logger: logger,
             columns: this.TerminalSettings.Columns,
             rows: this.TerminalSettings.Rows);
+        
+        
     }
 
     public Profile Profile => throw new NotImplementedException();

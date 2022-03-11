@@ -1,4 +1,4 @@
-﻿using HACC.Models.Driver;
+﻿using HACC.Models.Drivers;
 using HACC.Spectre;
 
 namespace HACC.Models.EventArgs;

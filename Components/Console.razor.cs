@@ -2,7 +2,7 @@
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
 using HACC.Models;
-using HACC.Models.Driver;
+using HACC.Models.Drivers;
 using HACC.Spectre;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
@@ -14,20 +14,21 @@ namespace HACC.Components;
 
 public partial class Console
 {
-    private ILogger _logger;
-    public Console()
+    private readonly ILogger _logger;
+    public Console(ILogger logger)
     {
+        this._logger = logger;
         this._canvasConsoleCore = new Html5AnsiConsoleCanvas(
             logger: this._logger ?? throw new InvalidOperationException(),
             console: this,
             terminalSettings: null);
     }
 
-    private BECanvasComponent CanvasReference { get; set; }
-    private Canvas2DContext _context;
+    private BECanvasComponent CanvasReference { get; set; } = null!;
+    private Canvas2DContext _context = null!;
     private readonly Html5AnsiConsoleCanvas _canvasConsoleCore;
 
-    protected async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         _context = await this.CanvasReference.CreateCanvas2DAsync();
         await _context.SetFillStyleAsync(value: "green");

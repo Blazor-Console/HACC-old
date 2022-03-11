@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace HACC.Models.Driver;
+namespace HACC.Models.Drivers;
 
 //
 // Summary:
