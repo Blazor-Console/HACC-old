@@ -180,19 +180,6 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
 
     //
     // Summary:
-    //     Plays the sound of a beep through the console speaker.
-    //
-    // Exceptions:
-    //   T:System.Security.HostProtectionException:
-    //     This method was executed on a server, such as SQL Server, that does not permit
-    //     access to a user interface.
-    public void Beep()
-    {
-        throw new NotImplementedException();
-    }
-
-    //
-    // Summary:
     //     Plays the sound of a beep of a specified frequency and duration through the console
     //     speaker.
     //
@@ -214,8 +201,9 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void Beep(int frequency, int duration)
+    public void Beep(int frequency = BeepFrequency, int duration = BeepDurationMsec)
     {
+        // https://stackoverflow.com/a/60018645
         throw new NotImplementedException();
     }
 

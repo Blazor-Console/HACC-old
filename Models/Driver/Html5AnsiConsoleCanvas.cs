@@ -16,6 +16,9 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 
     private TerminalSettings TerminalSettings;
 
+    protected const int BeepFrequency = 800;
+    protected const int BeepDurationMsec = 50;
+
     public Html5AnsiConsoleCanvas(ILogger logger, TerminalSettings? terminalSettings = null)
     {
         this.Logger = logger;
