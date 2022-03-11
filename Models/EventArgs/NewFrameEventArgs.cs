@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using HACC.Models.Driver;
 using HACC.Spectre;
 
 namespace HACC.Models.EventArgs;

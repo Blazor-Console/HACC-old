@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace HACC.Spectre;
+namespace HACC.Models.Driver;
 
 //
 // Summary:
@@ -28,7 +28,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(bool value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -47,7 +47,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(char value)
     {
-        InternalCharacterBuffer.WriteChar(
+        this.InternalCharacterBuffer.WriteChar(
             character: Convert.ToString(value: value),
             characterEffects: null);
     }
@@ -66,7 +66,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     public void Write(char[]? buffer)
     {
         var value = buffer is null ? string.Empty : new string(value: buffer);
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: false);
@@ -103,7 +103,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
         var value = new string(value: buffer).Substring(
             startIndex: index,
             length: count);
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: false);
@@ -123,7 +123,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(decimal value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -143,7 +143,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(double value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -163,7 +163,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(int value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -183,7 +183,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(long value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -204,7 +204,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     public void Write(object? value)
     {
         var valueString = value is null ? string.Empty : Convert.ToString(value: value);
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: valueString,
             characterEffects: null,
             automaticNewLine: false);
@@ -224,7 +224,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Write(float value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -244,7 +244,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     public void Write(string? value)
     {
         var nonNullString = string.IsNullOrEmpty(value: value) ? string.Empty : value;
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: nonNullString,
             characterEffects: null,
             automaticNewLine: false);
@@ -273,7 +273,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: string.Format(format: format, arg0: arg0),
             characterEffects: null,
             automaticNewLine: false);
@@ -305,7 +305,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -343,7 +343,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1, object? arg2)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -376,7 +376,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The format specification in format is invalid.
     public void Write(string format, params object?[]? arg)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg),
@@ -399,7 +399,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     [CLSCompliant(isCompliant: false)]
     public void Write(uint value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);
@@ -420,7 +420,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     [CLSCompliant(isCompliant: false)]
     public void Write(ulong value)
     {
-        InternalCharacterBuffer.WriteLine(
+        this.InternalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: false);

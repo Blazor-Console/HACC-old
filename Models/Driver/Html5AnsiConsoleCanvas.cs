@@ -1,15 +1,16 @@
-﻿using HACC.Models;
+﻿using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Rendering;
+using Terminal.Gui;
 
-namespace HACC.Spectre;
+namespace HACC.Models.Driver;
 
 //
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas : IAnsiConsole
+public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 {
     private readonly ILogger Logger;
 
@@ -17,12 +18,12 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
 
     public Html5AnsiConsoleCanvas(ILogger logger, TerminalSettings? terminalSettings = null)
     {
-        Logger = logger;
-        TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
-        InternalCharacterBuffer = new CharacterBuffer(
+        this.Logger = logger;
+        this.TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
+        this.InternalCharacterBuffer = new CharacterBuffer(
             logger: logger,
-            columns: TerminalSettings.Columns,
-            rows: TerminalSettings.Rows);
+            columns: this.TerminalSettings.Columns,
+            rows: this.TerminalSettings.Rows);
     }
 
     public Profile Profile => throw new NotImplementedException();

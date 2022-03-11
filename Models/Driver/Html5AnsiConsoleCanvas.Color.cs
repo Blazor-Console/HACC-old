@@ -1,6 +1,6 @@
 ﻿using Spectre.Console;
 
-namespace HACC.Spectre;
+namespace HACC.Models.Driver;
 
 //
 // Summary:
@@ -27,8 +27,8 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public ConsoleColor BackgroundColor
     {
-        get => TerminalSettings.TerminalBackground;
-        set => TerminalSettings.TerminalBackground = value;
+        get => this.TerminalSettings.TerminalBackground;
+        set => this.TerminalSettings.TerminalBackground = value;
     }
 
     //
@@ -50,10 +50,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public ConsoleColor ForegroundColor
     {
-        get => TerminalSettings.TerminalForeground;
+        get => this.TerminalSettings.TerminalForeground;
         set
         {
-            TerminalSettings.TerminalForeground = value;
+            this.TerminalSettings.TerminalForeground = value;
 
             throw new NotImplementedException();
         }
@@ -71,7 +71,7 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void ResetColor()
     {
-        InternalCharacterBuffer.Clear(
+        this.InternalCharacterBuffer.Clear(
             clearCharacters: false,
             clearEffects: true);
     }

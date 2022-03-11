@@ -1,9 +1,8 @@
 ﻿using HACC.Configuration;
-using HACC.Models;
 using HACC.Models.EventArgs;
 using Spectre.Console;
 
-namespace HACC.Spectre;
+namespace HACC.Models.Driver;
 
 //
 // Summary:
@@ -40,19 +39,19 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferHeight
     {
-        get => TerminalSettings.Rows;
+        get => this.TerminalSettings.Rows;
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
                 sender: this,
-                oldWidth: TerminalSettings.Columns,
-                oldHeight: TerminalSettings.Rows,
-                newWidth: TerminalSettings.Columns,
+                oldWidth: this.TerminalSettings.Columns,
+                oldHeight: this.TerminalSettings.Rows,
+                newWidth: this.TerminalSettings.Columns,
                 newHeight: value);
 
-            TerminalSettings.Rows = value;
+            this.TerminalSettings.Rows = value;
 
-            ConsoleResized?.Invoke(
+            this.ConsoleResized?.Invoke(
                 sender: this,
                 e: eventArgs);
         }
@@ -81,19 +80,19 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferWidth
     {
-        get => TerminalSettings.Columns;
+        get => this.TerminalSettings.Columns;
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
                 sender: this,
-                oldWidth: TerminalSettings.Columns,
-                oldHeight: TerminalSettings.Rows,
+                oldWidth: this.TerminalSettings.Columns,
+                oldHeight: this.TerminalSettings.Rows,
                 newWidth: value,
-                newHeight: TerminalSettings.Rows);
+                newHeight: this.TerminalSettings.Rows);
 
-            TerminalSettings.Rows = value;
+            this.TerminalSettings.Rows = value;
 
-            ConsoleResized?.Invoke(
+            this.ConsoleResized?.Invoke(
                 sender: this,
                 e: eventArgs);
         }
@@ -142,10 +141,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The get operation is invoked on an operating system other than Windows.
     public string Title
     {
-        get => TerminalSettings.Title;
+        get => this.TerminalSettings.Title;
         set
         {
-            TerminalSettings.Title = value;
+            this.TerminalSettings.Title = value;
 
             throw new NotImplementedException();
         }
@@ -175,10 +174,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowHeight
     {
-        get => TerminalSettings.Rows;
+        get => this.TerminalSettings.Rows;
         set
         {
-            TerminalSettings.Rows = value;
+            this.TerminalSettings.Rows = value;
 
             throw new NotImplementedException();
         }
@@ -258,10 +257,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowWidth
     {
-        get => TerminalSettings.Columns;
+        get => this.TerminalSettings.Columns;
         set
         {
-            TerminalSettings.Columns = value;
+            this.TerminalSettings.Columns = value;
 
             throw new NotImplementedException();
         }
@@ -477,6 +476,6 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void Clear()
     {
-        InternalCharacterBuffer.Clear();
+        this.InternalCharacterBuffer.Clear();
     }
 }
