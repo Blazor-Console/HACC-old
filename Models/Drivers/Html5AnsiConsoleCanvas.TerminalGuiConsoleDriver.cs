@@ -1,3 +1,4 @@
+using HACC.Components;
 using NStack;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
@@ -7,29 +8,51 @@ namespace HACC.Models.Drivers;
 public partial class Html5AnsiConsoleCanvas
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    /// <summary>
+    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowColumns" />
+    /// </summary>
     public override int Cols => this.WindowColumns;
 
+    /// <summary>
+    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowRows" />
+    /// </summary>
     public override int Rows => this.WindowRows;
 
-    // Only handling left here because not all terminals has a horizontal scroll bar.
+    /// <summary>
+    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowLeft" />
+    ///     Only handling left here because not all terminals has a horizontal scroll bar.
+    /// </summary>
     public override int Left => this.WindowLeft;
+
+    /// <summary>
+    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowTop" />
+    /// </summary>
     public override int Top => this.WindowTop;
+
+    /// <summary>
+    ///     If false height is measured by the window height and thus no scrolling.
+    ///     If true then height is measured by the buffer height, enabling scrolling.
+    ///     The current <see cref="ConsoleDriver.HeightAsBuffer" /> used in the terminal.
+    /// </summary>
     public override bool HeightAsBuffer { get; set; }
+
     public override WebClipboard Clipboard { get; }
 
     // The format is rows, columns and 3 values on the last column: Rune, Attribute and Dirty Flag
-    private bool[] dirtyLine;
+    private bool[] _dirtyLine;
 
     /// <summary>
     ///     Assists with testing, the format is rows, columns and 3 values on the last column: Rune, Attribute and Dirty Flag
     /// </summary>
-    public int[,,] Contents { get; private set; }
+    private int[,,] Contents { get; set; }
 
+    // ReSharper disable once UnusedMember.Local
     private void UpdateOffscreen()
     {
         var cols = this.Cols;
         var rows = this.Rows;
 
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
         this.Contents = new int [rows, cols, 3];
         for (var r = 0; r < rows; r++)
         {
@@ -48,66 +71,63 @@ public partial class Html5AnsiConsoleCanvas
             }
         }
 
-        this.dirtyLine = new bool [rows];
+        this._dirtyLine = new bool [rows];
         for (var row = 0; row < rows; row++)
         {
-            this.dirtyLine[row] = true;
+            this._dirtyLine[row] = true;
         }
     }
 
     private static readonly bool sync = false;
 
 
-    private bool needMove;
-
-    // Current row, and current col, tracked by Move/AddCh only
-    private int ccol, crow;
+    private bool _needMove;
 
     public override void Move(int col, int row)
     {
-        this.ccol = col;
-        this.crow = row;
+        this._terminalSettings.SetCursorPosition(x: col, y: row);
 
         if (this.Clip.Contains(x: col,
                 y: row))
         {
             this.CursorTop = row;
             this.CursorLeft = col;
-            this.needMove = false;
+            this._needMove = false;
         }
         else
         {
             this.CursorTop = this.Clip.Y;
             this.CursorLeft = this.Clip.X;
-            this.needMove = true;
+            this._needMove = true;
         }
     }
 
     public override void AddRune(Rune rune)
     {
+        var currentPosition = this._terminalSettings.CursorPosition;
         rune = MakePrintable(c: rune);
-        if (this.Clip.Contains(x: this.ccol,
-                y: this.crow))
+        if (this.Clip.Contains(x: currentPosition.X,
+                y: currentPosition.Y))
         {
-            if (this.needMove)
+            if (this._needMove)
                 //MockConsole.CursorLeft = ccol;
                 //MockConsole.CursorTop = crow;
-                this.needMove = false;
+                this._needMove = false;
 
-            this.Contents[this.crow, this.ccol,
+            this.Contents[currentPosition.Y, currentPosition.X,
                 0] = (int) (uint) rune;
-            this.Contents[this.crow, this.ccol,
-                1] = this.currentAttribute;
-            this.Contents[this.crow, this.ccol,
+            this.Contents[currentPosition.Y, currentPosition.X,
+                1] = this._currentAttribute;
+            this.Contents[currentPosition.Y, currentPosition.X,
                 2] = 1;
-            this.dirtyLine[this.crow] = true;
+            this._dirtyLine[currentPosition.Y] = true;
         }
         else
         {
-            this.needMove = true;
+            this._needMove = true;
         }
 
-        this.ccol++;
+        this._terminalSettings.SetCursorPosition(x: currentPosition.X + 1, y: currentPosition.Y);
         //if (ccol == Cols) {
         //	ccol = 0;
         //	if (crow + 1 < Rows)
@@ -226,17 +246,18 @@ public partial class Html5AnsiConsoleCanvas
             b: (ConsoleColor) back);
     }
 
-    private int redrawColor = -1;
+    private int _redrawColor = -1;
 
     private void SetColor(int color)
     {
-        this.redrawColor = color;
+        this._redrawColor = color;
         var values = Enum.GetValues(enumType: typeof(ConsoleColor))
             .OfType<ConsoleColor>()
             .Select(selector: s => (int) s);
-        if (values.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor) (color & 0xffff);
+        var enumerable = values as int[] ?? values.ToArray();
+        if (enumerable.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor) (color & 0xffff);
 
-        if (values.Contains(value: (color >> 16) & 0xffff))
+        if (enumerable.Contains(value: (color >> 16) & 0xffff))
             this.ForegroundColor = (ConsoleColor) ((color >> 16) & 0xffff);
     }
 
@@ -252,7 +273,7 @@ public partial class Html5AnsiConsoleCanvas
         this.CursorLeft = 0;
         for (var row = top; row < rows; row++)
         {
-            this.dirtyLine[row] = false;
+            this._dirtyLine[row] = false;
             for (var col = left; col < cols; col++)
             {
                 this.Contents[row,
@@ -261,7 +282,7 @@ public partial class Html5AnsiConsoleCanvas
                 var color = this.Contents[row,
                     col,
                     1];
-                if (color != this.redrawColor) this.SetColor(color: color);
+                if (color != this._redrawColor) this.SetColor(color: color);
                 this.Write(value: (char) this.Contents[row,
                     col,
                     0]);
@@ -278,9 +299,9 @@ public partial class Html5AnsiConsoleCanvas
         var savedCol = this.CursorLeft;
         for (var row = 0; row < rows; row++)
         {
-            if (!this.dirtyLine[row])
+            if (!this._dirtyLine[row])
                 continue;
-            this.dirtyLine[row] = false;
+            this._dirtyLine[row] = false;
             for (var col = 0; col < cols; col++)
             {
                 if (this.Contents[row,
@@ -299,7 +320,7 @@ public partial class Html5AnsiConsoleCanvas
                     var color = this.Contents[row,
                         col,
                         1];
-                    if (color != this.redrawColor) this.SetColor(color: color);
+                    if (color != this._redrawColor) this.SetColor(color: color);
 
                     this.Write(value: (char) this.Contents[row,
                         col,
@@ -315,60 +336,61 @@ public partial class Html5AnsiConsoleCanvas
         this.CursorLeft = savedCol;
     }
 
-    private Attribute currentAttribute;
+    private Attribute _currentAttribute;
 
     public override void SetAttribute(Attribute c)
     {
-        this.currentAttribute = c;
+        this._currentAttribute = c;
     }
 
-    private Key MapKey(ConsoleKeyInfo keyInfo)
+    private static Key MapKey(ConsoleKeyInfo keyInfo)
     {
+        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (keyInfo.Key)
         {
             case ConsoleKey.Escape:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Esc);
             case ConsoleKey.Tab:
                 return keyInfo.Modifiers == ConsoleModifiers.Shift ? Key.BackTab : Key.Tab;
             case ConsoleKey.Home:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Home);
             case ConsoleKey.End:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.End);
             case ConsoleKey.LeftArrow:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.CursorLeft);
             case ConsoleKey.RightArrow:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.CursorRight);
             case ConsoleKey.UpArrow:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.CursorUp);
             case ConsoleKey.DownArrow:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.CursorDown);
             case ConsoleKey.PageUp:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.PageUp);
             case ConsoleKey.PageDown:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.PageDown);
             case ConsoleKey.Enter:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Enter);
             case ConsoleKey.Spacebar:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: keyInfo.KeyChar == 0 ? Key.Space : (Key) keyInfo.KeyChar);
             case ConsoleKey.Backspace:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Backspace);
             case ConsoleKey.Delete:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.DeleteChar);
             case ConsoleKey.Insert:
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.InsertChar);
 
             case ConsoleKey.Oem1:
@@ -418,7 +440,7 @@ public partial class Html5AnsiConsoleCanvas
                 return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
 
             if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: (Key) ((uint) Key.D0 + delta));
 
             return (Key) keyInfo.KeyChar;
@@ -428,22 +450,22 @@ public partial class Html5AnsiConsoleCanvas
         {
             var delta = key - ConsoleKey.F1;
             if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) != 0)
-                return this.MapKeyModifiers(keyInfo: keyInfo,
+                return MapKeyModifiers(keyInfo: keyInfo,
                     key: (Key) ((uint) Key.F1 + delta));
 
             return (Key) ((uint) Key.F1 + delta);
         }
 
         if (keyInfo.KeyChar != 0)
-            return this.MapKeyModifiers(keyInfo: keyInfo,
+            return MapKeyModifiers(keyInfo: keyInfo,
                 key: (Key) keyInfo.KeyChar);
 
         return (Key) 0xffffffff;
     }
 
-    private KeyModifiers keyModifiers;
+    private KeyModifiers _keyModifiers;
 
-    private Key MapKeyModifiers(ConsoleKeyInfo keyInfo, Key key)
+    private static Key MapKeyModifiers(ConsoleKeyInfo keyInfo, Key key)
     {
         var keyMod = new Key();
         if ((keyInfo.Modifiers & ConsoleModifiers.Shift) != 0)
@@ -456,41 +478,52 @@ public partial class Html5AnsiConsoleCanvas
         return keyMod != Key.Null ? keyMod | key : key;
     }
 
-    private Action<KeyEvent> keyHandler;
-    private Action<KeyEvent> keyUpHandler;
+    private Action<KeyEvent> _keyHandler;
+    private Action<KeyEvent> _keyUpHandler;
 
     public override void PrepareToRun(MainLoop mainLoop, Action<KeyEvent> keyHandler, Action<KeyEvent> keyDownHandler,
         Action<KeyEvent> keyUpHandler, Action<MouseEvent> mouseHandler)
     {
-        this.keyHandler = keyHandler;
-        this.keyUpHandler = keyUpHandler;
+        this._keyHandler = keyHandler;
+        this._keyUpHandler = keyUpHandler;
 
+        // ReSharper disable once HeapView.DelegateAllocation
         // Note: Net doesn't support keydown/up events and thus any passed keyDown/UpHandlers will never be called
-        (mainLoop.Driver as FakeMainLoop).KeyPressed += consoleKey => this.ProcessInput(consoleKey: consoleKey);
+        (mainLoop.Driver as WebLoopDriver)!.KeyPressed += this.OnKeyPressed;
+    }
+
+    private void OnKeyPressed(ConsoleKeyInfo consoleKey)
+    {
+        this.ProcessInput(consoleKey: consoleKey);
     }
 
     private void ProcessInput(ConsoleKeyInfo consoleKey)
     {
-        this.keyModifiers = new KeyModifiers();
-        var map = this.MapKey(keyInfo: consoleKey);
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        this._keyModifiers = new KeyModifiers();
+        var map = MapKey(keyInfo: consoleKey);
         if (map == (Key) 0xffffffff)
             return;
 
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Alt)) this.keyModifiers.Alt = true;
+        // ReSharper disable HeapView.BoxingAllocation
+        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Alt)) this._keyModifiers.Alt = true;
 
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Shift)) this.keyModifiers.Shift = true;
+        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Shift)) this._keyModifiers.Shift = true;
 
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Control)) this.keyModifiers.Ctrl = true;
+        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Control)) this._keyModifiers.Ctrl = true;
+        // ReSharper restore HeapView.BoxingAllocation
 
-        this.keyHandler(obj: new KeyEvent(k: map,
-            km: this.keyModifiers));
-        this.keyUpHandler(obj: new KeyEvent(k: map,
-            km: this.keyModifiers));
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        this._keyHandler(obj: new KeyEvent(k: map,
+            km: this._keyModifiers));
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        this._keyUpHandler(obj: new KeyEvent(k: map,
+            km: this._keyModifiers));
     }
 
     public override Attribute GetAttribute()
     {
-        return this.currentAttribute;
+        return this._currentAttribute;
     }
 
     /// <inheritdoc />
@@ -624,7 +657,7 @@ public partial class Html5AnsiConsoleCanvas
             height: this.Rows);
 
         this.Contents = new int [this.Rows, this.Cols, 3];
-        this.dirtyLine = new bool [this.Rows];
+        this._dirtyLine = new bool [this.Rows];
     }
 
     private void UpdateOffScreen()
@@ -645,7 +678,7 @@ public partial class Html5AnsiConsoleCanvas
                     this.Contents[row,
                         c,
                         2] = 0;
-                    this.dirtyLine[row] = true;
+                    this._dirtyLine[row] = true;
                 }
             }
         }
@@ -659,20 +692,20 @@ public partial class Html5AnsiConsoleCanvas
         var hasColor = false;
         foreground = default;
         background = default;
-        var values = Enum.GetValues(enumType: typeof(ConsoleColor))
-            .OfType<ConsoleColor>()
+        // ReSharper disable HeapView.ObjectAllocation
+        var values = Enum.GetValues(enumType: typeof(ConsoleColor)).OfType<ConsoleColor>()
             .Select(selector: s => (int) s);
-        if (values.Contains(value: value & 0xffff))
+        // ReSharper restore HeapView.ObjectAllocation
+        var enumerable = values as int[] ?? values.ToArray();
+        if (enumerable.Contains(value: value & 0xffff))
         {
             hasColor = true;
             background = (Color) (ConsoleColor) (value & 0xffff);
         }
 
-        if (values.Contains(value: (value >> 16) & 0xffff))
-        {
-            hasColor = true;
-            foreground = (Color) (ConsoleColor) ((value >> 16) & 0xffff);
-        }
+        if (!enumerable.Contains(value: (value >> 16) & 0xffff)) return hasColor;
+        hasColor = true;
+        foreground = (Color) (ConsoleColor) ((value >> 16) & 0xffff);
 
         return hasColor;
     }

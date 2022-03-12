@@ -1,4 +1,5 @@
-﻿using HACC.Spectre;
+﻿using HACC.Components;
+using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Rendering;
@@ -19,7 +20,14 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
     private TerminalSettings _terminalSettings;
 
 
-    public Html5AnsiConsoleCanvas(ILogger logger, Console console, TerminalSettings? terminalSettings = null)
+    /// <summary>
+    /// </summary>
+    /// <param name="logger">dependency injected logger</param>
+    /// <param name="console">dependency injected console</param>
+    /// <param name="webClipboard">dependency injected webClipboard</param>
+    /// <param name="terminalSettings"></param>
+    public Html5AnsiConsoleCanvas(ILogger logger, Console console, WebClipboard webClipboard,
+        TerminalSettings? terminalSettings = null)
     {
         this._console = console;
         this._logger = logger;
@@ -28,6 +36,7 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
             logger: logger,
             columns: this._terminalSettings.Columns,
             rows: this._terminalSettings.Rows);
+        this.Clipboard = webClipboard;
     }
 
     public Profile Profile => throw new NotImplementedException();
