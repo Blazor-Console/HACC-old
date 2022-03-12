@@ -8,7 +8,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas : IAnsiConsole
+public partial class Html5AnsiConsoleCanvas
 {
     public delegate void ConsoleResizedHandler(object sender, ConsoleResizedEventArgs e);
 
@@ -39,17 +39,17 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferHeight
     {
-        get => this.TerminalSettings.Rows;
+        get => this._terminalSettings.Rows;
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
                 sender: this,
-                oldWidth: this.TerminalSettings.Columns,
-                oldHeight: this.TerminalSettings.Rows,
-                newWidth: this.TerminalSettings.Columns,
+                oldWidth: this._terminalSettings.Columns,
+                oldHeight: this._terminalSettings.Rows,
+                newWidth: this._terminalSettings.Columns,
                 newHeight: value);
 
-            this.TerminalSettings.Rows = value;
+            this._terminalSettings.Rows = value;
 
             this.ConsoleResized?.Invoke(
                 sender: this,
@@ -80,17 +80,17 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferWidth
     {
-        get => this.TerminalSettings.Columns;
+        get => this._terminalSettings.Columns;
         set
         {
             var eventArgs = new ConsoleResizedEventArgs(
                 sender: this,
-                oldWidth: this.TerminalSettings.Columns,
-                oldHeight: this.TerminalSettings.Rows,
+                oldWidth: this._terminalSettings.Columns,
+                oldHeight: this._terminalSettings.Rows,
                 newWidth: value,
-                newHeight: this.TerminalSettings.Rows);
+                newHeight: this._terminalSettings.Rows);
 
-            this.TerminalSettings.Rows = value;
+            this._terminalSettings.Rows = value;
 
             this.ConsoleResized?.Invoke(
                 sender: this,
@@ -141,10 +141,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The get operation is invoked on an operating system other than Windows.
     public string Title
     {
-        get => this.TerminalSettings.Title;
+        get => this._terminalSettings.Title;
         set
         {
-            this.TerminalSettings.Title = value;
+            this._terminalSettings.Title = value;
 
             throw new NotImplementedException();
         }
@@ -174,10 +174,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowHeight
     {
-        get => this.TerminalSettings.Rows;
+        get => this._terminalSettings.Rows;
         set
         {
-            this.TerminalSettings.Rows = value;
+            this._terminalSettings.Rows = value;
 
             throw new NotImplementedException();
         }
@@ -257,10 +257,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowWidth
     {
-        get => this.TerminalSettings.Columns;
+        get => this._terminalSettings.Columns;
         set
         {
-            this.TerminalSettings.Columns = value;
+            this._terminalSettings.Columns = value;
 
             throw new NotImplementedException();
         }

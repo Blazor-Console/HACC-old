@@ -7,7 +7,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas : IAnsiConsole
+public partial class Html5AnsiConsoleCanvas
 {
     //
     // Summary:
@@ -28,12 +28,12 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public int CursorLeft
     {
-        get => this.TerminalSettings.CursorPosition.X;
+        get => this._terminalSettings.CursorPosition.X;
         set
         {
-            this.TerminalSettings.CursorPosition = new Point(
+            this._terminalSettings.CursorPosition = new Point(
                 x: value,
-                y: this.TerminalSettings.CursorPosition.Y);
+                y: this._terminalSettings.CursorPosition.Y);
 
             throw new NotImplementedException();
         }
@@ -61,10 +61,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The set operation is invoked on an operating system other than Windows.
     public int CursorSize
     {
-        get => this.TerminalSettings.CursorSize;
+        get => this._terminalSettings.CursorSize;
         set
         {
-            this.TerminalSettings.CursorSize = value;
+            this._terminalSettings.CursorSize = value;
 
             throw new NotImplementedException();
         }
@@ -89,11 +89,11 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public int CursorTop
     {
-        get => this.TerminalSettings.CursorPosition.Y;
+        get => this._terminalSettings.CursorPosition.Y;
         set
         {
-            this.TerminalSettings.CursorPosition = new Point(
-                x: this.TerminalSettings.CursorPosition.X,
+            this._terminalSettings.CursorPosition = new Point(
+                x: this._terminalSettings.CursorPosition.X,
                 y: value);
 
             throw new NotImplementedException();
@@ -118,10 +118,10 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     The get operation is invoked on an operating system other than Windows.
     public bool CursorVisible
     {
-        get => this.TerminalSettings.CursorVisible;
+        get => this._terminalSettings.CursorVisible;
         set
         {
-            this.TerminalSettings.CursorVisible = value;
+            this._terminalSettings.CursorVisible = value;
 
             throw new NotImplementedException();
         }
@@ -139,8 +139,8 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     public (int Left, int Top) GetCursorPosition()
     {
         return (
-            Left: this.TerminalSettings.CursorPosition.X,
-            Top: this.TerminalSettings.CursorPosition.Y
+            Left: this._terminalSettings.CursorPosition.X,
+            Top: this._terminalSettings.CursorPosition.Y
         );
     }
 
@@ -169,6 +169,6 @@ public partial class Html5AnsiConsoleCanvas : IAnsiConsole
     //     An I/O error occurred.
     public void SetCursorPosition(int left, int top)
     {
-        this.TerminalSettings.SetCursorPosition(x: left, y: top);
+        this._terminalSettings.SetCursorPosition(x: left, y: top);
     }
 }

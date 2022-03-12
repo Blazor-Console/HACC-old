@@ -14,9 +14,9 @@ namespace HACC.Models.Drivers;
 public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 {
     private readonly Components.Console _console;
-    private readonly ILogger Logger;
+    private readonly ILogger _logger;
 
-    private TerminalSettings TerminalSettings;
+    private TerminalSettings _terminalSettings;
 
     private const int BeepFrequency = 800;
     private const int BeepDurationMsec = 50;
@@ -24,12 +24,12 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
     public Html5AnsiConsoleCanvas(ILogger logger, Components.Console console, TerminalSettings? terminalSettings = null)
     {
         this._console = console;
-        this.Logger = logger;
-        this.TerminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
+        this._logger = logger;
+        this._terminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
         this.InternalCharacterBuffer = new CharacterBuffer(
             logger: logger,
-            columns: this.TerminalSettings.Columns,
-            rows: this.TerminalSettings.Rows);
+            columns: this._terminalSettings.Columns,
+            rows: this._terminalSettings.Rows);
         
         
     }

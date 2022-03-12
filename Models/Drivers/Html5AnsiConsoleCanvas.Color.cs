@@ -7,7 +7,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
+public partial class Html5AnsiConsoleCanvas
 {
     //
     // Summary:
@@ -28,8 +28,8 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
     //     An I/O error occurred.
     public ConsoleColor BackgroundColor
     {
-        get => this.TerminalSettings.TerminalBackground;
-        set => this.TerminalSettings.TerminalBackground = value;
+        get => this._terminalSettings.TerminalBackground;
+        set => this._terminalSettings.TerminalBackground = value;
     }
 
     //
@@ -51,10 +51,10 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
     //     An I/O error occurred.
     public ConsoleColor ForegroundColor
     {
-        get => this.TerminalSettings.TerminalForeground;
+        get => this._terminalSettings.TerminalForeground;
         set
         {
-            this.TerminalSettings.TerminalForeground = value;
+            this._terminalSettings.TerminalForeground = value;
 
             throw new NotImplementedException();
         }

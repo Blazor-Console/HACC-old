@@ -28,9 +28,10 @@ public partial class Console
     private Canvas2DContext _context = null!;
     private readonly Html5AnsiConsoleCanvas _canvasConsoleCore;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected new async Task OnAfterRenderAsync(bool firstRender)
     {
-        _context = await this.CanvasReference.CreateCanvas2DAsync();
+        await base.OnAfterRenderAsync(firstRender);
+        this._context = await this.CanvasReference.CreateCanvas2DAsync();
         await _context.SetFillStyleAsync(value: "green");
 
         await _context.FillRectAsync(x: 10, y: 100, width: 100, height: 100);

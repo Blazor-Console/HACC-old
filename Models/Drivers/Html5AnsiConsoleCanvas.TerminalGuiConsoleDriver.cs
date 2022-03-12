@@ -6,7 +6,7 @@ using Spectre.Console;
 
 namespace HACC.Models.Drivers;
 
-public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
+public partial class Html5AnsiConsoleCanvas
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 	int cols, rows, left, top;
@@ -27,7 +27,7 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 	/// <summary>
 	/// Assists with testing, the format is rows, columns and 3 values on the last column: Rune, Attribute and Dirty Flag
 	/// </summary>
-	internal int[,,] Contents => contents;
+	public int[,,] Contents => contents;
 
 	void UpdateOffscreen()
 	{

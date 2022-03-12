@@ -6,7 +6,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas : IAnsiConsole
+public partial class Html5AnsiConsoleCanvas
 {
     //
     // Summary:
