@@ -4,7 +4,7 @@ using HACC.Enumerations;
 
 namespace HACC.Models;
 
-public struct TerminalSettings : IEquatable<TerminalSettings>
+public record TerminalSettings
 {
     /// <summary>
     ///     Window/Terminal title
@@ -21,6 +21,16 @@ public struct TerminalSettings : IEquatable<TerminalSettings>
     /// </summary>
     public int TerminalHeight;
 
+    /// <summary>
+    ///     Terminal window width in characters
+    /// </summary>
+    public int BufferColumns;
+
+    /// <summary>
+    ///     Terminal window height in characters
+    /// </summary>
+    public int BufferRows;
+    
     /// <summary>
     ///     Terminal window width in characters
     /// </summary>
@@ -80,33 +90,46 @@ public struct TerminalSettings : IEquatable<TerminalSettings>
     /// </summary>
     public ConsoleColor TerminalForeground;
 
-    public TerminalSettings()
+    public TerminalSettings(
+        string title = "",
+        int terminalWidth = Defaults.InitialTerminalWidth,
+        int terminalHeight = Defaults.InitialTerminalHeight,
+        int bufferColumns = Defaults.InitialBufferColumns,
+        int bufferRows = Defaults.InitialBufferRows,
+        int columns = Defaults.InitialColumns,
+        int rows = Defaults.InitialRows,
+        bool cursorVisible = Defaults.CursorVisibility,
+        bool statusVisible = Defaults.StatusVisibility,
+        bool titleVisible = Defaults.TitleVisibility,
+        Point? cursorPosition = null,
+        CursorType cursorType = Defaults.CursorShape,
+        int cursorHeight = Defaults.CursorHeight,
+        int cursorSize = Defaults.CursorSize,
+        ConsoleColor terminalBackground = Defaults.BackgroundColor,
+        ConsoleColor terminalForeground = Defaults.ForegroundColor)
     {
-        Title = "";
-        TerminalWidth = Defaults.InitialTerminalWidth;
-        TerminalHeight = Defaults.InitialTerminalHeight;
-        Columns = Defaults.InitialColumns;
-        Rows = Defaults.InitialRows;
-        CursorVisible = Defaults.CursorVisibility;
-        StatusVisible = Defaults.StatusVisibility;
-        TitleVisible = Defaults.TitleVisibility;
-        CursorPosition = new Point(
+        this.Title = title;
+        this.TerminalWidth = terminalWidth;
+        this.TerminalHeight = terminalHeight;
+        this.BufferColumns = bufferColumns;
+        this.BufferRows = bufferRows;
+        this.Columns = columns;
+        this.Rows = rows;
+        this.CursorVisible = cursorVisible;
+        this.StatusVisible = statusVisible;
+        this.TitleVisible = titleVisible;
+        this.CursorPosition = cursorPosition ?? new Point(
             x: 0,
             y: 0);
-        CursorHeight = 100;
-        CursorSize = 100;
-        TerminalBackground = Defaults.BackgroundColor;
-        TerminalForeground = Defaults.ForegroundColor;
-        CursorType = Defaults.CursorShape;
+        this.CursorType = cursorType;
+        this.CursorHeight = cursorHeight;
+        this.CursorSize = cursorSize;
+        this.TerminalBackground = terminalBackground;
+        this.TerminalForeground = terminalForeground;
     }
 
     public void SetCursorPosition(int x, int y)
     {
         CursorPosition = new Point(x: x, y: y);
-    }
-
-    public bool Equals(TerminalSettings other)
-    {
-        throw new NotImplementedException();
     }
 }

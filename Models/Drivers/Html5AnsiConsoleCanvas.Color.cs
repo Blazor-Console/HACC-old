@@ -72,7 +72,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void ResetColor()
     {
-        this.InternalCharacterBuffer.Clear(
+        this._internalCharacterBuffer.Clear(
             clearCharacters: false,
             clearEffects: true);
     }

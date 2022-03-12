@@ -18,15 +18,14 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 
     private TerminalSettings _terminalSettings;
 
-    private const int BeepFrequency = 800;
-    private const int BeepDurationMsec = 50;
+
 
     public Html5AnsiConsoleCanvas(ILogger logger, Components.Console console, TerminalSettings? terminalSettings = null)
     {
         this._console = console;
         this._logger = logger;
-        this._terminalSettings = terminalSettings.HasValue ? terminalSettings.Value : new TerminalSettings();
-        this.InternalCharacterBuffer = new CharacterBuffer(
+        this._terminalSettings = terminalSettings ?? new TerminalSettings();
+        this._internalCharacterBuffer = new CharacterBuffer(
             logger: logger,
             columns: this._terminalSettings.Columns,
             rows: this._terminalSettings.Rows);

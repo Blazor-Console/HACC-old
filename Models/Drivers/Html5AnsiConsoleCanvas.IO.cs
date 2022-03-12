@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using HACC.Configuration;
 using Spectre.Console;
 
 namespace HACC.Models.Drivers;
@@ -201,7 +202,7 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void Beep(int frequency = BeepFrequency, int duration = BeepDurationMsec)
+    public void Beep(int frequency = Defaults.BeepFrequency, int duration = Defaults.BeepDurationMsec)
     {
         // https://stackoverflow.com/a/60018645
         throw new NotImplementedException();

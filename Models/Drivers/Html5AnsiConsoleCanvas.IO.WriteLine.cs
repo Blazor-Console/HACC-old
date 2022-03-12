@@ -17,7 +17,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine()
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: "",
             characterEffects: null,
             automaticNewLine: true);
@@ -37,7 +37,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(bool value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -57,7 +57,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(char value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -78,7 +78,7 @@ public partial class Html5AnsiConsoleCanvas
     public void WriteLine(char[]? buffer)
     {
         var value = buffer is null ? string.Empty : Convert.ToString(value: buffer);
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -117,7 +117,7 @@ public partial class Html5AnsiConsoleCanvas
             .Substring(
                 startIndex: index,
                 length: count);
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -137,7 +137,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(decimal value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -157,7 +157,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(double value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -177,7 +177,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(int value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -197,7 +197,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(long value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -217,7 +217,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(object? value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -237,7 +237,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(float value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -257,7 +257,7 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void WriteLine(string? value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: value,
             characterEffects: null,
             automaticNewLine: true);
@@ -286,7 +286,7 @@ public partial class Html5AnsiConsoleCanvas
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0),
@@ -320,7 +320,7 @@ public partial class Html5AnsiConsoleCanvas
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -358,7 +358,7 @@ public partial class Html5AnsiConsoleCanvas
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1, object? arg2)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg0,
@@ -392,7 +392,7 @@ public partial class Html5AnsiConsoleCanvas
     //     The format specification in format is invalid.
     public void WriteLine(string format, params object?[]? arg)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: string.Format(
                 format: format,
                 arg0: arg),
@@ -415,7 +415,7 @@ public partial class Html5AnsiConsoleCanvas
     [CLSCompliant(isCompliant: false)]
     public void WriteLine(uint value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);
@@ -436,7 +436,7 @@ public partial class Html5AnsiConsoleCanvas
     [CLSCompliant(isCompliant: false)]
     public void WriteLine(ulong value)
     {
-        this.InternalCharacterBuffer.WriteLine(
+        this._internalCharacterBuffer.WriteLine(
             line: Convert.ToString(value: value),
             characterEffects: null,
             automaticNewLine: true);

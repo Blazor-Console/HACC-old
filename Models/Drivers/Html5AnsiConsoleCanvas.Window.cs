@@ -10,11 +10,9 @@ namespace HACC.Models.Drivers;
 //     This class cannot be inherited.
 public partial class Html5AnsiConsoleCanvas
 {
-    public delegate void ConsoleResizedHandler(object sender, ConsoleResizedEventArgs e);
-
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
-    private readonly CharacterBuffer InternalCharacterBuffer;
+    private readonly CharacterBuffer _internalCharacterBuffer;
 
     //
     // Summary:
@@ -42,18 +40,8 @@ public partial class Html5AnsiConsoleCanvas
         get => this._terminalSettings.Rows;
         set
         {
-            var eventArgs = new ConsoleResizedEventArgs(
-                sender: this,
-                oldWidth: this._terminalSettings.Columns,
-                oldHeight: this._terminalSettings.Rows,
-                newWidth: this._terminalSettings.Columns,
-                newHeight: value);
-
             this._terminalSettings.Rows = value;
-
-            this.ConsoleResized?.Invoke(
-                sender: this,
-                e: eventArgs);
+            this.TerminalResized?.Invoke();
         }
     }
 
@@ -83,18 +71,8 @@ public partial class Html5AnsiConsoleCanvas
         get => this._terminalSettings.Columns;
         set
         {
-            var eventArgs = new ConsoleResizedEventArgs(
-                sender: this,
-                oldWidth: this._terminalSettings.Columns,
-                oldHeight: this._terminalSettings.Rows,
-                newWidth: value,
-                newHeight: this._terminalSettings.Rows);
-
             this._terminalSettings.Rows = value;
-
-            this.ConsoleResized?.Invoke(
-                sender: this,
-                e: eventArgs);
+            this.TerminalResized?.Invoke();
         }
     }
 
@@ -172,14 +150,16 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowHeight
+    public int WindowRows
     {
         get => this._terminalSettings.Rows;
         set
         {
+            if (value > LargestWindowHeight)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "The value of the WindowRows property is greater than the largest possible window height");
+            }
             this._terminalSettings.Rows = value;
-
-            throw new NotImplementedException();
         }
     }
 
@@ -255,14 +235,16 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowWidth
+    public int WindowColumns
     {
         get => this._terminalSettings.Columns;
         set
         {
+            if (value > LargestWindowWidth)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), "The value of the WindowColumns property is greater than the largest possible window width");
+            }
             this._terminalSettings.Columns = value;
-
-            throw new NotImplementedException();
         }
     }
 
@@ -272,7 +254,6 @@ public partial class Html5AnsiConsoleCanvas
     }
 
     public event NewFrameHandler NewFrame;
-    public event ConsoleResizedHandler ConsoleResized;
 
     //
     // Parameters:
@@ -476,6 +457,6 @@ public partial class Html5AnsiConsoleCanvas
     //     An I/O error occurred.
     public void Clear()
     {
-        this.InternalCharacterBuffer.Clear();
+        this._internalCharacterBuffer.Clear();
     }
 }

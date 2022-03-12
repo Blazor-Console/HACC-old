@@ -1,3 +1,4 @@
+using HACC.Models.EventArgs;
 using NStack;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
@@ -9,14 +10,13 @@ namespace HACC.Models.Drivers;
 public partial class Html5AnsiConsoleCanvas
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-	int cols, rows, left, top;
-	public override int Cols => cols;
+	public override int Cols => this.WindowColumns;
 
-	public override int Rows => rows;
+	public override int Rows => this.WindowRows;
 
 	// Only handling left here because not all terminals has a horizontal scroll bar.
-	public override int Left => 0;
-	public override int Top => 0;
+	public override int Left => this.WindowLeft;
+	public override int Top => this.WindowTop;
 	public override bool HeightAsBuffer { get; set; }
 	public override WebClipboard Clipboard { get; }
 
@@ -73,14 +73,14 @@ public partial class Html5AnsiConsoleCanvas
 		if (Clip.Contains(col,
 			    row))
 		{
-			FakeConsole.CursorTop = row;
-			FakeConsole.CursorLeft = col;
+			this.CursorTop = row;
+			this.CursorLeft = col;
 			needMove = false;
 		}
 		else
 		{
-			FakeConsole.CursorTop = Clip.Y;
-			FakeConsole.CursorLeft = Clip.X;
+			this.CursorTop = Clip.Y;
+			this.CursorLeft = Clip.X;
 			needMove = true;
 		}
 
@@ -131,8 +131,8 @@ public partial class Html5AnsiConsoleCanvas
 
 	public override void End()
 	{
-		FakeConsole.ResetColor();
-		FakeConsole.Clear();
+		this.ResetColor();
+		this.Clear();
 	}
 
 	static Attribute MakeColor(ConsoleColor f, ConsoleColor b)
@@ -147,11 +147,9 @@ public partial class Html5AnsiConsoleCanvas
 
 	public override void Init(Action terminalResized)
 	{
+		this._terminalSettings = new TerminalSettings();
 		TerminalResized = terminalResized;
-
-		cols = FakeConsole.WindowWidth = FakeConsole.BufferWidth = FakeConsole.WIDTH;
-		rows = FakeConsole.WindowHeight = FakeConsole.BufferHeight = FakeConsole.HEIGHT;
-		FakeConsole.Clear();
+		this.Clear();
 		ResizeScreen();
 		UpdateOffScreen();
 
@@ -243,12 +241,12 @@ public partial class Html5AnsiConsoleCanvas
 			.Select(s => (int) s);
 		if (values.Contains(color & 0xffff))
 		{
-			FakeConsole.BackgroundColor = (ConsoleColor) (color & 0xffff);
+			this.BackgroundColor = (ConsoleColor) (color & 0xffff);
 		}
 
 		if (values.Contains((color >> 16) & 0xffff))
 		{
-			FakeConsole.ForegroundColor = (ConsoleColor) ((color >> 16) & 0xffff);
+			this.ForegroundColor = (ConsoleColor) ((color >> 16) & 0xffff);
 		}
 	}
 
@@ -256,12 +254,12 @@ public partial class Html5AnsiConsoleCanvas
 	{
 		int top = Top;
 		int left = Left;
-		int rows = Math.Min(Console.WindowHeight + top,
+		int rows = Math.Min(this.WindowRows + top,
 			Rows);
 		int cols = Cols;
 
-		FakeConsole.CursorTop = 0;
-		FakeConsole.CursorLeft = 0;
+		this.CursorTop = 0;
+		this.CursorLeft = 0;
 		for (int row = top; row < rows; row++)
 		{
 			dirtyLine[row] = false;
@@ -275,7 +273,7 @@ public partial class Html5AnsiConsoleCanvas
 					1];
 				if (color != redrawColor)
 					SetColor(color);
-				FakeConsole.Write((char) contents[row,
+				this.Write((char) contents[row,
 					col,
 					0]);
 			}
@@ -287,8 +285,8 @@ public partial class Html5AnsiConsoleCanvas
 		int rows = Rows;
 		int cols = Cols;
 
-		var savedRow = FakeConsole.CursorTop;
-		var savedCol = FakeConsole.CursorLeft;
+		var savedRow = this.CursorTop;
+		var savedCol = this.CursorLeft;
 		for (int row = 0; row < rows; row++)
 		{
 			if (!dirtyLine[row])
@@ -301,8 +299,8 @@ public partial class Html5AnsiConsoleCanvas
 					    2] != 1)
 					continue;
 
-				FakeConsole.CursorTop = row;
-				FakeConsole.CursorLeft = col;
+				this.CursorTop = row;
+				this.CursorLeft = col;
 				for (;
 				     col < cols && contents[row,
 					     col,
@@ -315,7 +313,7 @@ public partial class Html5AnsiConsoleCanvas
 					if (color != redrawColor)
 						SetColor(color);
 
-					FakeConsole.Write((char) contents[row,
+					this.Write((char) contents[row,
 						col,
 						0]);
 					contents[row,
@@ -325,8 +323,8 @@ public partial class Html5AnsiConsoleCanvas
 			}
 		}
 
-		FakeConsole.CursorTop = savedRow;
-		FakeConsole.CursorLeft = savedCol;
+		this.CursorTop = savedRow;
+		this.CursorLeft = savedCol;
 	}
 
 	Attribute currentAttribute;
@@ -540,7 +538,7 @@ public partial class Html5AnsiConsoleCanvas
 	/// <inheritdoc/>
 	public override bool GetCursorVisibility(out CursorVisibility visibility)
 	{
-		if (FakeConsole.CursorVisible)
+		if (this.CursorVisible)
 		{
 			visibility = CursorVisibility.Default;
 		}
@@ -557,11 +555,11 @@ public partial class Html5AnsiConsoleCanvas
 	{
 		if (visibility == CursorVisibility.Invisible)
 		{
-			FakeConsole.CursorVisible = false;
+			this.CursorVisible = false;
 		}
 		else
 		{
-			FakeConsole.CursorVisible = true;
+			this.CursorVisible = true;
 		}
 
 		return false;
@@ -584,23 +582,25 @@ public partial class Html5AnsiConsoleCanvas
 
 	public void SetBufferSize(int width, int height)
 	{
-		cols = FakeConsole.WindowWidth = FakeConsole.BufferWidth = width;
-		rows = FakeConsole.WindowHeight = FakeConsole.BufferHeight = height;
+		this._terminalSettings.BufferRows = height;
+		this._terminalSettings.BufferColumns = width;
+		this.WindowRows = height;
+		this.WindowColumns = width;
 		ProcessResize();
 	}
 
 	public void SetWindowSize(int width, int height)
 	{
-		FakeConsole.WindowWidth = width;
-		FakeConsole.WindowHeight = height;
-		if (width > cols || !HeightAsBuffer)
+		this.WindowColumns = width;
+		this.WindowRows = height;
+		if (width > this.BufferWidth || !HeightAsBuffer)
 		{
-			cols = FakeConsole.BufferWidth = width;
+			this.BufferWidth = width;
 		}
 
-		if (height > rows || !HeightAsBuffer)
+		if (height > this.BufferHeight || !HeightAsBuffer)
 		{
-			rows = FakeConsole.BufferHeight = height;
+			this.BufferHeight = height;
 		}
 
 		ProcessResize();
@@ -610,41 +610,41 @@ public partial class Html5AnsiConsoleCanvas
 	{
 		if (HeightAsBuffer)
 		{
-			this.left = FakeConsole.WindowLeft = Math.Max(Math.Min(left,
-					Cols - FakeConsole.WindowWidth),
+			this.WindowLeft = this.WindowLeft = Math.Max(Math.Min(left,
+					Cols - this.WindowColumns),
 				0);
-			this.top = FakeConsole.WindowTop = Math.Max(Math.Min(top,
-					Rows - Console.WindowHeight),
+			this.WindowTop = this.WindowTop = Math.Max(Math.Min(top,
+					Rows - this.WindowRows),
 				0);
 		}
-		else if (this.left > 0 || this.top > 0)
+		else if (this.WindowLeft > 0 || this.WindowTop > 0)
 		{
-			this.left = FakeConsole.WindowLeft = 0;
-			this.top = FakeConsole.WindowTop = 0;
+			this.WindowLeft = 0;
+			this.WindowTop = 0;
 		}
 	}
 
 	void ProcessResize()
 	{
-		ResizeScreen();
-		UpdateOffScreen();
-		TerminalResized?.Invoke();
+		this.ResizeScreen();
+		this.UpdateOffScreen();
+		this.TerminalResized?.Invoke();
 	}
 
 	void ResizeScreen()
 	{
 		if (!HeightAsBuffer)
 		{
-			if (Console.WindowHeight > 0)
+			if (this.WindowRows > 0)
 			{
 				// Can raise an exception while is still resizing.
 				try
 				{
 #pragma warning disable CA1416
-					Console.CursorTop = 0;
-					Console.CursorLeft = 0;
-					Console.WindowTop = 0;
-					Console.WindowLeft = 0;
+					this.CursorTop = 0;
+					this.CursorLeft = 0;
+					this.WindowTop = 0;
+					this.WindowLeft = 0;
 #pragma warning restore CA1416
 				}
 				catch (System.IO.IOException)
@@ -662,11 +662,11 @@ public partial class Html5AnsiConsoleCanvas
 			try
 			{
 #pragma warning disable CA1416
-				Console.WindowLeft = Math.Max(Math.Min(left,
-						Cols - Console.WindowWidth),
+				this.WindowLeft = Math.Max(Math.Min(this.Left,
+						Cols - this.WindowColumns),
 					0);
-				Console.WindowTop = Math.Max(Math.Min(top,
-						Rows - Console.WindowHeight),
+				this.WindowTop = Math.Max(Math.Min(this.Top,
+						Rows - this.WindowRows),
 					0);
 #pragma warning restore CA1416
 			}
@@ -690,9 +690,9 @@ public partial class Html5AnsiConsoleCanvas
 		// Can raise an exception while is still resizing.
 		try
 		{
-			for (int row = 0; row < rows; row++)
+			for (int row = 0; row < this.Rows; row++)
 			{
-				for (int c = 0; c < cols; c++)
+				for (int c = 0; c < this.Cols; c++)
 				{
 					contents[row,
 						c,
