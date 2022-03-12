@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using HACC.Models.Drivers;
-using HACC.Spectre;
 
 namespace HACC.Models.EventArgs;
 
@@ -11,7 +10,7 @@ public record NewFrameEventArgs : VirtualConsoleEventArgs
 
     public NewFrameEventArgs(Html5AnsiConsoleCanvas sender, Bitmap? oldFrame, Bitmap newFrame) : base(sender: sender)
     {
-        OldFrame = oldFrame;
-        NewFrame = newFrame;
+        this.OldFrame = oldFrame;
+        this.NewFrame = newFrame;
     }
 }

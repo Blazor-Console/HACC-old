@@ -11,8 +11,8 @@ public struct CursorInfo
 
     public CursorInfo(Point position, BufferCharacter character, CursorType type)
     {
-        Position = position;
-        Character = character;
-        Type = type;
+        this.Position = position;
+        this.Character = character;
+        this.Type = type;
     }
 }

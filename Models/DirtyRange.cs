@@ -8,8 +8,8 @@ public struct DirtyRange
 
     public DirtyRange(int xStart, int xEnd, int y)
     {
-        XStart = xStart;
-        XEnd = xEnd;
-        Y = y;
+        this.XStart = xStart;
+        this.XEnd = xEnd;
+        this.Y = y;
     }
 }

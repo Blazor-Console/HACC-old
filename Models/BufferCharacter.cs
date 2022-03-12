@@ -3,14 +3,15 @@
 public struct BufferCharacter
 {
     /// <summary>
-    /// Committed state
+    ///     Committed state
     /// </summary>
     private string CharacterOriginal;
 
     /// <summary>
-    /// Current state
+    ///     Current state
     /// </summary>
     private string CharacterState;
+
     private CharacterEffects CharacterEffectsOriginal;
     private CharacterEffects CharacterEffectsState;
     private bool ForceCharacterDirty;
@@ -18,75 +19,76 @@ public struct BufferCharacter
 
     public string Character
     {
-        get => CharacterState;
-        internal set => CharacterState = new string(value: value);
+        get => this.CharacterState;
+        internal set => this.CharacterState = new string(value: value);
     }
 
     public bool CharacterChanged
     {
-        get => ForceCharacterDirty || !CharacterState.Equals(value: CharacterOriginal);
-        internal set => ForceCharacterDirty = true;
+        get => this.ForceCharacterDirty || !this.CharacterState.Equals(value: this.CharacterOriginal);
+        internal set => this.ForceCharacterDirty = true;
     }
 
     public CharacterEffects CharacterEffects
     {
-        get => CharacterEffectsState;
-        internal set => CharacterEffectsState = value.Copy();
+        get => this.CharacterEffectsState;
+        internal set => this.CharacterEffectsState = value.Copy();
     }
 
     public bool CharacterEffectsChanged
     {
-        get => ForceEffectsDirty || !CharacterEffectsState.Equals(other: CharacterEffectsOriginal);
-        internal set => ForceEffectsDirty = true;
+        get => this.ForceEffectsDirty || !this.CharacterEffectsState.Equals(other: this.CharacterEffectsOriginal);
+        internal set => this.ForceEffectsDirty = true;
     }
 
     public BufferCharacter(string character, bool characterChanged, CharacterEffects characterEffects,
         bool characterEffectsChanged, string? originalCharacterState = null,
         CharacterEffects? originalEffectsState = null)
     {
-        CharacterOriginal =
+        this.CharacterOriginal =
             new string(value: string.IsNullOrEmpty(value: originalCharacterState) ? character : originalCharacterState);
-        CharacterState = new string(value: character);
-        ForceCharacterDirty = characterChanged;
+        this.CharacterState = new string(value: character);
+        this.ForceCharacterDirty = characterChanged;
         // ReSharper disable once MergeConditionalExpression
-        CharacterEffectsState = originalEffectsState.HasValue ? originalEffectsState.Value : characterEffects.Copy(); 
-        CharacterEffectsOriginal = characterEffects.Copy();
-        ForceEffectsDirty = characterEffectsChanged;
+        this.CharacterEffectsState =
+            originalEffectsState.HasValue ? originalEffectsState.Value : characterEffects.Copy();
+        this.CharacterEffectsOriginal = characterEffects.Copy();
+        this.ForceEffectsDirty = characterEffectsChanged;
     }
 
     public BufferCharacter()
     {
-        CharacterOriginal = string.Empty;
-        CharacterState = string.Empty;
-        ForceCharacterDirty = false;
-        CharacterEffectsState = new CharacterEffects();
-        CharacterEffectsOriginal = new CharacterEffects();
-        ForceEffectsDirty = false;
+        this.CharacterOriginal = string.Empty;
+        this.CharacterState = string.Empty;
+        this.ForceCharacterDirty = false;
+        this.CharacterEffectsState = new CharacterEffects();
+        this.CharacterEffectsOriginal = new CharacterEffects();
+        this.ForceEffectsDirty = false;
     }
 
     public BufferCharacter Copy()
     {
         return new BufferCharacter(
-            character: new string(value: Character),
-            characterChanged: ForceCharacterDirty,
-            characterEffects: CharacterEffects.Copy(),
-            characterEffectsChanged: ForceEffectsDirty,
-            originalCharacterState: new string(value: CharacterOriginal),
-            originalEffectsState: CharacterEffectsOriginal.Copy());
+            character: new string(value: this.Character),
+            characterChanged: this.ForceCharacterDirty,
+            characterEffects: this.CharacterEffects.Copy(),
+            characterEffectsChanged: this.ForceEffectsDirty,
+            originalCharacterState: new string(value: this.CharacterOriginal),
+            originalEffectsState: this.CharacterEffectsOriginal.Copy());
     }
 
     public void AcceptChanges(bool character = true, bool effects = true)
     {
         if (character)
         {
-            CharacterOriginal = CharacterState;
-            ForceCharacterDirty = false;
+            this.CharacterOriginal = this.CharacterState;
+            this.ForceCharacterDirty = false;
         }
 
         if (effects)
         {
-            CharacterEffectsOriginal = CharacterEffectsState;
-            ForceEffectsDirty = false;
+            this.CharacterEffectsOriginal = this.CharacterEffectsState;
+            this.ForceEffectsDirty = false;
         }
     }
 
@@ -94,14 +96,14 @@ public struct BufferCharacter
     {
         if (character)
         {
-            CharacterState = CharacterOriginal;
-            ForceCharacterDirty = false;
+            this.CharacterState = this.CharacterOriginal;
+            this.ForceCharacterDirty = false;
         }
 
         if (effects)
         {
-            CharacterEffectsState = CharacterEffectsOriginal;
-            ForceEffectsDirty = false;
+            this.CharacterEffectsState = this.CharacterEffectsOriginal;
+            this.ForceEffectsDirty = false;
         }
     }
 }

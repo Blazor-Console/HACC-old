@@ -4,5 +4,5 @@ public enum CursorType
 {
     Block,
     Underline,
-    Bar
+    Bar,
 }

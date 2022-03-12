@@ -7,21 +7,6 @@ namespace HACC.Models;
 public record TerminalSettings
 {
     /// <summary>
-    ///     Window/Terminal title
-    /// </summary>
-    public string Title;
-
-    /// <summary>
-    ///     Terminal window width in pixels
-    /// </summary>
-    public int TerminalWidth;
-
-    /// <summary>
-    ///     Terminal window height in pixels
-    /// </summary>
-    public int TerminalHeight;
-
-    /// <summary>
     ///     Terminal window width in characters
     /// </summary>
     public int BufferColumns;
@@ -30,46 +15,21 @@ public record TerminalSettings
     ///     Terminal window height in characters
     /// </summary>
     public int BufferRows;
-    
+
     /// <summary>
     ///     Terminal window width in characters
     /// </summary>
     public int Columns;
 
     /// <summary>
-    ///     Terminal window height in characters
+    ///     Cursor height in percentage of character
     /// </summary>
-    public int Rows;
-
-    /// <summary>
-    ///     Whether cursor is visible
-    /// </summary>
-    public bool CursorVisible;
-
-    /// <summary>
-    ///     Whether the status bar is visible
-    /// </summary>
-    public bool StatusVisible;
-
-    /// <summary>
-    ///     Whether the title bar is visible
-    /// </summary>
-    public bool TitleVisible;
+    public int CursorHeight;
 
     /// <summary>
     ///     Cursor position in characters
     /// </summary>
     public Point CursorPosition;
-
-    /// <summary>
-    ///     Cursor display shape/type
-    /// </summary>
-    public CursorType CursorType;
-
-    /// <summary>
-    ///     Cursor height in percentage of character
-    /// </summary>
-    public int CursorHeight;
 
     /// <summary>
     ///     Summary:
@@ -81,6 +41,26 @@ public record TerminalSettings
     public int CursorSize;
 
     /// <summary>
+    ///     Cursor display shape/type
+    /// </summary>
+    public CursorType CursorType;
+
+    /// <summary>
+    ///     Whether cursor is visible
+    /// </summary>
+    public bool CursorVisible;
+
+    /// <summary>
+    ///     Terminal window height in characters
+    /// </summary>
+    public int Rows;
+
+    /// <summary>
+    ///     Whether the status bar is visible
+    /// </summary>
+    public bool StatusVisible;
+
+    /// <summary>
     ///     Terminal default background color
     /// </summary>
     public ConsoleColor TerminalBackground;
@@ -89,6 +69,26 @@ public record TerminalSettings
     ///     Terminal default foreground color
     /// </summary>
     public ConsoleColor TerminalForeground;
+
+    /// <summary>
+    ///     Terminal window height in pixels
+    /// </summary>
+    public int TerminalHeight;
+
+    /// <summary>
+    ///     Terminal window width in pixels
+    /// </summary>
+    public int TerminalWidth;
+
+    /// <summary>
+    ///     Window/Terminal title
+    /// </summary>
+    public string Title;
+
+    /// <summary>
+    ///     Whether the title bar is visible
+    /// </summary>
+    public bool TitleVisible;
 
     public TerminalSettings(
         string title = "",
@@ -130,6 +130,6 @@ public record TerminalSettings
 
     public void SetCursorPosition(int x, int y)
     {
-        CursorPosition = new Point(x: x, y: y);
+        this.CursorPosition = new Point(x: x, y: y);
     }
 }

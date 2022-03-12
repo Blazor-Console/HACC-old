@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using HACC.Configuration;
+using HACC.Enumerations;
 using Spectre.Console;
 
 namespace HACC.Models.Drivers;
@@ -202,10 +203,18 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The current operating system is not Windows.
-    public void Beep(int frequency = Defaults.BeepFrequency, int duration = Defaults.BeepDurationMsec)
+    public async Task Beep(float frequency = Defaults.BeepFrequency, float duration = Defaults.BeepDurationMsec,
+        float volume = Defaults.BeepVolume, BeepType beepType = Defaults.BeepType)
     {
-        // https://stackoverflow.com/a/60018645
-        throw new NotImplementedException();
+        // ReSharper disable once HeapView.BoxingAllocation
+        var type = Enum.GetName(
+            enumType: typeof(BeepType),
+            value: beepType)!.ToLowerInvariant();
+        await this._console.Beep(
+            duration: duration,
+            frequency: frequency,
+            volume: volume,
+            type: type);
     }
 
     //

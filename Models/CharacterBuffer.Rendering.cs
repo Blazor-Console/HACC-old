@@ -8,10 +8,10 @@ public partial class CharacterBuffer
 {
     public void Clear(bool clearCharacters = true, bool clearEffects = true)
     {
-        for (var x = 0; x < BufferColumns; x++)
-        for (var y = 0; y < BufferRows; y++)
+        for (var x = 0; x < this.BufferColumns; x++)
+        for (var y = 0; y < this.BufferRows; y++)
         {
-            var character = InternalBuffer[y].RowCharacters[x];
+            var character = this.InternalBuffer[y].RowCharacters[x];
             if (clearCharacters) character.Character = string.Empty;
             if (clearEffects) character.CharacterEffects = new CharacterEffects();
 
@@ -28,7 +28,7 @@ public partial class CharacterBuffer
     public CharacterBuffer Resize(int newColumns, int newRows)
     {
         var newBuffer = new CharacterBuffer(
-            logger: Logger,
+            logger: this.Logger,
             columns: newColumns,
             rows: newRows);
 
@@ -45,7 +45,7 @@ public partial class CharacterBuffer
     /// <param name="canvas"></param>
     public void RenderFull(Canvas2DContext context, BECanvasComponent canvas)
     {
-        AcceptChanges();
+        this.AcceptChanges();
         throw new NotImplementedException();
     }
 
@@ -56,20 +56,20 @@ public partial class CharacterBuffer
     /// <param name="canvas"></param>
     public void RenderUpdates(Canvas2DContext context, BECanvasComponent canvas)
     {
-        Logger.LogInformation(message: "Partial rendering requested");
+        this.Logger.LogInformation(message: "Partial rendering requested");
 
-        if (ForceFullRender)
+        if (this.ForceFullRender)
         {
-            Logger.LogInformation(message: "Full render forced");
-            RenderFull(
+            this.Logger.LogInformation(message: "Full render forced");
+            this.RenderFull(
                 context: context,
                 canvas: canvas);
-            ForceFullRender = false;
+            this.ForceFullRender = false;
             return;
         }
 
-        var dirtyRanges = DirtyRangeValues();
-        AcceptChanges();
+        var dirtyRanges = this.DirtyRangeValues();
+        this.AcceptChanges();
         throw new NotImplementedException();
     }
 }

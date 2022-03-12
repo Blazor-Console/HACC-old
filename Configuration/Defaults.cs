@@ -23,6 +23,8 @@ public static class Defaults
     public const ConsoleColor BackgroundColor = ConsoleColor.Black;
     public const ConsoleColor ForegroundColor = ConsoleColor.White;
     public const CursorType CursorShape = CursorType.Block;
-    public const int BeepFrequency = 800;
-    public const int BeepDurationMsec = 50;
+    public const float BeepFrequency = 800.0f;
+    public const float BeepDurationMsec = 50.0f;
+    public const float BeepVolume = 1.0f;
+    public const BeepType BeepType = Enumerations.BeepType.Sine;
 }

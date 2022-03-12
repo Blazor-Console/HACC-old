@@ -8,13 +8,13 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
 
     public DefaultExclusivityMode()
     {
-        _semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        this._semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
     }
 
     public T Run<T>(Func<T> func)
     {
         // Try acquiring the exclusivity semaphore
-        if (!_semaphore.Wait(millisecondsTimeout: 0)) throw CreateExclusivityException();
+        if (!this._semaphore.Wait(millisecondsTimeout: 0)) throw CreateExclusivityException();
 
         try
         {
@@ -22,14 +22,14 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
         }
         finally
         {
-            _semaphore.Release(releaseCount: 1);
+            this._semaphore.Release(releaseCount: 1);
         }
     }
 
     public async Task<T> Run<T>(Func<Task<T>> func)
     {
         // Try acquiring the exclusivity semaphore
-        if (!await _semaphore.WaitAsync(millisecondsTimeout: 0).ConfigureAwait(continueOnCapturedContext: false))
+        if (!await this._semaphore.WaitAsync(millisecondsTimeout: 0).ConfigureAwait(continueOnCapturedContext: false))
             throw CreateExclusivityException();
 
         try
@@ -38,7 +38,7 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
         }
         finally
         {
-            _semaphore.Release(releaseCount: 1);
+            this._semaphore.Release(releaseCount: 1);
         }
     }
 

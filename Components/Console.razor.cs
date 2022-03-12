@@ -1,20 +1,20 @@
-﻿using Blazor.Extensions;
+﻿using System.Globalization;
+using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
-using HACC.Enumerations;
 using HACC.Models;
 using HACC.Models.Drivers;
-using HACC.Spectre;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
-using Spectre.Console;
-using Spectre.Console.Rendering;
-using Terminal.Gui;
+using Microsoft.JSInterop;
 
 namespace HACC.Components;
 
 public partial class Console
 {
+    private readonly Html5AnsiConsoleCanvas _canvasConsoleCore;
     private readonly ILogger _logger;
+    private Canvas2DContext _context = null!;
+
     public Console(ILogger logger)
     {
         this._logger = logger;
@@ -25,32 +25,68 @@ public partial class Console
     }
 
     private BECanvasComponent CanvasReference { get; set; } = null!;
-    private Canvas2DContext _context = null!;
-    private readonly Html5AnsiConsoleCanvas _canvasConsoleCore;
+
+    [Inject] private IJSRuntime jsRuntime { get; set; } = null!;
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender: firstRender);
         this._context = await this.CanvasReference.CreateCanvas2DAsync();
-        await _context.SetFillStyleAsync(value: "green");
+        await this._context.SetFillStyleAsync(value: "green");
 
-        await _context.FillRectAsync(x: 10, y: 100, width: 100, height: 100);
+        await this._context.FillRectAsync(x: 10, y: 100, width: 100, height: 100);
 
-        await _context.SetFontAsync(value: "48px serif");
-        await _context.StrokeTextAsync(text: "Hello Blazor!!!", x: 10, y: 100);
+        await this._context.SetFontAsync(value: "48px serif");
+        await this._context.StrokeTextAsync(text: "Hello Blazor!!!", x: 10, y: 100);
     }
 
     public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
     {
         characterBuffer.RenderFull(
-            context: _context,
+            context: this._context,
             canvas: this.CanvasReference);
     }
 
     public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
     {
         characterBuffer.RenderUpdates(
-            context: _context,
+            context: this._context,
             canvas: this.CanvasReference);
+    }
+
+    /// <summary>
+    ///     Invoke the javascript beep function (copied from JavasScript/beep.js)
+    /// </summary>
+    /// <param name="duration">duration of the tone in milliseconds. Default is 500</param>
+    /// <param name="frequency">frequency of the tone in hertz. default is 440</param>
+    /// <param name="volume">volume of the tone. Default is 1, off is 0.</param>
+    /// <param name="type">type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.</param>
+    public async Task Beep(float? duration, float? frequency, float? volume, string? type)
+    {
+        if (duration is not null && frequency is not null && volume is not null && type is not null)
+            await this.jsRuntime.InvokeAsync<Task>(
+                identifier: "beep",
+                duration.Value.ToString(provider: CultureInfo.InvariantCulture),
+                frequency.Value.ToString(provider: CultureInfo.InvariantCulture),
+                volume.Value.ToString(provider: CultureInfo.InvariantCulture),
+                type);
+        if (duration is not null && frequency is not null && volume is not null && type is null)
+            await this.jsRuntime.InvokeAsync<Task>(
+                identifier: "beep",
+                duration.Value.ToString(provider: CultureInfo.InvariantCulture),
+                frequency.Value.ToString(provider: CultureInfo.CurrentCulture),
+                volume.Value.ToString(provider: CultureInfo.InvariantCulture));
+        if (duration is not null && frequency is not null && volume is null && type is null)
+            await this.jsRuntime.InvokeAsync<Task>(
+                identifier: "beep",
+                duration.Value.ToString(provider: CultureInfo.InvariantCulture),
+                frequency.Value.ToString(provider: CultureInfo.InvariantCulture));
+        if (duration is not null && frequency is null && volume is null && type is null)
+            await this.jsRuntime.InvokeAsync<Task>(
+                identifier: "beep",
+                duration.Value.ToString(provider: CultureInfo.CurrentCulture));
+        if (duration is null && frequency is null && volume is null && type is null)
+            await this.jsRuntime.InvokeVoidAsync(
+                identifier: "beep");
     }
 }

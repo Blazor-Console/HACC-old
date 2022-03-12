@@ -17,14 +17,14 @@ public partial class CharacterBuffer
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public string SetCharacter(int x, int y, string value, CharacterEffects? characterEffects = null)
     {
-        if (x >= BufferColumns || y >= BufferRows)
+        if (x >= this.BufferColumns || y >= this.BufferRows)
             throw new ArgumentException(message: "x and y must be less than the buffer size");
         if (x < 0)
             throw new ArgumentOutOfRangeException(paramName: nameof(x));
         if (y < 0)
             throw new ArgumentOutOfRangeException(paramName: nameof(y));
 
-        var length = GetLineElementCount(
+        var length = this.GetLineElementCount(
             line: value,
             sourceStringInfo: out var stringInfo);
 
@@ -34,10 +34,10 @@ public partial class CharacterBuffer
                 lengthInTextElements: 1)
             : string.Empty;
 
-        var oldValue = new string(value: InternalBuffer[y].RowCharacters[x].Character);
-        InternalBuffer[y].RowCharacters[x].Character = new string(value: value);
+        var oldValue = new string(value: this.InternalBuffer[y].RowCharacters[x].Character);
+        this.InternalBuffer[y].RowCharacters[x].Character = new string(value: value);
         if (characterEffects.HasValue)
-            SetCharacterEffects(
+            this.SetCharacterEffects(
                 x: x,
                 y: y,
                 effects: characterEffects.Value);
@@ -47,7 +47,7 @@ public partial class CharacterBuffer
 
     public string SetCharacter(Point position, string value, CharacterEffects? characterEffects = null)
     {
-        return SetCharacter(
+        return this.SetCharacter(
             x: position.X,
             y: position.Y,
             value: value,
@@ -63,17 +63,20 @@ public partial class CharacterBuffer
     /// </summary>
     public string GetLine(int x, int y, int length = -1)
     {
-        var maxLength = BufferColumns - x;
+        var maxLength = this.BufferColumns - x;
         if (length < 0 || length > maxLength) length = maxLength;
         var substrings = new string[length];
         for (var i = 0; i < length; i++)
-            substrings[i] = new string(value: InternalBuffer[y].RowCharacters[x + i].Character);
+        {
+            substrings[i] = new string(value: this.InternalBuffer[y].RowCharacters[x + i].Character);
+        }
+
         return string.Concat(values: substrings);
     }
 
     public string GetLine(Point position, int length = -1)
     {
-        return GetLine(
+        return this.GetLine(
             x: position.X,
             y: position.Y,
             length: length);
@@ -92,19 +95,19 @@ public partial class CharacterBuffer
     public SetLineResponse SetLine(int x, int y, string line, int length = -1,
         CharacterEffects? characterEffects = null)
     {
-        if (x >= BufferColumns || y >= BufferRows)
+        if (x >= this.BufferColumns || y >= this.BufferRows)
             throw new ArgumentException(message: "x and y must be less than the buffer size");
         if (x < 0)
             throw new ArgumentOutOfRangeException(paramName: nameof(x));
         if (y < 0)
             throw new ArgumentOutOfRangeException(paramName: nameof(y));
 
-        var sourceLength = GetLineElementCount(line: line, sourceStringInfo: out var sourceStringInfo);
-        var maxLength = BufferColumns - x;
+        var sourceLength = this.GetLineElementCount(line: line, sourceStringInfo: out var sourceStringInfo);
+        var maxLength = this.BufferColumns - x;
         if (length < 0 || length > maxLength) length = maxLength;
         if (length > sourceLength) length = sourceLength;
 
-        var oldLine = GetLine(
+        var oldLine = this.GetLine(
             x: x,
             y: y,
             length: length);
@@ -114,7 +117,7 @@ public partial class CharacterBuffer
             var newCharacter = sourceStringInfo.SubstringByTextElements(
                 startingTextElement: i,
                 lengthInTextElements: 1);
-            SetCharacter(
+            this.SetCharacter(
                 x: x + i,
                 y: y,
                 value: newCharacter,
@@ -136,7 +139,7 @@ public partial class CharacterBuffer
 
     public SetLineResponse SetLine(Point position, string line, int length = -1)
     {
-        return SetLine(
+        return this.SetLine(
             x: position.X,
             y: position.Y,
             line: line,
@@ -146,17 +149,28 @@ public partial class CharacterBuffer
 
     public BufferRow[] ScrollLine(int count = 1)
     {
-        if (count < 1 || count > BufferRows) throw new ArgumentOutOfRangeException(paramName: nameof(count));
+        if (count < 1 || count > this.BufferRows) throw new ArgumentOutOfRangeException(paramName: nameof(count));
 
         var removedLines = new BufferRow[count];
-        var startingRow = BufferRows - count - 1;
+        var startingRow = this.BufferRows - count - 1;
 
         // Copy the lines to be removed
-        for (var y = startingRow; y < BufferRows; y++) removedLines[y] = CopyRow(y: y);
+        for (var y = startingRow; y < this.BufferRows; y++)
+        {
+            removedLines[y] = this.CopyRow(y: y);
+        }
+
         // move down the lines above the starting row
-        for (var y = startingRow - count; y > count; y--) InternalBuffer[y] = InternalBuffer[y - count];
+        for (var y = startingRow - count; y > count; y--)
+        {
+            this.InternalBuffer[y] = this.InternalBuffer[y - count];
+        }
+
         // replace the top N empty rows
-        for (var y = 0; y < count; y++) InternalBuffer[y] = new BufferRow(rowColumns: BufferColumns);
+        for (var y = 0; y < count; y++)
+        {
+            this.InternalBuffer[y] = new BufferRow(rowColumns: this.BufferColumns);
+        }
 
         return removedLines;
     }

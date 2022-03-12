@@ -8,13 +8,13 @@ public struct BufferRow
 
     private BufferRow(IEnumerable<BufferCharacter> rowCharacters)
     {
-        RowCharacters = rowCharacters.ToArray();
+        this.RowCharacters = rowCharacters.ToArray();
     }
 
     public BufferRow(int rowColumns)
     {
-        RowCharacters = new BufferCharacter[rowColumns];
-        RowCharacters.Initialize();
+        this.RowCharacters = new BufferCharacter[rowColumns];
+        this.RowCharacters.Initialize();
     }
 
     public BufferRow() : this(rowColumns: Defaults.InitialColumns)
@@ -23,16 +23,19 @@ public struct BufferRow
 
     public BufferRow Copy()
     {
-        return new BufferRow(rowCharacters: RowCharacters.Select(selector: c => c.Copy()).ToArray());
+        return new BufferRow(rowCharacters: this.RowCharacters.Select(selector: c => c.Copy()).ToArray());
     }
 
     public bool RowDirty
     {
         get
         {
-            for (var x = 0; x < RowCharacters.Length; x++)
-                if (RowCharacters[x].CharacterChanged)
+            for (var x = 0; x < this.RowCharacters.Length; x++)
+            {
+                if (this.RowCharacters[x].CharacterChanged)
                     return true;
+            }
+
             return false;
         }
     }
@@ -41,22 +44,29 @@ public struct BufferRow
     {
         get
         {
-            for (var x = 0; x < RowCharacters.Length; x++)
-                if (RowCharacters[x].CharacterEffectsChanged)
+            for (var x = 0; x < this.RowCharacters.Length; x++)
+            {
+                if (this.RowCharacters[x].CharacterEffectsChanged)
                     return true;
+            }
+
             return false;
         }
     }
 
     public void AcceptChanges(bool character = true, bool effects = true)
     {
-        for (var x = 0; x < RowCharacters.Length; x++)
-            RowCharacters[x].AcceptChanges(character: character, effects: effects);
+        for (var x = 0; x < this.RowCharacters.Length; x++)
+        {
+            this.RowCharacters[x].AcceptChanges(character: character, effects: effects);
+        }
     }
 
     public void RevertChanges(bool character = true, bool effects = true)
     {
-        for (var x = 0; x < RowCharacters.Length; x++)
-            RowCharacters[x].RevertChanges(character: character, effects: effects);
+        for (var x = 0; x < this.RowCharacters.Length; x++)
+        {
+            this.RowCharacters[x].RevertChanges(character: character, effects: effects);
+        }
     }
 }

@@ -1,7 +1,4 @@
-﻿using Spectre.Console;
-using Terminal.Gui;
-
-namespace HACC.Models.Drivers;
+﻿namespace HACC.Models.Drivers;
 
 //
 // Summary:

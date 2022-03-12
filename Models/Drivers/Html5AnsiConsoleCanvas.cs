@@ -1,9 +1,9 @@
-﻿using System.Runtime.InteropServices;
-using HACC.Spectre;
+﻿using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Terminal.Gui;
+using Console = HACC.Components.Console;
 
 namespace HACC.Models.Drivers;
 
@@ -13,14 +13,13 @@ namespace HACC.Models.Drivers;
 //     This class cannot be inherited.
 public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
 {
-    private readonly Components.Console _console;
+    private readonly Console _console;
     private readonly ILogger _logger;
 
     private TerminalSettings _terminalSettings;
 
 
-
-    public Html5AnsiConsoleCanvas(ILogger logger, Components.Console console, TerminalSettings? terminalSettings = null)
+    public Html5AnsiConsoleCanvas(ILogger logger, Console console, TerminalSettings? terminalSettings = null)
     {
         this._console = console;
         this._logger = logger;
@@ -29,8 +28,6 @@ public partial class Html5AnsiConsoleCanvas : ConsoleDriver, IAnsiConsole
             logger: logger,
             columns: this._terminalSettings.Columns,
             rows: this._terminalSettings.Rows);
-        
-        
     }
 
     public Profile Profile => throw new NotImplementedException();

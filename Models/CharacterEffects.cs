@@ -14,14 +14,9 @@ public struct CharacterEffects : IEquatable<CharacterEffects>
 
     public bool Equals(CharacterEffects other)
     {
-        return
-            Bold == other.Bold &&
-            Italic == other.Italic &&
-            Underline == other.Underline &&
-            Inverse == other.Inverse &&
-            Blink == other.Blink &&
-            Background == other.Background &&
-            Foreground == other.Foreground;
+        return this.Bold == other.Bold && this.Italic == other.Italic && this.Underline == other.Underline &&
+               this.Inverse == other.Inverse && this.Blink == other.Blink && this.Background == other.Background &&
+               this.Foreground == other.Foreground;
     }
 
     public static bool operator ==(CharacterEffects a, CharacterEffects? b)
@@ -38,35 +33,35 @@ public struct CharacterEffects : IEquatable<CharacterEffects>
         bool blink = false, ConsoleColor background = Defaults.BackgroundColor,
         ConsoleColor foreground = Defaults.ForegroundColor)
     {
-        Bold = bold;
-        Italic = italic;
-        Underline = underline;
-        Inverse = inverse;
-        Blink = blink;
-        Background = background;
-        Foreground = foreground;
+        this.Bold = bold;
+        this.Italic = italic;
+        this.Underline = underline;
+        this.Inverse = inverse;
+        this.Blink = blink;
+        this.Background = background;
+        this.Foreground = foreground;
     }
 
     public CharacterEffects()
     {
-        Bold = false;
-        Italic = false;
-        Underline = false;
-        Inverse = false;
-        Blink = false;
-        Background = Defaults.BackgroundColor;
-        Foreground = Defaults.ForegroundColor;
+        this.Bold = false;
+        this.Italic = false;
+        this.Underline = false;
+        this.Inverse = false;
+        this.Blink = false;
+        this.Background = Defaults.BackgroundColor;
+        this.Foreground = Defaults.ForegroundColor;
     }
 
     public CharacterEffects Copy()
     {
         return new CharacterEffects(
-            bold: Bold,
-            italic: Italic,
-            underline: Underline,
-            inverse: Inverse,
-            blink: Blink,
-            background: Background,
-            foreground: Foreground);
+            bold: this.Bold,
+            italic: this.Italic,
+            underline: this.Underline,
+            inverse: this.Inverse,
+            blink: this.Blink,
+            background: this.Background,
+            foreground: this.Foreground);
     }
 }

@@ -8,8 +8,8 @@ public struct SetLineResponse
 
     public SetLineResponse(string textReplaced, int lengthWritten, string textOverflow)
     {
-        TextReplaced = textReplaced;
-        LengthWritten = lengthWritten;
-        TextOverflow = textOverflow;
+        this.TextReplaced = textReplaced;
+        this.LengthWritten = lengthWritten;
+        this.TextOverflow = textOverflow;
     }
 }

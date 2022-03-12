@@ -1,6 +1,5 @@
 ﻿using HACC.Configuration;
 using HACC.Models.EventArgs;
-using Spectre.Console;
 
 namespace HACC.Models.Drivers;
 
@@ -155,10 +154,9 @@ public partial class Html5AnsiConsoleCanvas
         get => this._terminalSettings.Rows;
         set
         {
-            if (value > LargestWindowHeight)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), "The value of the WindowRows property is greater than the largest possible window height");
-            }
+            if (value > this.LargestWindowHeight)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value),
+                    message: "The value of the WindowRows property is greater than the largest possible window height");
             this._terminalSettings.Rows = value;
         }
     }
@@ -240,10 +238,10 @@ public partial class Html5AnsiConsoleCanvas
         get => this._terminalSettings.Columns;
         set
         {
-            if (value > LargestWindowWidth)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), "The value of the WindowColumns property is greater than the largest possible window width");
-            }
+            if (value > this.LargestWindowWidth)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value),
+                    message:
+                    "The value of the WindowColumns property is greater than the largest possible window width");
             this._terminalSettings.Columns = value;
         }
     }

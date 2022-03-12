@@ -17,8 +17,8 @@ public partial class CharacterBuffer
     public CursorInfo Cursor =>
         new(
             position: new Point(
-                x: CursorPosition.X,
-                y: CursorPosition.Y),
-            character: CharacterAt(position: CursorPosition),
-            type: CursorType);
+                x: this.CursorPosition.X,
+                y: this.CursorPosition.Y),
+            character: this.CharacterAt(position: this.CursorPosition),
+            type: this.CursorType);
 }

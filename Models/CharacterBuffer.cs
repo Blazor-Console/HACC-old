@@ -32,16 +32,19 @@ public partial class CharacterBuffer
     public CharacterBuffer(ILogger logger, int columns = Defaults.InitialColumns, int rows = Defaults.InitialRows,
         CursorType cursorType = Defaults.CursorShape)
     {
-        Logger = logger;
-        BufferColumns = columns;
-        BufferRows = rows;
-        InternalBuffer = new BufferRow[rows];
-        ForceFullRender = true;
-        CursorPosition = new Point(x: 0, y: 0);
+        this.Logger = logger;
+        this.BufferColumns = columns;
+        this.BufferRows = rows;
+        this.InternalBuffer = new BufferRow[rows];
+        this.ForceFullRender = true;
+        this.CursorPosition = new Point(x: 0, y: 0);
         for (var y = 0; y < rows; y++)
-            InternalBuffer[y] = new BufferRow(rowColumns: columns);
-        CursorType = cursorType;
-        Logger.LogDebug(message: string.Format(format: "Created virtual buffer with {0}x{1} rows and columns",
+        {
+            this.InternalBuffer[y] = new BufferRow(rowColumns: columns);
+        }
+
+        this.CursorType = cursorType;
+        this.Logger.LogDebug(message: string.Format(format: "Created virtual buffer with {0}x{1} rows and columns",
             arg0: rows, arg1: columns));
     }
 
@@ -56,24 +59,24 @@ public partial class CharacterBuffer
     /// </summary>
     public void WriteChar(string character, CharacterEffects? characterEffects = null)
     {
-        SetCharacter(
-            x: CursorPosition.X,
-            y: CursorPosition.Y,
+        this.SetCharacter(
+            x: this.CursorPosition.X,
+            y: this.CursorPosition.Y,
             value: character,
             characterEffects: characterEffects);
 
 
-        CursorPosition.X++;
+        this.CursorPosition.X++;
 
-        if (CursorPosition.X >= BufferColumns)
+        if (this.CursorPosition.X >= this.BufferColumns)
         {
-            CursorPosition.X = 0;
-            CursorPosition.Y++;
+            this.CursorPosition.X = 0;
+            this.CursorPosition.Y++;
         }
 
         // TODO: implement scroll
         //ScrollLine()
-        if (CursorPosition.Y >= BufferRows) CursorPosition.Y = 0;
+        if (this.CursorPosition.Y >= this.BufferRows) this.CursorPosition.Y = 0;
     }
 
     /// <summary>
@@ -83,18 +86,18 @@ public partial class CharacterBuffer
     public void WriteLine(string? line, CharacterEffects? characterEffects = null, bool automaticNewLine = true,
         bool automaticWordWrap = false)
     {
-        var setLineResponse = SetLine(
-            x: CursorPosition.X,
-            y: CursorPosition.Y,
+        var setLineResponse = this.SetLine(
+            x: this.CursorPosition.X,
+            y: this.CursorPosition.Y,
             line: string.IsNullOrEmpty(value: line) ? string.Empty : line,
             characterEffects: characterEffects);
 
         if (automaticWordWrap && !string.IsNullOrEmpty(value: setLineResponse.TextOverflow))
         {
-            Logger.LogDebug(message: "Automatic word wrap");
-            CursorPosition.X = 0;
-            CursorPosition.Y++;
-            WriteLine(
+            this.Logger.LogDebug(message: "Automatic word wrap");
+            this.CursorPosition.X = 0;
+            this.CursorPosition.Y++;
+            this.WriteLine(
                 line: setLineResponse.TextOverflow,
                 characterEffects: characterEffects,
                 automaticNewLine: automaticNewLine,
@@ -104,16 +107,16 @@ public partial class CharacterBuffer
 
         if (automaticNewLine)
         {
-            CursorPosition.X = 0;
-            CursorPosition.Y++;
+            this.CursorPosition.X = 0;
+            this.CursorPosition.Y++;
         }
         else
         {
-            CursorPosition.X += setLineResponse.LengthWritten;
+            this.CursorPosition.X += setLineResponse.LengthWritten;
         }
 
         // TODO: implement scroll
         //ScrollLine()
-        if (CursorPosition.Y >= BufferRows) CursorPosition.Y = 0;
+        if (this.CursorPosition.Y >= this.BufferRows) this.CursorPosition.Y = 0;
     }
 }

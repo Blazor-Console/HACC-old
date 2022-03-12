@@ -8,9 +8,12 @@ public partial class CharacterBuffer
     {
         get
         {
-            for (var y = 0; y < BufferRows; y++)
-                if (InternalBuffer[y].RowDirty)
+            for (var y = 0; y < this.BufferRows; y++)
+            {
+                if (this.InternalBuffer[y].RowDirty)
                     return true;
+            }
+
             return false;
         }
     }
@@ -19,9 +22,12 @@ public partial class CharacterBuffer
     {
         get
         {
-            for (var y = 0; y < BufferRows; y++)
-                if (InternalBuffer[y].RowEffectsDirty)
+            for (var y = 0; y < this.BufferRows; y++)
+            {
+                if (this.InternalBuffer[y].RowEffectsDirty)
                     return true;
+            }
+
             return false;
         }
     }
@@ -33,21 +39,23 @@ public partial class CharacterBuffer
     {
         get
         {
-            var newBuffer = new BufferCharacter[BufferColumns, BufferRows];
-            for (var x = 0; x < BufferColumns; x++)
-            for (var y = 0; y < BufferRows; y++)
-                newBuffer[x, y] =
-                    CharacterAt(
-                            x: x,
-                            y: y)
-                        .Copy();
+            var newBuffer = new BufferCharacter[this.BufferColumns, this.BufferRows];
+            for (var x = 0; x < this.BufferColumns; x++)
+            for (var y = 0; y < this.BufferRows; y++)
+            {
+                newBuffer[x, y] = this.CharacterAt(
+                        x: x,
+                        y: y)
+                    .Copy();
+            }
+
             return newBuffer;
         }
     }
 
     public BufferRow[] BufferRowsCopy
     {
-        get { return InternalBuffer.Select(selector: r => r.Copy()).ToArray(); }
+        get { return this.InternalBuffer.Select(selector: r => r.Copy()).ToArray(); }
     }
 
     /// <summary>
@@ -58,7 +66,7 @@ public partial class CharacterBuffer
     /// <returns></returns>
     public BufferCharacter CharacterAt(int x, int y)
     {
-        return InternalBuffer[y].RowCharacters[x].Copy();
+        return this.InternalBuffer[y].RowCharacters[x].Copy();
     }
 
     /// <summary>
@@ -68,11 +76,11 @@ public partial class CharacterBuffer
     /// <returns></returns>
     public BufferCharacter CharacterAt(Point position)
     {
-        return InternalBuffer[position.Y].RowCharacters[position.X].Copy();
+        return this.InternalBuffer[position.Y].RowCharacters[position.X].Copy();
     }
 
     public BufferRow CopyRow(int y)
     {
-        return InternalBuffer[y].Copy();
+        return this.InternalBuffer[y].Copy();
     }
 }

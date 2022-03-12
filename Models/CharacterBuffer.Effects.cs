@@ -12,12 +12,12 @@ public partial class CharacterBuffer
     /// <param name="effects"></param>
     public void SetCharacterEffects(int x, int y, CharacterEffects effects)
     {
-        InternalBuffer[y].RowCharacters[x].CharacterEffects = effects.Copy();
+        this.InternalBuffer[y].RowCharacters[x].CharacterEffects = effects.Copy();
     }
 
     public void SetCharacterEffects(Point position, CharacterEffects effects)
     {
-        SetCharacterEffects(
+        this.SetCharacterEffects(
             x: position.X,
             y: position.Y,
             effects: effects);
@@ -33,10 +33,12 @@ public partial class CharacterBuffer
     public void SetCharacterEffects(int xStart, int xEnd, int y, CharacterEffects effects)
     {
         for (var x = xStart; x <= xEnd; x++)
-            SetCharacterEffects(
+        {
+            this.SetCharacterEffects(
                 x: x,
                 y: y,
                 effects: effects);
+        }
     }
 
     /// <summary>
@@ -47,7 +49,7 @@ public partial class CharacterBuffer
     /// <returns></returns>
     public CharacterEffects CharacterEffectsAt(int x, int y)
     {
-        return InternalBuffer[y].RowCharacters[x].CharacterEffects.Copy();
+        return this.InternalBuffer[y].RowCharacters[x].CharacterEffects.Copy();
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ public partial class CharacterBuffer
     /// <returns></returns>
     public CharacterEffects CharacterEffectsAt(Point position)
     {
-        return InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffects.Copy();
+        return this.InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffects.Copy();
     }
 
     /// <summary>
@@ -65,11 +67,11 @@ public partial class CharacterBuffer
     /// </summary>
     public bool CharacterEffectsDirtyAt(int x, int y)
     {
-        return InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged;
+        return this.InternalBuffer[y].RowCharacters[x].CharacterEffectsChanged;
     }
 
     public bool CharacterEffectsDirtyAt(Point position)
     {
-        return InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffectsChanged;
+        return this.InternalBuffer[position.Y].RowCharacters[position.X].CharacterEffectsChanged;
     }
 }
