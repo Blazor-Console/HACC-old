@@ -1,4 +1,6 @@
-﻿namespace HACC.Models.Drivers;
+﻿using HACC.Configuration;
+
+namespace HACC.Models.Drivers;
 
 //
 // Summary:
@@ -49,12 +51,7 @@ public partial class CanvasConsole
     public ConsoleColor ForegroundColor
     {
         get => this._terminalSettings.TerminalForeground;
-        set
-        {
-            this._terminalSettings.TerminalForeground = value;
-
-            throw new NotImplementedException();
-        }
+        set => this._terminalSettings.TerminalForeground = value;
     }
 
     //
@@ -69,8 +66,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void ResetColor()
     {
-        this._internalCharacterBuffer.Clear(
-            clearCharacters: false,
-            clearEffects: true);
+        this.ForegroundColor = Defaults.ForegroundColor;
+        this.BackgroundColor = Defaults.BackgroundColor;
     }
 }

@@ -1,4 +1,8 @@
-﻿namespace HACC.Models.Drivers;
+﻿using System.Drawing;
+using System.Globalization;
+using NStack;
+
+namespace HACC.Models.Drivers;
 
 //
 // Summary:
@@ -15,10 +19,8 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine()
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: "",
-            characterEffects: null,
-            automaticNewLine: true);
+        var currentPosition = this.CursorPosition;
+        this._terminalSettings.SetCursorPosition(x: currentPosition.X, y: currentPosition.Y + 1);
     }
 
     //
@@ -35,10 +37,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(bool value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -55,10 +54,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(char value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -75,11 +71,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(char[]? buffer)
     {
-        var value = buffer is null ? string.Empty : Convert.ToString(value: buffer);
-        this._internalCharacterBuffer.WriteLine(
-            line: value,
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: buffer is null ? string.Empty : Convert.ToString(value: buffer));
     }
 
     //
@@ -112,13 +104,10 @@ public partial class CanvasConsole
     public void WriteLine(char[] buffer, int index, int count)
     {
         var value = Convert.ToString(value: buffer)
-            .Substring(
+            ?.Substring(
                 startIndex: index,
                 length: count);
-        this._internalCharacterBuffer.WriteLine(
-            line: value,
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: value);
     }
 
     //
@@ -135,10 +124,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(decimal value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -155,10 +141,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(double value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -175,10 +158,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(int value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -195,10 +175,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(long value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -215,10 +192,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(object? value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -235,10 +209,7 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(float value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -255,10 +226,9 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void WriteLine(string? value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: value,
-            characterEffects: null,
-            automaticNewLine: true);
+        this.AddStr(str: value is null ? ustring.Empty : ustring.Make(str: value));
+        var currentPosition = this.CursorPosition;
+        this.CursorPosition = new Point(x: 0, y: currentPosition.Y + 1);
     }
 
     //
@@ -284,12 +254,9 @@ public partial class CanvasConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: string.Format(
-                format: format,
-                arg0: arg0),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: string.Format(
+            format: format,
+            arg0: arg0));
     }
 
     //
@@ -318,13 +285,10 @@ public partial class CanvasConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: string.Format(
-                format: format,
-                arg0: arg0,
-                arg1: arg1),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: string.Format(
+            format: format,
+            arg0: arg0,
+            arg1: arg1));
     }
 
     //
@@ -356,14 +320,11 @@ public partial class CanvasConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, object? arg0, object? arg1, object? arg2)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: string.Format(
-                format: format,
-                arg0: arg0,
-                arg1: arg1,
-                arg2: arg2),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: string.Format(
+            format: format,
+            arg0: arg0,
+            arg1: arg1,
+            arg2: arg2));
     }
 
     //
@@ -390,12 +351,9 @@ public partial class CanvasConsole
     //     The format specification in format is invalid.
     public void WriteLine(string format, params object?[]? arg)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: string.Format(
-                format: format,
-                arg0: arg),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: string.Format(
+            format: format,
+            arg0: arg));
     }
 
     //
@@ -413,10 +371,7 @@ public partial class CanvasConsole
     [CLSCompliant(isCompliant: false)]
     public void WriteLine(uint value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 
     //
@@ -434,9 +389,6 @@ public partial class CanvasConsole
     [CLSCompliant(isCompliant: false)]
     public void WriteLine(ulong value)
     {
-        this._internalCharacterBuffer.WriteLine(
-            line: Convert.ToString(value: value),
-            characterEffects: null,
-            automaticNewLine: true);
+        this.WriteLine(value: Convert.ToString(value: value));
     }
 }

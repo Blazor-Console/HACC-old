@@ -31,6 +31,9 @@ public partial class CanvasConsole
         get => this._terminalSettings.CursorPosition.X;
         set
         {
+            if (value < 0 || value >= this._terminalSettings.BufferColumns)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value));
+
             this._terminalSettings.CursorPosition = new Point(
                 x: value,
                 y: this._terminalSettings.CursorPosition.Y);
@@ -70,6 +73,19 @@ public partial class CanvasConsole
         }
     }
 
+    public Point CursorPosition
+    {
+        get => this._terminalSettings.CursorPosition;
+        set
+        {
+            if (value.X < 0 || value.X >= this._terminalSettings.BufferColumns)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value.X));
+            if (value.Y < 0 || value.Y >= this._terminalSettings.BufferRows)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value.Y));
+            this._terminalSettings.CursorPosition = value;
+        }
+    }
+
     //
     // Summary:
     //     Gets or sets the row position of the cursor within the buffer area.
@@ -92,6 +108,9 @@ public partial class CanvasConsole
         get => this._terminalSettings.CursorPosition.Y;
         set
         {
+            if (value < 0 || value >= this._terminalSettings.BufferRows)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value));
+
             this._terminalSettings.CursorPosition = new Point(
                 x: this._terminalSettings.CursorPosition.X,
                 y: value);
@@ -133,6 +152,7 @@ public partial class CanvasConsole
     //
     // Summary:
     //     Gets the position of the cursor.
+    //     Decomposed from CursorPosition
     //
     // Returns:
     //     The column and row position of the cursor.

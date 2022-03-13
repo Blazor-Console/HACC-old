@@ -1,4 +1,5 @@
 using HACC.Components;
+using HACC.Models.EventArgs;
 using NStack;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
@@ -299,6 +300,8 @@ public partial class CanvasConsole
             var task = this._console.DrawBufferToNewFrame(
                 buffer: this.Contents,
                 firstRender: firstRender);
+            // ReSharper disable once HeapView.ObjectAllocation.Evident
+            this.NewFrame(sender: this, e: new NewFrameEventArgs(sender: this));
             task.RunSynchronously();
         }
     }
@@ -426,47 +429,53 @@ public partial class CanvasConsole
         }
 
         var key = keyInfo.Key;
-        if (key >= ConsoleKey.A && key <= ConsoleKey.Z)
+        switch (key)
         {
-            var delta = key - ConsoleKey.A;
-            if (keyInfo.Modifiers == ConsoleModifiers.Control)
-                return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
-
-            if (keyInfo.Modifiers == ConsoleModifiers.Alt) return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
-
-            if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) != 0)
+            case >= ConsoleKey.A and <= ConsoleKey.Z:
             {
+                var delta = key - ConsoleKey.A;
+                switch (keyInfo.Modifiers)
+                {
+                    case ConsoleModifiers.Control:
+                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
+                    case ConsoleModifiers.Alt:
+                        return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
+                }
+
+                if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
+                    return (Key) keyInfo.KeyChar;
                 if (keyInfo.KeyChar == 0)
                     return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
                 return (Key) keyInfo.KeyChar;
+
             }
+            case >= ConsoleKey.D0 and <= ConsoleKey.D9:
+            {
+                var delta = key - ConsoleKey.D0;
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                switch (keyInfo.Modifiers)
+                {
+                    case ConsoleModifiers.Alt:
+                        return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
+                    case ConsoleModifiers.Control:
+                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
+                }
 
-            return (Key) keyInfo.KeyChar;
-        }
+                if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
+                    return MapKeyModifiers(keyInfo: keyInfo,
+                        key: (Key) ((uint) Key.D0 + delta));
 
-        if (key >= ConsoleKey.D0 && key <= ConsoleKey.D9)
-        {
-            var delta = key - ConsoleKey.D0;
-            if (keyInfo.Modifiers == ConsoleModifiers.Alt) return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
+                return (Key) keyInfo.KeyChar;
+            }
+            case >= ConsoleKey.F1 and <= ConsoleKey.F12:
+            {
+                var delta = key - ConsoleKey.F1;
+                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) != 0)
+                    return MapKeyModifiers(keyInfo: keyInfo,
+                        key: (Key) ((uint) Key.F1 + delta));
 
-            if (keyInfo.Modifiers == ConsoleModifiers.Control)
-                return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
-
-            if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
-                return MapKeyModifiers(keyInfo: keyInfo,
-                    key: (Key) ((uint) Key.D0 + delta));
-
-            return (Key) keyInfo.KeyChar;
-        }
-
-        if (key >= ConsoleKey.F1 && key <= ConsoleKey.F12)
-        {
-            var delta = key - ConsoleKey.F1;
-            if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) != 0)
-                return MapKeyModifiers(keyInfo: keyInfo,
-                    key: (Key) ((uint) Key.F1 + delta));
-
-            return (Key) ((uint) Key.F1 + delta);
+                return (Key) ((uint) Key.F1 + delta);
+            }
         }
 
         if (keyInfo.KeyChar != 0)
@@ -542,10 +551,7 @@ public partial class CanvasConsole
     /// <inheritdoc />
     public override bool GetCursorVisibility(out CursorVisibility visibility)
     {
-        if (this.CursorVisible)
-            visibility = CursorVisibility.Default;
-        else
-            visibility = CursorVisibility.Invisible;
+        visibility = this.CursorVisible ? CursorVisibility.Default : CursorVisibility.Invisible;
 
         return false;
     }
@@ -553,10 +559,7 @@ public partial class CanvasConsole
     /// <inheritdoc />
     public override bool SetCursorVisibility(CursorVisibility visibility)
     {
-        if (visibility == CursorVisibility.Invisible)
-            this.CursorVisible = false;
-        else
-            this.CursorVisible = true;
+        this.CursorVisible = visibility != CursorVisibility.Invisible;
 
         return false;
     }

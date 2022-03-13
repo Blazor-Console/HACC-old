@@ -11,8 +11,6 @@ public partial class CanvasConsole
 {
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
-    private readonly CharacterBuffer _internalCharacterBuffer;
-
     //
     // Summary:
     //     Gets or sets the height of the buffer area.
@@ -180,7 +178,7 @@ public partial class CanvasConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowLeft { get; set; } = 0;
+    public int WindowLeft { get; set; }
 
     //
     // Summary:
@@ -201,7 +199,7 @@ public partial class CanvasConsole
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowTop { get; set; } = 0;
+    public int WindowTop { get; set; }
 
     //
     // Summary:
@@ -471,6 +469,6 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void Clear()
     {
-        this._internalCharacterBuffer.Clear();
+        throw new NotImplementedException();
     }
 }

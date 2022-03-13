@@ -32,10 +32,6 @@ public partial class CanvasConsole : ConsoleDriver, IAnsiConsole
         this._logger = logger;
         this.Clipboard = webClipboard;
         this._terminalSettings = terminalSettings ?? new TerminalSettings();
-        this._internalCharacterBuffer = new CharacterBuffer(
-            logger: logger,
-            columns: this._terminalSettings.WindowColumns,
-            rows: this._terminalSettings.WindowRows);
     }
 
     public Profile Profile => throw new NotImplementedException();
