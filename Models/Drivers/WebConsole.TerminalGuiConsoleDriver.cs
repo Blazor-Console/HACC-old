@@ -1,4 +1,4 @@
-using HACC.Components;
+using System.Runtime.Versioning;
 using HACC.Models.EventArgs;
 using NStack;
 using Terminal.Gui;
@@ -6,27 +6,28 @@ using Attribute = Terminal.Gui.Attribute;
 
 namespace HACC.Models.Drivers;
 
-public partial class CanvasConsole
+[SupportedOSPlatform(platformName: "browser")]
+public partial class WebConsole
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
-    ///     Shortcut to <see cref="CanvasConsole.WindowColumns" />
+    ///     Shortcut to <see cref="WebConsole.WindowColumns" />
     /// </summary>
     public override int Cols => this.WindowColumns;
 
     /// <summary>
-    ///     Shortcut to <see cref="CanvasConsole.WindowRows" />
+    ///     Shortcut to <see cref="WebConsole.WindowRows" />
     /// </summary>
     public override int Rows => this.WindowRows;
 
     /// <summary>
-    ///     Shortcut to <see cref="CanvasConsole.WindowLeft" />
+    ///     Shortcut to <see cref="WebConsole.WindowLeft" />
     ///     Only handling left here because not all terminals has a horizontal scroll bar.
     /// </summary>
     public override int Left => this.WindowLeft;
 
     /// <summary>
-    ///     Shortcut to <see cref="CanvasConsole.WindowTop" />
+    ///     Shortcut to <see cref="WebConsole.WindowTop" />
     /// </summary>
     public override int Top => this.WindowTop;
 
@@ -447,7 +448,6 @@ public partial class CanvasConsole
                 if (keyInfo.KeyChar == 0)
                     return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
                 return (Key) keyInfo.KeyChar;
-
             }
             case >= ConsoleKey.D0 and <= ConsoleKey.D9:
             {
@@ -470,7 +470,8 @@ public partial class CanvasConsole
             case >= ConsoleKey.F1 and <= ConsoleKey.F12:
             {
                 var delta = key - ConsoleKey.F1;
-                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) != 0)
+                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
+                    0)
                     return MapKeyModifiers(keyInfo: keyInfo,
                         key: (Key) ((uint) Key.F1 + delta));
 

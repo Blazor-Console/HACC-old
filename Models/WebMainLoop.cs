@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Terminal.Gui;
 
 namespace HACC.Models;
@@ -17,6 +18,7 @@ namespace HACC.Models;
 ///     Monitoring of file descriptors is only available on Unix, there
 ///     does not seem to be a way of supporting this on Windows.
 /// </remarks>
+[SupportedOSPlatform(platformName: "browser")]
 public class WebMainLoop : MainLoop
 {
     private List<Func<bool>> _idleHandlers = new();

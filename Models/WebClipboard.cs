@@ -1,10 +1,15 @@
+using System.Runtime.Versioning;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Terminal.Gui;
 
-namespace HACC.Components;
+namespace HACC.Models;
 
-public class WebClipboard : ComponentBase, IClipboard
+/// <summary>
+///     Blazor based clipboard
+/// </summary>
+[SupportedOSPlatform(platformName: "browser")]
+public class WebClipboard : ClipboardBase
 {
     private static WebClipboard? _instance;
 
@@ -22,7 +27,9 @@ public class WebClipboard : ComponentBase, IClipboard
 
     [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
 
-    public string? GetClipboardData()
+    public override bool IsSupported => true;
+
+    protected override string GetClipboardDataImpl()
     {
         // ReSharper disable once HeapView.DelegateAllocation
         var task = Task.Run(function: async () =>
@@ -32,41 +39,22 @@ public class WebClipboard : ComponentBase, IClipboard
             return null;
         });
         task.Wait();
-        this.Text = task.Result ?? string.Empty;
-        return task.Result;
+        var text = task.Result ?? string.Empty;
+        this.Text = text;
+        return text;
     }
 
-    public bool TryGetClipboardData(out string result)
-    {
-        var clipboardData = this.GetClipboardData();
-        if (clipboardData is { } text)
-        {
-            result = text;
-            return true;
-        }
-
-        result = string.Empty;
-        return false;
-    }
-
-    public void SetClipboardData(string text)
+    protected override void SetClipboardDataImpl(string text)
     {
         // ReSharper disable once HeapView.DelegateAllocation
-        var task = Task.Run(function: async () =>
-            await this.JsRuntime.InvokeAsync<bool>(identifier: "clipboardFunctions.setText", text));
+        // ReSharper disable once HeapView.ObjectAllocation
+        var task = Task.Run(
+            function: async () => await this.JsRuntime
+                .InvokeAsync<bool>(
+                    identifier: "clipboardFunctions.setText",
+                    args: text)
+                .ConfigureAwait(continueOnCapturedContext: false));
         task.Wait();
         this.Text = text;
     }
-
-    public bool TrySetClipboardData(string text)
-    {
-        // ReSharper disable once HeapView.DelegateAllocation
-        var task = Task.Run(function: async () =>
-            await this.JsRuntime.InvokeAsync<bool>(identifier: "clipboardFunctions.setText", text));
-        task.Wait();
-        this.Text = text;
-        return task.Result;
-    }
-
-    public bool IsSupported { get; } = true;
 }

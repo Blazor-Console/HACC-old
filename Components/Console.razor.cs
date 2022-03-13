@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using System.Runtime.Versioning;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
+using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,11 +12,12 @@ using Microsoft.JSInterop;
 
 namespace HACC.Components;
 
+[SupportedOSPlatform(platformName: "browser")]
 public partial class Console : ComponentBase
 {
     private static Dictionary<ConsoleType, Console> _singletons = new();
-    private readonly CanvasConsole _canvasConsole;
     private readonly ILogger _logger;
+    private readonly WebConsole _webConsole;
 
     /// <summary>
     ///     not created until OnAfterRender
@@ -32,18 +35,18 @@ public partial class Console : ComponentBase
             throw new InvalidOperationException(message: "Console can only be instantiated once.");
         _singletons[key: this.ConsoleType!.Value] = this;
         this._logger = logger;
-        this._canvasConsole = new CanvasConsole(
+        this._webConsole = new WebConsole(
             logger: this._logger ?? throw new InvalidOperationException(),
             console: this,
             terminalSettings: null,
             webClipboard: webClipboard);
     }
 
-    [Parameter] public ConsoleType? ConsoleType { get; set; } = null!;
+    [Parameter] public ConsoleType? ConsoleType { get; set; }
 
     private BECanvasComponent CanvasReference { get; set; } = null!;
 
-    [Inject] private IJSRuntime jsRuntime { get; set; } = null!;
+    [Inject] private IJSRuntime JsInterop { get; set; } = null!;
 
     public static Console GetInstance(ConsoleType consoleType)
     {
@@ -56,7 +59,7 @@ public partial class Console : ComponentBase
     {
         this._logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
-        this._canvasConsole.UpdateScreen(firstRender: firstRender);
+        this._webConsole.UpdateScreen(firstRender: firstRender);
         this._logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
@@ -69,13 +72,13 @@ public partial class Console : ComponentBase
         await this._canvas2DContext.ClearRectAsync(
             x: 0,
             y: 0,
-            width: this._canvasConsole.WindowWidthPixels,
-            height: this._canvasConsole.WindowHeightPixels);
+            width: this._webConsole.WindowWidthPixels,
+            height: this._webConsole.WindowHeightPixels);
         await this._canvas2DContext.FillRectAsync(
             x: 0,
             y: 0,
-            width: this._canvasConsole.WindowWidthPixels,
-            height: this._canvasConsole.WindowHeightPixels);
+            width: this._webConsole.WindowWidthPixels,
+            height: this._webConsole.WindowHeightPixels);
         this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
@@ -100,29 +103,29 @@ public partial class Console : ComponentBase
     public async Task Beep(float? duration, float? frequency, float? volume, string? type)
     {
         if (duration is not null && frequency is not null && volume is not null && type is not null)
-            await this.jsRuntime.InvokeAsync<Task>(
+            await this.JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture),
                 type);
         if (duration is not null && frequency is not null && volume is not null && type is null)
-            await this.jsRuntime.InvokeAsync<Task>(
+            await this.JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.CurrentCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is not null && volume is null && type is null)
-            await this.jsRuntime.InvokeAsync<Task>(
+            await this.JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is null && volume is null && type is null)
-            await this.jsRuntime.InvokeAsync<Task>(
+            await this.JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.CurrentCulture));
         if (duration is null && frequency is null && volume is null && type is null)
-            await this.jsRuntime.InvokeVoidAsync(
+            await this.JsInterop.InvokeVoidAsync(
                 identifier: "beep");
     }
 

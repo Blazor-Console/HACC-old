@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Runtime.Versioning;
 using NStack;
 using Spectre.Console.Rendering;
 
@@ -8,7 +9,8 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class CanvasConsole
+[SupportedOSPlatform(platformName: "browser")]
+public partial class WebConsole
 {
     public void Write(IRenderable renderable)
     {

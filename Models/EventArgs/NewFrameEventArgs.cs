@@ -4,7 +4,7 @@ namespace HACC.Models.EventArgs;
 
 public record NewFrameEventArgs : VirtualConsoleEventArgs
 {
-    public NewFrameEventArgs(CanvasConsole sender) : base(sender: sender)
+    public NewFrameEventArgs(WebConsole sender) : base(sender: sender)
     {
         throw new NotImplementedException();
     }

@@ -1,4 +1,5 @@
-﻿using HACC.Configuration;
+﻿using System.Runtime.Versioning;
+using HACC.Configuration;
 
 namespace HACC.Models.Drivers;
 
@@ -6,7 +7,8 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class CanvasConsole
+[SupportedOSPlatform(platformName: "browser")]
+public partial class WebConsole
 {
     //
     // Summary:

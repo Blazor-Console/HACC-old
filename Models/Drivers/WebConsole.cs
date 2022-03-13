@@ -1,4 +1,4 @@
-﻿using HACC.Components;
+﻿using System.Runtime.Versioning;
 using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -12,7 +12,8 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class CanvasConsole : ConsoleDriver, IAnsiConsole
+[SupportedOSPlatform(platformName: "browser")]
+public partial class WebConsole : ConsoleDriver, IAnsiConsole
 {
     private readonly Console _console;
     private readonly ILogger _logger;
@@ -25,7 +26,7 @@ public partial class CanvasConsole : ConsoleDriver, IAnsiConsole
     /// <param name="console">dependency injected console</param>
     /// <param name="webClipboard">dependency injected webClipboard</param>
     /// <param name="terminalSettings"></param>
-    public CanvasConsole(ILogger logger, Console console, WebClipboard webClipboard,
+    public WebConsole(ILogger logger, Console console, WebClipboard webClipboard,
         TerminalSettings? terminalSettings = null)
     {
         this._console = console;

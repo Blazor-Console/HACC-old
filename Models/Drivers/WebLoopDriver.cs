@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using Terminal.Gui;
 
 namespace HACC.Models.Drivers;
@@ -8,6 +9,7 @@ namespace HACC.Models.Drivers;
 /// <remarks>
 ///     This implementation is used for WebLoop.
 /// </remarks>
+[SupportedOSPlatform(platformName: "browser")]
 public class WebLoopDriver : IMainLoopDriver
 {
     // ReSharper disable once NotAccessedField.Local
