@@ -103,6 +103,7 @@ public partial class Console : ComponentBase
     public async Task Beep(float? duration, float? frequency, float? volume, string? type)
     {
         if (duration is not null && frequency is not null && volume is not null && type is not null)
+            // ReSharper disable HeapView.ObjectAllocation
             await this.JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
@@ -127,6 +128,7 @@ public partial class Console : ComponentBase
         if (duration is null && frequency is null && volume is null && type is null)
             await this.JsInterop.InvokeVoidAsync(
                 identifier: "beep");
+        // ReSharper restore HeapView.ObjectAllocation
     }
 
     private async Task OnCanvasClick(MouseEventArgs obj)
