@@ -2,7 +2,6 @@
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
-using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -14,9 +13,13 @@ namespace HACC.Components;
 public partial class Console : ComponentBase
 {
     private static Dictionary<ConsoleType, Console> _singletons = new();
-    private readonly Html5AnsiConsoleCanvas _canvasConsoleCore;
+    private readonly CanvasConsole _canvasConsole;
     private readonly ILogger _logger;
-    private Canvas2DContext _context = null!;
+
+    /// <summary>
+    ///     not created until OnAfterRender
+    /// </summary>
+    private Canvas2DContext? _canvas2DContext = null;
 
     /// <summary>
     /// </summary>
@@ -29,7 +32,7 @@ public partial class Console : ComponentBase
             throw new InvalidOperationException(message: "Console can only be instantiated once.");
         _singletons[key: this.ConsoleType!.Value] = this;
         this._logger = logger;
-        this._canvasConsoleCore = new Html5AnsiConsoleCanvas(
+        this._canvasConsole = new CanvasConsole(
             logger: this._logger ?? throw new InvalidOperationException(),
             console: this,
             terminalSettings: null,
@@ -51,28 +54,40 @@ public partial class Console : ComponentBase
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
+        this._logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
-        this._context = await this.CanvasReference.CreateCanvas2DAsync();
-        await this._context.SetFillStyleAsync(value: "green");
-
-        await this._context.FillRectAsync(x: 10, y: 100, width: 100, height: 100);
-
-        await this._context.SetFontAsync(value: "48px serif");
-        await this._context.StrokeTextAsync(text: "Hello Blazor!!!", x: 10, y: 100);
+        this._canvasConsole.UpdateScreen(firstRender: firstRender);
+        this._logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
-    public void RenderFullCharacterBuffer(CharacterBuffer characterBuffer)
+    private async Task InitializeNewCanvasFrame()
     {
-        characterBuffer.RenderFull(
-            context: this._context,
-            canvas: this.CanvasReference);
+        this._logger.LogDebug(message: "InitializeNewCanvasFrame");
+        this._canvas2DContext = await this.CanvasReference.CreateCanvas2DAsync();
+
+        await this._canvas2DContext.SetFillStyleAsync(value: "blue");
+        await this._canvas2DContext.ClearRectAsync(
+            x: 0,
+            y: 0,
+            width: this._canvasConsole.WindowWidthPixels,
+            height: this._canvasConsole.WindowHeightPixels);
+        await this._canvas2DContext.FillRectAsync(
+            x: 0,
+            y: 0,
+            width: this._canvasConsole.WindowWidthPixels,
+            height: this._canvasConsole.WindowHeightPixels);
+        this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
-    public void RenderUpdatesFromCharacterBuffer(CharacterBuffer characterBuffer)
+    public async Task DrawBufferToNewFrame(int[,,] buffer, bool? firstRender = null)
     {
-        characterBuffer.RenderUpdates(
-            context: this._context,
-            canvas: this.CanvasReference);
+        this._logger.LogDebug(message: "DrawBufferToFrame");
+        if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
+            await this.InitializeNewCanvasFrame();
+        // draw changes from dirty lines
+        await this._canvas2DContext!.SetFontAsync(value: "8px serif");
+        await this._canvas2DContext.StrokeTextAsync(text: "blah", x: 10, y: 100);
+        this._logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 
     /// <summary>

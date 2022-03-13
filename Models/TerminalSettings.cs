@@ -17,11 +17,6 @@ public record TerminalSettings
     public int BufferRows;
 
     /// <summary>
-    ///     Terminal window width in characters
-    /// </summary>
-    public int Columns;
-
-    /// <summary>
     ///     Cursor height in percentage of character
     /// </summary>
     public int CursorHeight;
@@ -51,11 +46,6 @@ public record TerminalSettings
     public bool CursorVisible;
 
     /// <summary>
-    ///     Terminal window height in characters
-    /// </summary>
-    public int Rows;
-
-    /// <summary>
     ///     Whether the status bar is visible
     /// </summary>
     public bool StatusVisible;
@@ -71,16 +61,6 @@ public record TerminalSettings
     public ConsoleColor TerminalForeground;
 
     /// <summary>
-    ///     Terminal window height in pixels
-    /// </summary>
-    public int TerminalHeight;
-
-    /// <summary>
-    ///     Terminal window width in pixels
-    /// </summary>
-    public int TerminalWidth;
-
-    /// <summary>
     ///     Window/Terminal title
     /// </summary>
     public string Title;
@@ -90,14 +70,36 @@ public record TerminalSettings
     /// </summary>
     public bool TitleVisible;
 
+    /// <summary>
+    ///     Terminal window width in characters
+    /// </summary>
+    public int WindowColumns;
+
+    /// <summary>
+    ///     Terminal window height in pixels
+    /// </summary>
+    public int WindowHeightPixels;
+
+    /// <summary>
+    ///     Terminal window height in characters
+    /// </summary>
+    public int WindowRows;
+
+    /// <summary>
+    ///     Terminal window width in pixels
+    /// </summary>
+    public int WindowWidthPixels;
+
+    // TODO: Font size/etc
+
     public TerminalSettings(
         string title = "",
-        int terminalWidth = Defaults.InitialTerminalWidth,
-        int terminalHeight = Defaults.InitialTerminalHeight,
+        int windowWidthPixels = Defaults.InitialTerminalWidth,
+        int windowHeightPixels = Defaults.InitialTerminalHeight,
         int bufferColumns = Defaults.InitialBufferColumns,
         int bufferRows = Defaults.InitialBufferRows,
-        int columns = Defaults.InitialColumns,
-        int rows = Defaults.InitialRows,
+        int windowColumns = Defaults.InitialColumns,
+        int windowRows = Defaults.InitialRows,
         bool cursorVisible = Defaults.CursorVisibility,
         bool statusVisible = Defaults.StatusVisibility,
         bool titleVisible = Defaults.TitleVisibility,
@@ -109,12 +111,12 @@ public record TerminalSettings
         ConsoleColor terminalForeground = Defaults.ForegroundColor)
     {
         this.Title = title;
-        this.TerminalWidth = terminalWidth;
-        this.TerminalHeight = terminalHeight;
+        this.WindowWidthPixels = windowWidthPixels;
+        this.WindowHeightPixels = windowHeightPixels;
         this.BufferColumns = bufferColumns;
         this.BufferRows = bufferRows;
-        this.Columns = columns;
-        this.Rows = rows;
+        this.WindowColumns = windowColumns;
+        this.WindowRows = windowRows;
         this.CursorVisible = cursorVisible;
         this.StatusVisible = statusVisible;
         this.TitleVisible = titleVisible;

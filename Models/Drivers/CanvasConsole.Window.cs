@@ -7,7 +7,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas
+public partial class CanvasConsole
 {
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
@@ -34,12 +34,12 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int BufferHeight
+    public int BufferRows
     {
-        get => this._terminalSettings.Rows;
+        get => this._terminalSettings.WindowRows;
         set
         {
-            this._terminalSettings.Rows = value;
+            this._terminalSettings.WindowRows = value;
             this.TerminalResized?.Invoke();
         }
     }
@@ -65,12 +65,12 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int BufferWidth
+    public int BufferColumns
     {
-        get => this._terminalSettings.Columns;
+        get => this._terminalSettings.WindowColumns;
         set
         {
-            this._terminalSettings.Rows = value;
+            this._terminalSettings.WindowColumns = value;
             this.TerminalResized?.Invoke();
         }
     }
@@ -151,13 +151,13 @@ public partial class Html5AnsiConsoleCanvas
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowRows
     {
-        get => this._terminalSettings.Rows;
+        get => this._terminalSettings.WindowRows;
         set
         {
             if (value > this.LargestWindowHeight)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message: "The value of the WindowRows property is greater than the largest possible window height");
-            this._terminalSettings.Rows = value;
+            this._terminalSettings.WindowRows = value;
         }
     }
 
@@ -180,11 +180,7 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowLeft
-    {
-        get => 0;
-        set { }
-    }
+    public int WindowLeft { get; set; } = 0;
 
     //
     // Summary:
@@ -205,11 +201,7 @@ public partial class Html5AnsiConsoleCanvas
     //
     //   T:System.PlatformNotSupportedException:
     //     The set operation is invoked on an operating system other than Windows.
-    public int WindowTop
-    {
-        get => 0;
-        set { }
-    }
+    public int WindowTop { get; set; } = 0;
 
     //
     // Summary:
@@ -235,14 +227,38 @@ public partial class Html5AnsiConsoleCanvas
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowColumns
     {
-        get => this._terminalSettings.Columns;
+        get => this._terminalSettings.WindowColumns;
         set
         {
             if (value > this.LargestWindowWidth)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message:
                     "The value of the WindowColumns property is greater than the largest possible window width");
-            this._terminalSettings.Columns = value;
+            this._terminalSettings.WindowColumns = value;
+        }
+    }
+
+    public int WindowHeightPixels
+    {
+        get => this._terminalSettings.WindowHeightPixels;
+        set
+        {
+            if (value < 0)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value),
+                    message: "The value of the WindowHeightPixels property is less than zero");
+            this._terminalSettings.WindowHeightPixels = value;
+        }
+    }
+
+    public int WindowWidthPixels
+    {
+        get => this._terminalSettings.WindowWidthPixels;
+        set
+        {
+            if (value < 0)
+                throw new ArgumentOutOfRangeException(paramName: nameof(value),
+                    message: "The value of the WindowWidthPixels property is less than zero");
+            this._terminalSettings.WindowWidthPixels = value;
         }
     }
 

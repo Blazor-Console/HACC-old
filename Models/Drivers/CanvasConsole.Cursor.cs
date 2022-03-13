@@ -7,7 +7,7 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-public partial class Html5AnsiConsoleCanvas
+public partial class CanvasConsole
 {
     //
     // Summary:
@@ -150,11 +150,11 @@ public partial class Html5AnsiConsoleCanvas
     //
     // Parameters:
     //   left:
-    //     The column position of the cursor. Columns are numbered from left to right starting
+    //     The column position of the cursor. WindowColumns are numbered from left to right starting
     //     at 0.
     //
     //   top:
-    //     The row position of the cursor. Rows are numbered from top to bottom starting
+    //     The row position of the cursor. WindowRows are numbered from top to bottom starting
     //     at 0.
     //
     // Exceptions:

@@ -5,27 +5,27 @@ using Attribute = Terminal.Gui.Attribute;
 
 namespace HACC.Models.Drivers;
 
-public partial class Html5AnsiConsoleCanvas
+public partial class CanvasConsole
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
-    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowColumns" />
+    ///     Shortcut to <see cref="CanvasConsole.WindowColumns" />
     /// </summary>
     public override int Cols => this.WindowColumns;
 
     /// <summary>
-    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowRows" />
+    ///     Shortcut to <see cref="CanvasConsole.WindowRows" />
     /// </summary>
     public override int Rows => this.WindowRows;
 
     /// <summary>
-    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowLeft" />
+    ///     Shortcut to <see cref="CanvasConsole.WindowLeft" />
     ///     Only handling left here because not all terminals has a horizontal scroll bar.
     /// </summary>
     public override int Left => this.WindowLeft;
 
     /// <summary>
-    ///     Shortcut to <see cref="Html5AnsiConsoleCanvas.WindowTop" />
+    ///     Shortcut to <see cref="CanvasConsole.WindowTop" />
     /// </summary>
     public override int Top => this.WindowTop;
 
@@ -130,7 +130,7 @@ public partial class Html5AnsiConsoleCanvas
         this._terminalSettings.SetCursorPosition(x: currentPosition.X + 1, y: currentPosition.Y);
         //if (ccol == Cols) {
         //	ccol = 0;
-        //	if (crow + 1 < Rows)
+        //	if (crow + 1 < WindowRows)
         //		crow++;
         //}
         if (sync) this.UpdateScreen();
@@ -263,30 +263,43 @@ public partial class Html5AnsiConsoleCanvas
 
     public override void UpdateScreen()
     {
-        var top = this.Top;
-        var left = this.Left;
-        var rows = Math.Min(val1: this.WindowRows + top,
-            val2: this.Rows);
-        var cols = this.Cols;
+        this.UpdateScreen(firstRender: false);
+    }
 
-        this.CursorTop = 0;
-        this.CursorLeft = 0;
-        for (var row = top; row < rows; row++)
+    public void UpdateScreen(bool firstRender)
+    {
+        lock (this.Contents)
         {
-            this._dirtyLine[row] = false;
-            for (var col = left; col < cols; col++)
+            var top = this.Top;
+            var left = this.Left;
+            var rows = Math.Min(val1: this.WindowRows + top,
+                val2: this.Rows);
+            var cols = this.Cols;
+
+            this.CursorTop = 0;
+            this.CursorLeft = 0;
+            for (var row = top; row < rows; row++)
             {
-                this.Contents[row,
-                    col,
-                    2] = 0;
-                var color = this.Contents[row,
-                    col,
-                    1];
-                if (color != this._redrawColor) this.SetColor(color: color);
-                this.Write(value: (char) this.Contents[row,
-                    col,
-                    0]);
+                this._dirtyLine[row] = false;
+                for (var col = left; col < cols; col++)
+                {
+                    this.Contents[row,
+                        col,
+                        2] = 0;
+                    var color = this.Contents[row,
+                        col,
+                        1];
+                    if (color != this._redrawColor) this.SetColor(color: color);
+                    this.Write(value: (char) this.Contents[row,
+                        col,
+                        0]);
+                }
             }
+
+            var task = this._console.DrawBufferToNewFrame(
+                buffer: this.Contents,
+                firstRender: firstRender);
+            task.RunSynchronously();
         }
     }
 
@@ -576,9 +589,9 @@ public partial class Html5AnsiConsoleCanvas
     {
         this.WindowColumns = width;
         this.WindowRows = height;
-        if (width > this.BufferWidth || !this.HeightAsBuffer) this.BufferWidth = width;
+        if (width > this.BufferColumns || !this.HeightAsBuffer) this.BufferColumns = width;
 
-        if (height > this.BufferHeight || !this.HeightAsBuffer) this.BufferHeight = height;
+        if (height > this.BufferRows || !this.HeightAsBuffer) this.BufferRows = height;
 
         this.ProcessResize();
     }

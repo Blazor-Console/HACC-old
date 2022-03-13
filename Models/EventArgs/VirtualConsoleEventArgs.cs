@@ -4,9 +4,9 @@ namespace HACC.Models.EventArgs;
 
 public record VirtualConsoleEventArgs
 {
-    public readonly Html5AnsiConsoleCanvas Console;
+    public readonly CanvasConsole Console;
 
-    public VirtualConsoleEventArgs(Html5AnsiConsoleCanvas sender)
+    public VirtualConsoleEventArgs(CanvasConsole sender)
     {
         this.Console = sender;
     }
