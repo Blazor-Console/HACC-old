@@ -266,6 +266,7 @@ public partial class WebConsole
     {
         // ReSharper disable once HeapView.ObjectAllocation.Evident
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
+        this._dirtyLine = new bool [this.BufferRows];
         this.SetCursorPosition(left: 0, top: 0);
     }
 
@@ -462,7 +463,7 @@ public partial class WebConsole
     public void SetInternalWindowSize(int width, int height)
     {
         // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this.Contents = new int[width, height, 3];
+        this.Contents = new int[height, width, 3];
     }
 
     //

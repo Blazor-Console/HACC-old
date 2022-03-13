@@ -8,12 +8,12 @@ using Console = HACC.Components.Console;
 
 namespace HACC.Models.Drivers;
 
-//
-// Summary:
-//     Represents the standard input, output, and error streams for console applications.
-//     This class cannot be inherited.
+/// <summary>
+///     Represents the standard input, output, and error streams for console applications.
+///     This class cannot be inherited.
+/// </summary>
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole : ConsoleDriver, IAnsiConsole
+public sealed partial class WebConsole : ConsoleDriver, IAnsiConsole
 {
     private readonly Console _console;
     private readonly ILogger _logger;
@@ -32,7 +32,11 @@ public partial class WebConsole : ConsoleDriver, IAnsiConsole
         this._console = console;
         this._logger = logger;
         this.Clipboard = webClipboard;
+        // ReSharper disable HeapView.ObjectAllocation.Evident
         this._terminalSettings = terminalSettings ?? new TerminalSettings();
+        this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
+        this._dirtyLine = new bool [this.BufferRows];
+        // ReSharper restore HeapView.ObjectAllocation.Evident
     }
 
     public Profile Profile => throw new NotImplementedException();
