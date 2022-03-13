@@ -262,7 +262,9 @@ public partial class CanvasConsole
 
     public void Clear(bool home)
     {
-        throw new NotImplementedException();
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
+        this.SetCursorPosition(left: 0, top: 0);
     }
 
     public event NewFrameHandler NewFrame;
@@ -457,7 +459,8 @@ public partial class CanvasConsole
     //     The current operating system is not Windows.
     public void SetInternalWindowSize(int width, int height)
     {
-        throw new NotImplementedException();
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        this.Contents = new int[width, height, 3];
     }
 
     //
@@ -469,6 +472,6 @@ public partial class CanvasConsole
     //     An I/O error occurred.
     public void Clear()
     {
-        throw new NotImplementedException();
+        this.Clear(home: false);
     }
 }
