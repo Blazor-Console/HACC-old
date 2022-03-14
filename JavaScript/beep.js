@@ -1,7 +1,5 @@
 // from: https://stackoverflow.com/a/29641185
 //if you have another AudioContext class use that one, as some browsers have a limit
-var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
-
 //All arguments are optional:
 
 //duration of the tone in milliseconds. Default is 500
@@ -10,6 +8,8 @@ var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.a
 //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
 //callback to use on end of tone
 window.audioContextBeep = (duration, frequency, volume, type, callback) => {
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+
     var oscillator = audioCtx.createOscillator();
     var gainNode = audioCtx.createGain();
 
