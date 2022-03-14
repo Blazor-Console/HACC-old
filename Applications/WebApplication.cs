@@ -10,15 +10,24 @@ namespace HACC.Applications;
 [SupportedOSPlatform(platformName: "browser")]
 public class WebApplication
 {
+    public readonly WebClipboard WebClipboard;
+    public readonly WebConsole WebConsole;
+    public readonly WebMainLoopDriver WebMainLoopDriver;
     public WebApplication(ILogger logger, Console console, TerminalSettings? terminalSettings = null)
     {
-        var webClipboard = new WebClipboard();
-        var webConsole = new WebConsole(
+        this.WebClipboard = new WebClipboard();
+        this.WebConsole = new WebConsole(
             logger: logger,
             console: console,
-            webClipboard: webClipboard,
+            webClipboard: this.WebClipboard,
             terminalSettings: terminalSettings);
-        var webMainLoopDriver = new WebMainLoopDriver();
-        Application.Init(driver: webConsole, mainLoopDriver: webMainLoopDriver);
+        this.WebMainLoopDriver = new WebMainLoopDriver();
+    }
+
+    public virtual void Init()
+    {
+        Application.Init(
+            driver: this.WebConsole,
+            mainLoopDriver: this.WebMainLoopDriver);
     }
 }
