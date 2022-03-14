@@ -21,18 +21,19 @@ namespace HACC.Models;
 [SupportedOSPlatform(platformName: "browser")]
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private List<Func<bool>> _idleHandlers = new();
     private readonly Func<ConsoleKeyInfo> consoleKeyReaderFn;
+
+    private readonly AutoResetEvent keyReady = new(initialState: false);
+    private readonly AutoResetEvent waitForProbe = new(initialState: false);
+    private List<Func<bool>> _idleHandlers = new();
 
     /// <summary>
     ///     Invoked when a Key is pressed.
     /// </summary>
     public Action<ConsoleKeyInfo> KeyPressed;
 
-    private readonly AutoResetEvent keyReady = new(initialState: false);
     private ConsoleKeyInfo? keyResult;
     private WebMainLoop mainLoop;
-    private readonly AutoResetEvent waitForProbe = new(initialState: false);
 
 
     /// <summary>
