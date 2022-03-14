@@ -8,7 +8,6 @@ namespace HACC.Models;
 /// <summary>
 ///     Blazor based clipboard
 /// </summary>
-[SupportedOSPlatform(platformName: "browser")]
 public class WebClipboard : ClipboardBase
 {
     private static WebClipboard? _instance;
