@@ -32,7 +32,7 @@ public class WebMainLoop : MainLoop
     ///     Should match the <see cref="ConsoleDriver" /> (one of the implementations UnixMainLoop,
     ///     NetMainLoop or WindowsMainLoop).
     /// </param>
-    public WebMainLoop(IMainLoopDriver driver) : base(driver: driver)
+    public WebMainLoop(WebMainLoopDriver driver) : base(driver: driver)
     {
     }
 

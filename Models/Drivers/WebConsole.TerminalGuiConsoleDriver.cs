@@ -55,7 +55,7 @@ public partial class WebConsole
         var rows = this.Rows;
 
         // ReSharper disable once HeapView.ObjectAllocation.Evident
-        Contents = new int [rows, cols, 3];
+        this.Contents = new int [rows, cols, 3];
         for (var r = 0; r < rows; r++)
         {
             for (var c = 0; c < cols; c++)
@@ -512,7 +512,7 @@ public partial class WebConsole
 
         // ReSharper disable once HeapView.DelegateAllocation
         // Note: Net doesn't support keydown/up events and thus any passed keyDown/UpHandlers will never be called
-        (mainLoop.Driver as WebLoopDriver)!.KeyPressed += this.OnKeyPressed;
+        (mainLoop.Driver as WebMainLoopDriver)!.KeyPressed += this.OnKeyPressed;
     }
 
     private void OnKeyPressed(ConsoleKeyInfo consoleKey)
@@ -673,7 +673,7 @@ public partial class WebConsole
             width: this.Cols,
             height: this.Rows);
 
-        Contents = new int [this.Rows, this.Cols, 3];
+        this.Contents = new int [this.Rows, this.Cols, 3];
         this._dirtyLine = new bool [this.Rows];
     }
 
