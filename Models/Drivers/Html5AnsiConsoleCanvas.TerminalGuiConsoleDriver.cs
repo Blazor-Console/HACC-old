@@ -53,7 +53,7 @@ public partial class Html5AnsiConsoleCanvas
         var rows = this.Rows;
 
         // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this.Contents = new int [rows, cols, 3];
+        Contents = new int [rows, cols, 3];
         for (var r = 0; r < rows; r++)
         {
             for (var c = 0; c < cols; c++)
@@ -656,7 +656,7 @@ public partial class Html5AnsiConsoleCanvas
             width: this.Cols,
             height: this.Rows);
 
-        this.Contents = new int [this.Rows, this.Cols, 3];
+        Contents = new int [this.Rows, this.Cols, 3];
         this._dirtyLine = new bool [this.Rows];
     }
 
