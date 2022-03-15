@@ -30,4 +30,9 @@ public class WebApplication
             driver: this.WebConsole,
             mainLoopDriver: this.WebMainLoopDriver);
     }
+
+    public virtual void Run()
+    {
+        Application.Run();
+    }
 }
