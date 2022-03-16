@@ -13,9 +13,9 @@ public class WebApplication
     public readonly WebClipboard WebClipboard;
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
-    public WebApplication(ILogger logger, WebConsole console, TerminalSettings? terminalSettings = null)
+    public WebApplication(ILogger logger, WebClipboard webClipboard, WebConsole console, TerminalSettings? terminalSettings = null)
     {
-        this.WebClipboard = new WebClipboard();
+        this.WebClipboard = webClipboard;
         this.WebConsoleDriver = new WebConsoleDriver(
             logger: logger,
             webClipboard: this.WebClipboard,
