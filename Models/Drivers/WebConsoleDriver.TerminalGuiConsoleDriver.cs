@@ -57,27 +57,22 @@ public partial class WebConsoleDriver
         // ReSharper disable once HeapView.ObjectAllocation.Evident
         this.Contents = new int [rows, cols, 3];
         for (var r = 0; r < rows; r++)
+        for (var c = 0; c < cols; c++)
         {
-            for (var c = 0; c < cols; c++)
-            {
-                this.Contents[r,
-                    c,
-                    0] = ' ';
-                this.Contents[r,
-                    c,
-                    1] = MakeColor(f: ConsoleColor.Gray,
-                    b: ConsoleColor.Black);
-                this.Contents[r,
-                    c,
-                    2] = 0;
-            }
+            this.Contents[r,
+                c,
+                0] = ' ';
+            this.Contents[r,
+                c,
+                1] = MakeColor(f: ConsoleColor.Gray,
+                b: ConsoleColor.Black);
+            this.Contents[r,
+                c,
+                2] = 0;
         }
 
         this._dirtyLine = new bool [rows];
-        for (var row = 0; row < rows; row++)
-        {
-            this._dirtyLine[row] = true;
-        }
+        for (var row = 0; row < rows; row++) this._dirtyLine[row] = true;
     }
 
     private static readonly bool sync = false;
@@ -87,7 +82,8 @@ public partial class WebConsoleDriver
 
     public override void Move(int col, int row)
     {
-        this._terminalSettings.SetCursorPosition(x: col, y: row);
+        this._terminalSettings.SetCursorPosition(x: col,
+            y: row);
 
         if (this.Clip.Contains(x: col,
                 y: row))
@@ -116,11 +112,14 @@ public partial class WebConsoleDriver
                 //MockConsole.CursorTop = crow;
                 this._needMove = false;
 
-            this.Contents[currentPosition.Y, currentPosition.X,
+            this.Contents[currentPosition.Y,
+                currentPosition.X,
                 0] = (int) (uint) rune;
-            this.Contents[currentPosition.Y, currentPosition.X,
+            this.Contents[currentPosition.Y,
+                currentPosition.X,
                 1] = this._currentAttribute;
-            this.Contents[currentPosition.Y, currentPosition.X,
+            this.Contents[currentPosition.Y,
+                currentPosition.X,
                 2] = 1;
             this._dirtyLine[currentPosition.Y] = true;
         }
@@ -129,7 +128,8 @@ public partial class WebConsoleDriver
             this._needMove = true;
         }
 
-        this._terminalSettings.SetCursorPosition(x: currentPosition.X + 1, y: currentPosition.Y);
+        this._terminalSettings.SetCursorPosition(x: currentPosition.X + 1,
+            y: currentPosition.Y);
         //if (ccol == Cols) {
         //	ccol = 0;
         //	if (crow + 1 < WindowRows)
@@ -140,10 +140,7 @@ public partial class WebConsoleDriver
 
     public override void AddStr(ustring str)
     {
-        foreach (var rune in str)
-        {
-            this.AddRune(rune: rune);
-        }
+        foreach (var rune in str) this.AddRune(rune: rune);
     }
 
     public override void End()
@@ -302,7 +299,8 @@ public partial class WebConsoleDriver
                 buffer: this.Contents,
                 firstRender: firstRender);
             // ReSharper disable once HeapView.ObjectAllocation.Evident
-            this.NewFrame(sender: this, e: new NewFrameEventArgs(sender: this));
+            this.NewFrame(sender: this,
+                e: new NewFrameEventArgs(sender: this));
             task.RunSynchronously();
         }
     }
@@ -683,20 +681,18 @@ public partial class WebConsoleDriver
         try
         {
             for (var row = 0; row < this.Rows; row++)
+            for (var c = 0; c < this.Cols; c++)
             {
-                for (var c = 0; c < this.Cols; c++)
-                {
-                    this.Contents[row,
-                        c,
-                        0] = ' ';
-                    this.Contents[row,
-                        c,
-                        1] = Colors.TopLevel.Normal;
-                    this.Contents[row,
-                        c,
-                        2] = 0;
-                    this._dirtyLine[row] = true;
-                }
+                this.Contents[row,
+                    c,
+                    0] = ' ';
+                this.Contents[row,
+                    c,
+                    1] = Colors.TopLevel.Normal;
+                this.Contents[row,
+                    c,
+                    2] = 0;
+                this._dirtyLine[row] = true;
             }
         }
         catch (IndexOutOfRangeException)

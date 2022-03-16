@@ -132,7 +132,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void Write(double value)
     {
-        this.Write(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
+        this.Write(value: Convert.ToString(value: value,
+            provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -200,7 +201,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void Write(float value)
     {
-        this.Write(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
+        this.Write(value: Convert.ToString(value: value,
+            provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -219,7 +221,8 @@ public partial class WebConsoleDriver
         var ustr = value is null ? ustring.Empty : ustring.Make(str: value);
         this.AddStr(str: ustr);
         var currentPosition = this.CursorPosition;
-        this.SetCursorPosition(left: currentPosition.X + ustr.RuneCount, top: currentPosition.Y);
+        this.SetCursorPosition(left: currentPosition.X + ustr.RuneCount,
+            top: currentPosition.Y);
     }
 
     //
@@ -245,7 +248,8 @@ public partial class WebConsoleDriver
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0)
     {
-        this.Write(value: string.Format(format: format, arg0: arg0));
+        this.Write(value: string.Format(format: format,
+            arg0: arg0));
     }
 
     //
@@ -274,7 +278,9 @@ public partial class WebConsoleDriver
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1)
     {
-        this.Write(value: string.Format(format: format, arg0: arg0, arg1: arg1));
+        this.Write(value: string.Format(format: format,
+            arg0: arg0,
+            arg1: arg1));
     }
 
     //
@@ -306,7 +312,10 @@ public partial class WebConsoleDriver
     //     The format specification in format is invalid.
     public void Write(string format, object? arg0, object? arg1, object? arg2)
     {
-        this.Write(value: string.Format(format: format, arg0: arg0, arg1: arg1, arg2: arg2));
+        this.Write(value: string.Format(format: format,
+            arg0: arg0,
+            arg1: arg1,
+            arg2: arg2));
     }
 
     //
@@ -332,7 +341,8 @@ public partial class WebConsoleDriver
     //     The format specification in format is invalid.
     public void Write(string format, params object?[]? arg)
     {
-        this.Write(value: string.Format(format: format, arg0: arg));
+        this.Write(value: string.Format(format: format,
+            arg0: arg));
     }
 
     //

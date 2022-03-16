@@ -191,6 +191,7 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void SetCursorPosition(int left, int top)
     {
-        this._terminalSettings.SetCursorPosition(x: left, y: top);
+        this._terminalSettings.SetCursorPosition(x: left,
+            y: top);
     }
 }

@@ -132,6 +132,7 @@ public record TerminalSettings
 
     public void SetCursorPosition(int x, int y)
     {
-        this.CursorPosition = new Point(x: x, y: y);
+        this.CursorPosition = new Point(x: x,
+            y: y);
     }
 }

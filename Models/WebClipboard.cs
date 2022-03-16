@@ -1,4 +1,3 @@
-using System.Runtime.Versioning;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Terminal.Gui;

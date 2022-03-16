@@ -267,7 +267,8 @@ public partial class WebConsoleDriver
         // ReSharper disable once HeapView.ObjectAllocation.Evident
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool [this.BufferRows];
-        this.SetCursorPosition(left: 0, top: 0);
+        this.SetCursorPosition(left: 0,
+            top: 0);
     }
 
     public event NewFrameHandler NewFrame;

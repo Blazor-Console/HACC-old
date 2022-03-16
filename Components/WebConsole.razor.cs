@@ -19,12 +19,12 @@ public partial class WebConsole : ComponentBase
     private readonly ILogger _logger;
     private readonly WebConsoleDriver _webConsoleDriver;
 
+    private Canvas2DContext? _canvas2DContextStdErr = null;
+
     /// <summary>
     ///     not created until OnAfterRender
     /// </summary>
     private Canvas2DContext? _canvas2DContextStdOut = null;
-    
-    private Canvas2DContext? _canvas2DContextStdErr = null;
 
     /// <summary>
     /// </summary>
@@ -41,7 +41,7 @@ public partial class WebConsole : ComponentBase
             logger: this._logger ?? throw new InvalidOperationException(),
             webClipboard: webClipboard,
             console: this,
-            new TerminalSettings());
+            terminalSettings: new TerminalSettings());
     }
 
     [Parameter] public ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
@@ -52,7 +52,7 @@ public partial class WebConsole : ComponentBase
     [Inject] private IJSRuntime JsInterop { get; set; } = null!;
 
     public static WebConsole Instance =>
-        _singleton ?? throw new ArgumentException(message: $"ConsoleDriver not instantiated");
+        _singleton ?? throw new ArgumentException(message: "ConsoleDriver not instantiated");
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -102,7 +102,9 @@ public partial class WebConsole : ComponentBase
             await this.InitializeNewCanvasFrame();
         // draw changes from dirty lines
         await this._canvas2DContextStdOut!.SetFontAsync(value: "8px serif");
-        await this._canvas2DContextStdOut.StrokeTextAsync(text: "blah", x: 10, y: 100);
+        await this._canvas2DContextStdOut.StrokeTextAsync(text: "blah",
+            x: 10,
+            y: 100);
         this._logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 

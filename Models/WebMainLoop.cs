@@ -52,12 +52,10 @@ public class WebMainLoop : MainLoop
         lock (this._timeouts)
         {
             var k = (DateTime.UtcNow + time).Ticks;
-            while (this._timeouts.ContainsKey(key: k))
-            {
-                k = (DateTime.UtcNow + time).Ticks;
-            }
+            while (this._timeouts.ContainsKey(key: k)) k = (DateTime.UtcNow + time).Ticks;
 
-            this._timeouts.Add(key: k, value: timeout);
+            this._timeouts.Add(key: k,
+                value: timeout);
         }
     }
 
@@ -75,8 +73,10 @@ public class WebMainLoop : MainLoop
     {
         if (callback == null)
             throw new ArgumentNullException(paramName: nameof(callback));
-        var timeout = new Timeout(span: time, callback: callback);
-        this.AddTimeout(time: time, timeout: timeout);
+        var timeout = new Timeout(span: time,
+            callback: callback);
+        this.AddTimeout(time: time,
+            timeout: timeout);
         return timeout;
     }
 
@@ -117,19 +117,20 @@ public class WebMainLoop : MainLoop
             this._timeouts = new SortedList<long, Timeout>();
             // ReSharper disable once HeapView.ObjectAllocation.Possible
             foreach (var (k, timeout) in copy)
-            {
                 if (k < now)
                 {
-                    if (timeout.Callback(arg: this)) this.AddTimeout(time: timeout.Span, timeout: timeout);
+                    if (timeout.Callback(arg: this))
+                        this.AddTimeout(time: timeout.Span,
+                            timeout: timeout);
                 }
                 else
                 {
                     lock (this._timeouts)
                     {
-                        this._timeouts.Add(key: k, value: timeout);
+                        this._timeouts.Add(key: k,
+                            value: timeout);
                     }
                 }
-            }
         }
     }
 
@@ -146,12 +147,10 @@ public class WebMainLoop : MainLoop
         // ReSharper disable once HeapView.ObjectAllocation
         // ReSharper disable once HeapView.ObjectAllocation.Possible
         foreach (var idle in iterate.Where(predicate: idle => idle()))
-        {
             lock (this._idleHandlers)
             {
                 this._idleHandlers.Add(item: idle);
             }
-        }
     }
 
 

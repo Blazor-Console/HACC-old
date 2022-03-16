@@ -22,7 +22,8 @@ public partial class WebConsoleDriver
     public void WriteLine()
     {
         var currentPosition = this.CursorPosition;
-        this._terminalSettings.SetCursorPosition(x: currentPosition.X, y: currentPosition.Y + 1);
+        this._terminalSettings.SetCursorPosition(x: currentPosition.X,
+            y: currentPosition.Y + 1);
     }
 
     //
@@ -126,7 +127,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void WriteLine(decimal value)
     {
-        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
+        this.WriteLine(value: Convert.ToString(value: value,
+            provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -143,7 +145,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void WriteLine(double value)
     {
-        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
+        this.WriteLine(value: Convert.ToString(value: value,
+            provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -211,7 +214,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void WriteLine(float value)
     {
-        this.WriteLine(value: Convert.ToString(value: value, provider: CultureInfo.InvariantCulture));
+        this.WriteLine(value: Convert.ToString(value: value,
+            provider: CultureInfo.InvariantCulture));
     }
 
     //
@@ -230,7 +234,8 @@ public partial class WebConsoleDriver
     {
         this.AddStr(str: value is null ? ustring.Empty : ustring.Make(str: value));
         var currentPosition = this.CursorPosition;
-        this.CursorPosition = new Point(x: 0, y: currentPosition.Y + 1);
+        this.CursorPosition = new Point(x: 0,
+            y: currentPosition.Y + 1);
     }
 
     //
