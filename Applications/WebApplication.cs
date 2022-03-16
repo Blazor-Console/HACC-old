@@ -21,7 +21,7 @@ public class WebApplication
             console: console,
             webClipboard: this.WebClipboard,
             terminalSettings: terminalSettings);
-        this.WebMainLoopDriver = new WebMainLoopDriver();
+        this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
     }
 
     public virtual void Init()
@@ -29,5 +29,10 @@ public class WebApplication
         Application.Init(
             driver: this.WebConsole,
             mainLoopDriver: this.WebMainLoopDriver);
+    }
+
+    public virtual void Run()
+    {
+        Application.Run();
     }
 }
