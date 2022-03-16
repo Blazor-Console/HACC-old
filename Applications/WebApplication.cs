@@ -35,4 +35,9 @@ public class WebApplication
     {
         Application.Run();
     }
+
+    public virtual void Shutdown()
+    {
+        Application.Shutdown();
+    }
 }
