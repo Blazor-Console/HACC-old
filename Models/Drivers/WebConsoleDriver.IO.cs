@@ -11,7 +11,7 @@ namespace HACC.Models.Drivers;
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole
+public partial class WebConsoleDriver
 {
     //
     // Summary:
@@ -314,7 +314,7 @@ public partial class WebConsole
 
     //
     // Summary:
-    //     Sets the System.Console.Error property to the specified System.IO.TextWriter
+    //     Sets the System.ConsoleDriver.Error property to the specified System.IO.TextWriter
     //     object.
     //
     // Parameters:
@@ -334,7 +334,7 @@ public partial class WebConsole
 
     //
     // Summary:
-    //     Sets the System.Console.In property to the specified System.IO.TextReader object.
+    //     Sets the System.ConsoleDriver.In property to the specified System.IO.TextReader object.
     //
     // Parameters:
     //   newIn:
@@ -353,7 +353,7 @@ public partial class WebConsole
 
     //
     // Summary:
-    //     Sets the System.Console.Out property to target the System.IO.TextWriter object.
+    //     Sets the System.ConsoleDriver.Out property to target the System.IO.TextWriter object.
     //
     // Parameters:
     //   newOut:

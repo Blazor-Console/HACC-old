@@ -1,10 +1,10 @@
 ﻿using System.Runtime.Versioning;
+using HACC.Components;
 using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using Terminal.Gui;
-using Console = HACC.Components.Console;
 
 namespace HACC.Models.Drivers;
 
@@ -13,9 +13,9 @@ namespace HACC.Models.Drivers;
 ///     This class cannot be inherited.
 /// </summary>
 [SupportedOSPlatform(platformName: "browser")]
-public sealed partial class WebConsole : ConsoleDriver, IAnsiConsole
+public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 {
-    private readonly Console _console;
+    private readonly WebConsole _console;
     private readonly ILogger _logger;
 
     private TerminalSettings _terminalSettings;
@@ -26,7 +26,7 @@ public sealed partial class WebConsole : ConsoleDriver, IAnsiConsole
     /// <param name="console">dependency injected console</param>
     /// <param name="webClipboard">dependency injected webClipboard</param>
     /// <param name="terminalSettings"></param>
-    public WebConsole(ILogger logger, Console console, WebClipboard webClipboard,
+    public WebConsoleDriver(ILogger logger, WebClipboard webClipboard, WebConsole console,
         TerminalSettings? terminalSettings = null)
     {
         this._console = console;

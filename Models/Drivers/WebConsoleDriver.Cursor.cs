@@ -9,7 +9,7 @@ namespace HACC.Models.Drivers;
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole
+public partial class WebConsoleDriver
 {
     //
     // Summary:
@@ -21,7 +21,7 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     The value in a set operation is less than zero. -or- The value in a set operation
-    //     is greater than or equal to System.Console.BufferWidth.
+    //     is greater than or equal to System.ConsoleDriver.BufferWidth.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -39,6 +39,8 @@ public partial class WebConsole
             this._terminalSettings.CursorPosition = new Point(
                 x: value,
                 y: this._terminalSettings.CursorPosition.Y);
+
+            throw new NotImplementedException();
         }
     }
 
@@ -68,6 +70,8 @@ public partial class WebConsole
         set
         {
             this._terminalSettings.CursorSize = value;
+
+            throw new NotImplementedException();
         }
     }
 
@@ -94,7 +98,7 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     The value in a set operation is less than zero. -or- The value in a set operation
-    //     is greater than or equal to System.Console.BufferHeight.
+    //     is greater than or equal to System.ConsoleDriver.BufferHeight.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -112,6 +116,8 @@ public partial class WebConsole
             this._terminalSettings.CursorPosition = new Point(
                 x: this._terminalSettings.CursorPosition.X,
                 y: value);
+
+            throw new NotImplementedException();
         }
     }
 
@@ -137,6 +143,8 @@ public partial class WebConsole
         set
         {
             this._terminalSettings.CursorVisible = value;
+
+            throw new NotImplementedException();
         }
     }
 
@@ -173,8 +181,8 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
-    //     left or top is less than zero. -or- left is greater than or equal to System.Console.BufferWidth.
-    //     -or- top is greater than or equal to System.Console.BufferHeight.
+    //     left or top is less than zero. -or- left is greater than or equal to System.ConsoleDriver.BufferWidth.
+    //     -or- top is greater than or equal to System.ConsoleDriver.BufferHeight.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.

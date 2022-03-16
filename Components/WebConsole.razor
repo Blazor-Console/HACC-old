@@ -1,0 +1,9 @@
+﻿@using HACC.Enumerations
+@if (ActiveConsole is ConsoleType.StandardOutput)
+{
+    <BECanvas Width="640" Height="480" @ref="CanvasReferenceStdOut" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
+}
+else if (ActiveConsole is ConsoleType.StandardError)
+{
+    <BECanvas Width="640" Height="480" @ref="CanvasReferenceStdErr" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
+}

@@ -4,10 +4,10 @@ namespace HACC.Models.EventArgs;
 
 public record VirtualConsoleEventArgs
 {
-    public readonly WebConsole Console;
+    public readonly WebConsoleDriver ConsoleDriver;
 
-    public VirtualConsoleEventArgs(WebConsole sender)
+    public VirtualConsoleEventArgs(WebConsoleDriver sender)
     {
-        this.Console = sender;
+        this.ConsoleDriver = sender;
     }
 }

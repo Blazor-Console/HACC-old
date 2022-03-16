@@ -7,27 +7,27 @@ using Attribute = Terminal.Gui.Attribute;
 namespace HACC.Models.Drivers;
 
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole
+public partial class WebConsoleDriver
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     /// <summary>
-    ///     Shortcut to <see cref="WebConsole.WindowColumns" />
+    ///     Shortcut to <see cref="WebConsoleDriver.WindowColumns" />
     /// </summary>
     public override int Cols => this.WindowColumns;
 
     /// <summary>
-    ///     Shortcut to <see cref="WebConsole.WindowRows" />
+    ///     Shortcut to <see cref="WebConsoleDriver.WindowRows" />
     /// </summary>
     public override int Rows => this.WindowRows;
 
     /// <summary>
-    ///     Shortcut to <see cref="WebConsole.WindowLeft" />
+    ///     Shortcut to <see cref="WebConsoleDriver.WindowLeft" />
     ///     Only handling left here because not all terminals has a horizontal scroll bar.
     /// </summary>
     public override int Left => this.WindowLeft;
 
     /// <summary>
-    ///     Shortcut to <see cref="WebConsole.WindowTop" />
+    ///     Shortcut to <see cref="WebConsoleDriver.WindowTop" />
     /// </summary>
     public override int Top => this.WindowTop;
 
@@ -297,7 +297,7 @@ public partial class WebConsole
                         0]);
                 }
             }
-            return;
+
             var task = this._console.DrawBufferToNewFrame(
                 buffer: this.Contents,
                 firstRender: firstRender);
@@ -309,50 +309,48 @@ public partial class WebConsole
 
     public override void Refresh()
     {
-        UpdateScreen();
+        var rows = this.Rows;
+        var cols = this.Cols;
 
-        //var rows = this.Rows;
-        //var cols = this.Cols;
+        var savedRow = this.CursorTop;
+        var savedCol = this.CursorLeft;
+        for (var row = 0; row < rows; row++)
+        {
+            if (!this._dirtyLine[row])
+                continue;
+            this._dirtyLine[row] = false;
+            for (var col = 0; col < cols; col++)
+            {
+                if (this.Contents[row,
+                        col,
+                        2] != 1)
+                    continue;
 
-        //var savedRow = this.CursorTop;
-        //var savedCol = this.CursorLeft;
-        //for (var row = 0; row < rows; row++)
-        //{
-        //    if (!this._dirtyLine[row])
-        //        continue;
-        //    this._dirtyLine[row] = false;
-        //    for (var col = 0; col < cols; col++)
-        //    {
-        //        if (this.Contents[row,
-        //                col,
-        //                2] != 1)
-        //            continue;
+                this.CursorTop = row;
+                this.CursorLeft = col;
+                for (;
+                     col < cols && this.Contents[row,
+                         col,
+                         2] == 1;
+                     col++)
+                {
+                    var color = this.Contents[row,
+                        col,
+                        1];
+                    if (color != this._redrawColor) this.SetColor(color: color);
 
-        //        this.CursorTop = row;
-        //        this.CursorLeft = col;
-        //        for (;
-        //             col < cols && this.Contents[row,
-        //                 col,
-        //                 2] == 1;
-        //             col++)
-        //        {
-        //            var color = this.Contents[row,
-        //                col,
-        //                1];
-        //            if (color != this._redrawColor) this.SetColor(color: color);
+                    this.Write(value: (char) this.Contents[row,
+                        col,
+                        0]);
+                    this.Contents[row,
+                        col,
+                        2] = 0;
+                }
+            }
+        }
 
-        //            this.Write(value: (char) this.Contents[row,
-        //                col,
-        //                0]);
-        //            this.Contents[row,
-        //                col,
-        //                2] = 0;
-        //        }
-        //    }
-        //}
-
-        //this.CursorTop = savedRow;
-        //this.CursorLeft = savedCol;
+        this.CursorTop = savedRow;
+        this.CursorLeft = savedCol;
     }
 
     private Attribute _currentAttribute;

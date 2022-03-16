@@ -7,7 +7,7 @@ namespace HACC.Models.Drivers;
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole
+public partial class WebConsoleDriver
 {
     //
     // Summary:
@@ -39,7 +39,7 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.InvalidOperationException:
-    //     The System.Console.In property is redirected from some stream other than the
+    //     The System.ConsoleDriver.In property is redirected from some stream other than the
     //     console.
     public ConsoleKeyInfo ReadKey()
     {
@@ -65,7 +65,7 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.InvalidOperationException:
-    //     The System.Console.In property is redirected from some stream other than the
+    //     The System.ConsoleDriver.In property is redirected from some stream other than the
     //     console.
     public ConsoleKeyInfo ReadKey(bool intercept)
     {

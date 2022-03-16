@@ -1,9 +1,9 @@
 using System.Runtime.Versioning;
+using HACC.Components;
 using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.Extensions.Logging;
 using Terminal.Gui;
-using Console = HACC.Components.Console;
 
 namespace HACC.Applications;
 
@@ -11,15 +11,15 @@ namespace HACC.Applications;
 public class WebApplication
 {
     public readonly WebClipboard WebClipboard;
-    public readonly WebConsole WebConsole;
+    public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
-    public WebApplication(ILogger logger, Console console, TerminalSettings? terminalSettings = null)
+    public WebApplication(ILogger logger, WebConsole console, TerminalSettings? terminalSettings = null)
     {
         this.WebClipboard = new WebClipboard();
-        this.WebConsole = new WebConsole(
+        this.WebConsoleDriver = new WebConsoleDriver(
             logger: logger,
-            console: console,
             webClipboard: this.WebClipboard,
+            console: console,
             terminalSettings: terminalSettings);
         this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
     }
@@ -27,7 +27,7 @@ public class WebApplication
     public virtual void Init()
     {
         Application.Init(
-            driver: this.WebConsole,
+            driver: this.WebConsoleDriver,
             mainLoopDriver: this.WebMainLoopDriver);
     }
 

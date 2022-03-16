@@ -9,7 +9,7 @@ namespace HACC.Models.Drivers;
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
 [SupportedOSPlatform(platformName: "browser")]
-public partial class WebConsole
+public partial class WebConsoleDriver
 {
     public delegate void NewFrameHandler(object sender, NewFrameEventArgs e);
 
@@ -24,7 +24,7 @@ public partial class WebConsole
     //   T:System.ArgumentOutOfRangeException:
     //     The value in a set operation is less than or equal to zero. -or- The value in
     //     a set operation is greater than or equal to System.Int16.MaxValue. -or- The value
-    //     in a set operation is less than System.Console.WindowTop + System.Console.WindowHeight.
+    //     in a set operation is less than System.ConsoleDriver.WindowTop + System.ConsoleDriver.WindowHeight.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -55,7 +55,7 @@ public partial class WebConsole
     //   T:System.ArgumentOutOfRangeException:
     //     The value in a set operation is less than or equal to zero. -or- The value in
     //     a set operation is greater than or equal to System.Int16.MaxValue. -or- The value
-    //     in a set operation is less than System.Console.WindowLeft + System.Console.WindowWidth.
+    //     in a set operation is less than System.ConsoleDriver.WindowLeft + System.ConsoleDriver.WindowWidth.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -136,11 +136,11 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
-    //     The value of the System.Console.WindowWidth property or the value of the System.Console.WindowHeight
-    //     property is less than or equal to 0. -or- The value of the System.Console.WindowHeight
-    //     property plus the value of the System.Console.WindowTop property is greater than
-    //     or equal to System.Int16.MaxValue. -or- The value of the System.Console.WindowWidth
-    //     property or the value of the System.Console.WindowHeight property is greater
+    //     The value of the System.ConsoleDriver.WindowWidth property or the value of the System.ConsoleDriver.WindowHeight
+    //     property is less than or equal to 0. -or- The value of the System.ConsoleDriver.WindowHeight
+    //     property plus the value of the System.ConsoleDriver.WindowTop property is greater than
+    //     or equal to System.Int16.MaxValue. -or- The value of the System.ConsoleDriver.WindowWidth
+    //     property or the value of the System.ConsoleDriver.WindowHeight property is greater
     //     than the largest possible window width or height for the current screen resolution
     //     and console font.
     //
@@ -172,8 +172,8 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     In a set operation, the value to be assigned is less than zero. -or- As a result
-    //     of the assignment, System.Console.WindowLeft plus System.Console.WindowWidth
-    //     would exceed System.Console.BufferWidth.
+    //     of the assignment, System.ConsoleDriver.WindowLeft plus System.ConsoleDriver.WindowWidth
+    //     would exceed System.ConsoleDriver.BufferWidth.
     //
     //   T:System.IO.IOException:
     //     Error reading or writing information.
@@ -193,8 +193,8 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     In a set operation, the value to be assigned is less than zero. -or- As a result
-    //     of the assignment, System.Console.WindowTop plus System.Console.WindowHeight
-    //     would exceed System.Console.BufferHeight.
+    //     of the assignment, System.ConsoleDriver.WindowTop plus System.ConsoleDriver.WindowHeight
+    //     would exceed System.ConsoleDriver.BufferHeight.
     //
     //   T:System.IO.IOException:
     //     Error reading or writing information.
@@ -212,11 +212,11 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
-    //     The value of the System.Console.WindowWidth property or the value of the System.Console.WindowHeight
-    //     property is less than or equal to 0. -or- The value of the System.Console.WindowHeight
-    //     property plus the value of the System.Console.WindowTop property is greater than
-    //     or equal to System.Int16.MaxValue. -or- The value of the System.Console.WindowWidth
-    //     property or the value of the System.Console.WindowHeight property is greater
+    //     The value of the System.ConsoleDriver.WindowWidth property or the value of the System.ConsoleDriver.WindowHeight
+    //     property is less than or equal to 0. -or- The value of the System.ConsoleDriver.WindowHeight
+    //     property plus the value of the System.ConsoleDriver.WindowTop property is greater than
+    //     or equal to System.Int16.MaxValue. -or- The value of the System.ConsoleDriver.WindowWidth
+    //     property or the value of the System.ConsoleDriver.WindowHeight property is greater
     //     than the largest possible window width or height for the current screen resolution
     //     and console font.
     //
@@ -295,10 +295,10 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     One or more of the parameters is less than zero. -or- sourceLeft or targetLeft
-    //     is greater than or equal to System.Console.BufferWidth. -or- sourceTop or targetTop
-    //     is greater than or equal to System.Console.BufferHeight. -or- sourceTop + sourceHeight
-    //     is greater than or equal to System.Console.BufferHeight. -or- sourceLeft + sourceWidth
-    //     is greater than or equal to System.Console.BufferWidth.
+    //     is greater than or equal to System.ConsoleDriver.BufferWidth. -or- sourceTop or targetTop
+    //     is greater than or equal to System.ConsoleDriver.BufferHeight. -or- sourceTop + sourceHeight
+    //     is greater than or equal to System.ConsoleDriver.BufferHeight. -or- sourceLeft + sourceWidth
+    //     is greater than or equal to System.ConsoleDriver.BufferWidth.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -350,10 +350,10 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     One or more of the parameters is less than zero. -or- sourceLeft or targetLeft
-    //     is greater than or equal to System.Console.BufferWidth. -or- sourceTop or targetTop
-    //     is greater than or equal to System.Console.BufferHeight. -or- sourceTop + sourceHeight
-    //     is greater than or equal to System.Console.BufferHeight. -or- sourceLeft + sourceWidth
-    //     is greater than or equal to System.Console.BufferWidth.
+    //     is greater than or equal to System.ConsoleDriver.BufferWidth. -or- sourceTop or targetTop
+    //     is greater than or equal to System.ConsoleDriver.BufferHeight. -or- sourceTop + sourceHeight
+    //     is greater than or equal to System.ConsoleDriver.BufferHeight. -or- sourceLeft + sourceWidth
+    //     is greater than or equal to System.ConsoleDriver.BufferWidth.
     //
     //   T:System.ArgumentException:
     //     One or both of the color parameters is not a member of the System.ConsoleColor
@@ -387,9 +387,9 @@ public partial class WebConsole
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
     //     height or width is less than or equal to zero. -or- height or width is greater
-    //     than or equal to System.Int16.MaxValue. -or- width is less than System.Console.WindowLeft
-    //     + System.Console.WindowWidth. -or- height is less than System.Console.WindowTop
-    //     + System.Console.WindowHeight.
+    //     than or equal to System.Int16.MaxValue. -or- width is less than System.ConsoleDriver.WindowLeft
+    //     + System.ConsoleDriver.WindowWidth. -or- height is less than System.ConsoleDriver.WindowTop
+    //     + System.ConsoleDriver.WindowHeight.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -417,9 +417,9 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
-    //     left or top is less than zero. -or- left + System.Console.WindowWidth is greater
-    //     than System.Console.BufferWidth. -or- top + System.Console.WindowHeight is greater
-    //     than System.Console.BufferHeight.
+    //     left or top is less than zero. -or- left + System.ConsoleDriver.WindowWidth is greater
+    //     than System.ConsoleDriver.BufferWidth. -or- top + System.ConsoleDriver.WindowHeight is greater
+    //     than System.ConsoleDriver.BufferHeight.
     //
     //   T:System.Security.SecurityException:
     //     The user does not have permission to perform this action.
@@ -447,8 +447,8 @@ public partial class WebConsole
     //
     // Exceptions:
     //   T:System.ArgumentOutOfRangeException:
-    //     width or height is less than or equal to zero. -or- width plus System.Console.WindowLeft
-    //     or height plus System.Console.WindowTop is greater than or equal to System.Int16.MaxValue.
+    //     width or height is less than or equal to zero. -or- width plus System.ConsoleDriver.WindowLeft
+    //     or height plus System.ConsoleDriver.WindowTop is greater than or equal to System.Int16.MaxValue.
     //     -or- width or height is greater than the largest possible window width or height
     //     for the current screen resolution and console font.
     //

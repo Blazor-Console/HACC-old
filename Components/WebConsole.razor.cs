@@ -13,83 +13,96 @@ using Microsoft.JSInterop;
 namespace HACC.Components;
 
 [SupportedOSPlatform(platformName: "browser")]
-public partial class Console : ComponentBase
+public partial class WebConsole : ComponentBase
 {
-    private static Dictionary<ConsoleType, Console> _singletons = new();
+    private static WebConsole? _singleton = null;
     private readonly ILogger _logger;
-    private readonly WebConsole _webConsole;
+    private readonly WebConsoleDriver _webConsoleDriver;
 
     /// <summary>
     ///     not created until OnAfterRender
     /// </summary>
-    private Canvas2DContext? _canvas2DContext = null;
+    private Canvas2DContext? _canvas2DContextStdOut = null;
+    
+    private Canvas2DContext? _canvas2DContextStdErr = null;
 
     /// <summary>
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
     /// <param name="webClipboard">dependency injected clipboard</param>
     /// <exception cref="InvalidOperationException"></exception>
-    public Console(ILogger logger, WebClipboard webClipboard)
+    public WebConsole(ILogger logger, WebClipboard webClipboard)
     {
-        if (_singletons.ContainsKey(key: this.ConsoleType!.Value))
-            throw new InvalidOperationException(message: "Console can only be instantiated once.");
-        _singletons[key: this.ConsoleType!.Value] = this;
+        if (_singleton is not null)
+            throw new InvalidOperationException(message: "ConsoleDriver can only be instantiated once.");
+        _singleton = this;
         this._logger = logger;
-        this._webConsole = new WebConsole(
+        this._webConsoleDriver = new WebConsoleDriver(
             logger: this._logger ?? throw new InvalidOperationException(),
+            webClipboard: webClipboard,
             console: this,
-            terminalSettings: null,
-            webClipboard: webClipboard);
+            new TerminalSettings());
     }
 
-    [Parameter] public ConsoleType? ConsoleType { get; set; }
+    [Parameter] public ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
 
-    private BECanvasComponent CanvasReference { get; set; } = null!;
+    private BECanvasComponent CanvasReferenceStdOut { get; set; } = null!;
+    private BECanvasComponent CanvasReferenceStdErr { get; set; } = null!;
 
     [Inject] private IJSRuntime JsInterop { get; set; } = null!;
 
-    public static Console GetInstance(ConsoleType consoleType)
-    {
-        if (_singletons.ContainsKey(key: consoleType)) return _singletons[key: consoleType];
-
-        throw new ArgumentException(message: $"Console {consoleType} not found");
-    }
+    public static WebConsole Instance =>
+        _singleton ?? throw new ArgumentException(message: $"ConsoleDriver not instantiated");
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
         this._logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
-        this._webConsole.UpdateScreen(firstRender: firstRender);
+        this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
         this._logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
     private async Task InitializeNewCanvasFrame()
     {
         this._logger.LogDebug(message: "InitializeNewCanvasFrame");
-        this._canvas2DContext = await this.CanvasReference.CreateCanvas2DAsync();
+        this._canvas2DContextStdOut = await this.CanvasReferenceStdOut.CreateCanvas2DAsync();
+        this._canvas2DContextStdErr = await this.CanvasReferenceStdErr.CreateCanvas2DAsync();
 
-        await this._canvas2DContext.SetFillStyleAsync(value: "blue");
-        await this._canvas2DContext.ClearRectAsync(
+        await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
+        await this._canvas2DContextStdOut.ClearRectAsync(
             x: 0,
             y: 0,
-            width: this._webConsole.WindowWidthPixels,
-            height: this._webConsole.WindowHeightPixels);
-        await this._canvas2DContext.FillRectAsync(
+            width: this._webConsoleDriver.WindowWidthPixels,
+            height: this._webConsoleDriver.WindowHeightPixels);
+        await this._canvas2DContextStdOut.FillRectAsync(
             x: 0,
             y: 0,
-            width: this._webConsole.WindowWidthPixels,
-            height: this._webConsole.WindowHeightPixels);
+            width: this._webConsoleDriver.WindowWidthPixels,
+            height: this._webConsoleDriver.WindowHeightPixels);
+
+
+        await this._canvas2DContextStdErr.SetFillStyleAsync(value: "blue");
+        await this._canvas2DContextStdErr.ClearRectAsync(
+            x: 0,
+            y: 0,
+            width: this._webConsoleDriver.WindowWidthPixels,
+            height: this._webConsoleDriver.WindowHeightPixels);
+        await this._canvas2DContextStdErr.FillRectAsync(
+            x: 0,
+            y: 0,
+            width: this._webConsoleDriver.WindowWidthPixels,
+            height: this._webConsoleDriver.WindowHeightPixels);
         this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
     public async Task DrawBufferToNewFrame(int[,,] buffer, bool? firstRender = null)
     {
         this._logger.LogDebug(message: "DrawBufferToFrame");
-        if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
+        if (firstRender.HasValue && firstRender.Value || this._canvas2DContextStdOut is null)
             await this.InitializeNewCanvasFrame();
         // draw changes from dirty lines
-        await this._canvas2DContext!.SetFontAsync(value: "8px serif");
-        await this._canvas2DContext.StrokeTextAsync(text: "blah", x: 10, y: 100);
+        await this._canvas2DContextStdOut!.SetFontAsync(value: "8px serif");
+        await this._canvas2DContextStdOut.StrokeTextAsync(text: "blah", x: 10, y: 100);
         this._logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 
