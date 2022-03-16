@@ -39,8 +39,6 @@ public partial class WebConsole
             this._terminalSettings.CursorPosition = new Point(
                 x: value,
                 y: this._terminalSettings.CursorPosition.Y);
-
-            throw new NotImplementedException();
         }
     }
 
@@ -70,8 +68,6 @@ public partial class WebConsole
         set
         {
             this._terminalSettings.CursorSize = value;
-
-            throw new NotImplementedException();
         }
     }
 
@@ -116,8 +112,6 @@ public partial class WebConsole
             this._terminalSettings.CursorPosition = new Point(
                 x: this._terminalSettings.CursorPosition.X,
                 y: value);
-
-            throw new NotImplementedException();
         }
     }
 
@@ -143,8 +137,6 @@ public partial class WebConsole
         set
         {
             this._terminalSettings.CursorVisible = value;
-
-            throw new NotImplementedException();
         }
     }
 

@@ -297,7 +297,7 @@ public partial class WebConsole
                         0]);
                 }
             }
-
+            return;
             var task = this._console.DrawBufferToNewFrame(
                 buffer: this.Contents,
                 firstRender: firstRender);
@@ -309,48 +309,50 @@ public partial class WebConsole
 
     public override void Refresh()
     {
-        var rows = this.Rows;
-        var cols = this.Cols;
+        UpdateScreen();
 
-        var savedRow = this.CursorTop;
-        var savedCol = this.CursorLeft;
-        for (var row = 0; row < rows; row++)
-        {
-            if (!this._dirtyLine[row])
-                continue;
-            this._dirtyLine[row] = false;
-            for (var col = 0; col < cols; col++)
-            {
-                if (this.Contents[row,
-                        col,
-                        2] != 1)
-                    continue;
+        //var rows = this.Rows;
+        //var cols = this.Cols;
 
-                this.CursorTop = row;
-                this.CursorLeft = col;
-                for (;
-                     col < cols && this.Contents[row,
-                         col,
-                         2] == 1;
-                     col++)
-                {
-                    var color = this.Contents[row,
-                        col,
-                        1];
-                    if (color != this._redrawColor) this.SetColor(color: color);
+        //var savedRow = this.CursorTop;
+        //var savedCol = this.CursorLeft;
+        //for (var row = 0; row < rows; row++)
+        //{
+        //    if (!this._dirtyLine[row])
+        //        continue;
+        //    this._dirtyLine[row] = false;
+        //    for (var col = 0; col < cols; col++)
+        //    {
+        //        if (this.Contents[row,
+        //                col,
+        //                2] != 1)
+        //            continue;
 
-                    this.Write(value: (char) this.Contents[row,
-                        col,
-                        0]);
-                    this.Contents[row,
-                        col,
-                        2] = 0;
-                }
-            }
-        }
+        //        this.CursorTop = row;
+        //        this.CursorLeft = col;
+        //        for (;
+        //             col < cols && this.Contents[row,
+        //                 col,
+        //                 2] == 1;
+        //             col++)
+        //        {
+        //            var color = this.Contents[row,
+        //                col,
+        //                1];
+        //            if (color != this._redrawColor) this.SetColor(color: color);
 
-        this.CursorTop = savedRow;
-        this.CursorLeft = savedCol;
+        //            this.Write(value: (char) this.Contents[row,
+        //                col,
+        //                0]);
+        //            this.Contents[row,
+        //                col,
+        //                2] = 0;
+        //        }
+        //    }
+        //}
+
+        //this.CursorTop = savedRow;
+        //this.CursorLeft = savedCol;
     }
 
     private Attribute _currentAttribute;
