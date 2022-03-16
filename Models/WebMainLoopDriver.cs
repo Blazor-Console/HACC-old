@@ -33,7 +33,7 @@ public class WebMainLoopDriver : IMainLoopDriver
     public Action<ConsoleKeyInfo> KeyPressed;
 
     private ConsoleKeyInfo? keyResult;
-    private WebMainLoop mainLoop;
+    private MainLoop mainLoop;
 
 
     /// <summary>
@@ -52,15 +52,15 @@ public class WebMainLoopDriver : IMainLoopDriver
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
     {
-        if (mainLoop is not WebMainLoop webMainLoop)
+        if (mainLoop == null)
             throw new ArgumentException(message: "MainLoop must be a WebMainLoop.");
 
         if (mainLoop is null) throw new ArgumentException(message: "MainLoop must be provided");
 
-        this.mainLoop = webMainLoop;
+        this.mainLoop =mainLoop;
         //var readThread = new Thread(start: this.ConsoleKeyReader);
         //readThread.Start();
-        Task.Run(action: this.ConsoleKeyReader);
+        //Task.Run(action: this.ConsoleKeyReader);
     }
 
     void IMainLoopDriver.Wakeup()
