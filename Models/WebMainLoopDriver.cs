@@ -52,9 +52,6 @@ public class WebMainLoopDriver : IMainLoopDriver
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
     {
-        if (mainLoop == null)
-            throw new ArgumentException(message: "MainLoop must be a WebMainLoop.");
-
         if (mainLoop is null) throw new ArgumentException(message: "MainLoop must be provided");
 
         this.mainLoop =mainLoop;
