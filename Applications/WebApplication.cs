@@ -12,11 +12,9 @@ public class WebApplication
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
 
-    public WebApplication(ILogger logger, TerminalSettings? terminalSettings = null)
+    public WebApplication(WebConsoleDriver webConsoleDriver)
     {
-        this.WebConsoleDriver = new WebConsoleDriver(
-            logger: logger,
-            terminalSettings: terminalSettings);
+        this.WebConsoleDriver = webConsoleDriver;
         this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
     }
 

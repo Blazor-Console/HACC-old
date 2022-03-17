@@ -17,19 +17,20 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     private readonly WebConsole _console;
     private readonly ILogger _logger;
 
-    private TerminalSettings _terminalSettings;
+    // TODO: resize, etc if terminal settings updated
+    public TerminalSettings _terminalSettings { get; private set; }
 
     /// <summary>
     /// Initializes a web console driver.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    /// <param name="terminalSettings"></param>
-    public WebConsoleDriver(ILogger logger, TerminalSettings? terminalSettings = null)
+    /// <param name="webClipboard">dependency injected clipboard</param>
+    public WebConsoleDriver(ILogger logger, WebClipboard webClipboard)
     {
         this._logger = logger;
-        this.Clipboard = new WebClipboard();
+        this.Clipboard = webClipboard;
         // ReSharper disable HeapView.ObjectAllocation.Evident
-        this._terminalSettings = terminalSettings ?? new TerminalSettings();
+        this._terminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool [this.BufferRows];
         this._console = new WebConsole(logger, this);
