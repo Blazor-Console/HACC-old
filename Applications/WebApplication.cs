@@ -16,6 +16,7 @@ public class WebApplication
     {
         this.WebConsoleDriver = webConsoleDriver;
         // TODO: we should be able to implement something that reads from the actual key events set up in WebConsole.razor for key press events on the console
+        // Maybe from the Canvas2DContext StdIn
         this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
     }
 
