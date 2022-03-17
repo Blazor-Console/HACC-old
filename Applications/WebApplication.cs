@@ -15,6 +15,7 @@ public class WebApplication
     public WebApplication(WebConsoleDriver webConsoleDriver)
     {
         this.WebConsoleDriver = webConsoleDriver;
+        // TODO: we should be able to implement something that reads from the actual key events set up in WebConsole.razor for key press events on the console
         this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
     }
 
