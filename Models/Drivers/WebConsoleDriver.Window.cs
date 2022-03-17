@@ -1,5 +1,4 @@
-﻿using System.Runtime.Versioning;
-using HACC.Configuration;
+﻿using HACC.Configuration;
 using HACC.Models.EventArgs;
 
 namespace HACC.Models.Drivers;
@@ -35,10 +34,10 @@ public partial class WebConsoleDriver
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferRows
     {
-        get => this._terminalSettings.WindowRows;
+        get => this.TerminalSettings.WindowRows;
         set
         {
-            this._terminalSettings.WindowRows = value;
+            this.TerminalSettings.WindowRows = value;
             this.TerminalResized?.Invoke();
         }
     }
@@ -66,10 +65,10 @@ public partial class WebConsoleDriver
     //     The set operation is invoked on an operating system other than Windows.
     public int BufferColumns
     {
-        get => this._terminalSettings.WindowColumns;
+        get => this.TerminalSettings.WindowColumns;
         set
         {
-            this._terminalSettings.WindowColumns = value;
+            this.TerminalSettings.WindowColumns = value;
             this.TerminalResized?.Invoke();
         }
     }
@@ -117,10 +116,10 @@ public partial class WebConsoleDriver
     //     The get operation is invoked on an operating system other than Windows.
     public string Title
     {
-        get => this._terminalSettings.Title;
+        get => this.TerminalSettings.Title;
         set
         {
-            this._terminalSettings.Title = value;
+            this.TerminalSettings.Title = value;
 
             throw new NotImplementedException();
         }
@@ -150,13 +149,13 @@ public partial class WebConsoleDriver
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowRows
     {
-        get => this._terminalSettings.WindowRows;
+        get => this.TerminalSettings.WindowRows;
         set
         {
             if (value > this.LargestWindowHeight)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message: "The value of the WindowRows property is greater than the largest possible window height");
-            this._terminalSettings.WindowRows = value;
+            this.TerminalSettings.WindowRows = value;
         }
     }
 
@@ -226,38 +225,38 @@ public partial class WebConsoleDriver
     //     The set operation is invoked on an operating system other than Windows.
     public int WindowColumns
     {
-        get => this._terminalSettings.WindowColumns;
+        get => this.TerminalSettings.WindowColumns;
         set
         {
             if (value > this.LargestWindowWidth)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message:
                     "The value of the WindowColumns property is greater than the largest possible window width");
-            this._terminalSettings.WindowColumns = value;
+            this.TerminalSettings.WindowColumns = value;
         }
     }
 
     public int WindowHeightPixels
     {
-        get => this._terminalSettings.WindowHeightPixels;
+        get => this.TerminalSettings.WindowHeightPixels;
         set
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message: "The value of the WindowHeightPixels property is less than zero");
-            this._terminalSettings.WindowHeightPixels = value;
+            this.TerminalSettings.WindowHeightPixels = value;
         }
     }
 
     public int WindowWidthPixels
     {
-        get => this._terminalSettings.WindowWidthPixels;
+        get => this.TerminalSettings.WindowWidthPixels;
         set
         {
             if (value < 0)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value),
                     message: "The value of the WindowWidthPixels property is less than zero");
-            this._terminalSettings.WindowWidthPixels = value;
+            this.TerminalSettings.WindowWidthPixels = value;
         }
     }
 

@@ -1,6 +1,4 @@
-﻿using System.Runtime.Versioning;
-
-namespace HACC.Models.Drivers;
+﻿namespace HACC.Models.Drivers;
 
 //
 // Summary:

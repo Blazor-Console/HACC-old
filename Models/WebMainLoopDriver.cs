@@ -1,4 +1,3 @@
-using System.Runtime.Versioning;
 using Terminal.Gui;
 
 namespace HACC.Models;
@@ -20,18 +19,18 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly Func<ConsoleKeyInfo> consoleKeyReaderFn;
+    private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
 
-    private readonly AutoResetEvent keyReady = new(initialState: false);
-    private readonly AutoResetEvent waitForProbe = new(initialState: false);
+    private readonly AutoResetEvent _keyReady = new(initialState: false);
+    private readonly AutoResetEvent _waitForProbe = new(initialState: false);
+
+    private ConsoleKeyInfo? _keyResult;
+    private MainLoop _mainLoop;
 
     /// <summary>
     ///     Invoked when a Key is pressed.
     /// </summary>
     public Action<ConsoleKeyInfo> KeyPressed;
-
-    private ConsoleKeyInfo? keyResult;
-    private MainLoop mainLoop;
 
 
     /// <summary>
@@ -41,18 +40,16 @@ public class WebMainLoopDriver : IMainLoopDriver
     ///     Should match the <see cref="ConsoleDriver" /> (one of the implementations UnixMainLoop,
     ///     NetMainLoop or WindowsMainLoop).
     /// </param>
-    public WebMainLoopDriver(Func<ConsoleKeyInfo> consoleKeyReaderFn = null)
+    /// <param name="consoleKeyReaderFn"></param>
+    public WebMainLoopDriver(Func<ConsoleKeyInfo>? consoleKeyReaderFn = null)
     {
-        if (consoleKeyReaderFn == null)
-            throw new ArgumentNullException(paramName: "key reader function must be provided.");
-        this.consoleKeyReaderFn = consoleKeyReaderFn;
+        this._consoleKeyReaderFn =
+            consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
     {
-        if (mainLoop is null) throw new ArgumentException(message: "MainLoop must be provided");
-
-        this.mainLoop = mainLoop;
+        this._mainLoop = mainLoop ?? throw new ArgumentException(message: "MainLoop must be provided");
         //var readThread = new Thread(start: this.ConsoleKeyReader);
         //readThread.Start();
         //Task.Run(action: this.ConsoleKeyReader);
@@ -67,9 +64,9 @@ public class WebMainLoopDriver : IMainLoopDriver
         var now = DateTime.UtcNow.Ticks;
 
         int waitTimeout;
-        if (this.mainLoop.timeouts.Count > 0)
+        if (this._mainLoop.timeouts.Count > 0)
         {
-            waitTimeout = (int) ((this.mainLoop.timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
+            waitTimeout = (int) ((this._mainLoop.timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
             if (waitTimeout < 0)
                 return true;
         }
@@ -81,26 +78,26 @@ public class WebMainLoopDriver : IMainLoopDriver
         if (!wait)
             waitTimeout = 0;
 
-        this.keyResult = null;
-        this.waitForProbe.Set();
-        this.keyReady.WaitOne(millisecondsTimeout: waitTimeout);
-        return this.keyResult.HasValue;
+        this._keyResult = null;
+        this._waitForProbe.Set();
+        this._keyReady.WaitOne(millisecondsTimeout: waitTimeout);
+        return this._keyResult.HasValue;
     }
 
     void IMainLoopDriver.MainIteration()
     {
-        if (!this.keyResult.HasValue) return;
-        this.KeyPressed?.Invoke(obj: this.keyResult.Value);
-        this.keyResult = null;
+        if (!this._keyResult.HasValue) return;
+        this.KeyPressed?.Invoke(obj: this._keyResult.Value);
+        this._keyResult = null;
     }
 
     private void ConsoleKeyReader()
     {
         while (true)
         {
-            this.waitForProbe.WaitOne();
-            this.keyResult = this.consoleKeyReaderFn();
-            this.keyReady.Set();
+            this._waitForProbe.WaitOne();
+            this._keyResult = this._consoleKeyReaderFn();
+            this._keyReady.Set();
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Runtime.Versioning;
 using NStack;
 using Spectre.Console.Rendering;
 

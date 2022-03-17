@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Globalization;
-using System.Runtime.Versioning;
 using NStack;
 
 namespace HACC.Models.Drivers;
@@ -21,7 +20,7 @@ public partial class WebConsoleDriver
     public void WriteLine()
     {
         var currentPosition = this.CursorPosition;
-        this._terminalSettings.SetCursorPosition(x: currentPosition.X,
+        this.TerminalSettings.SetCursorPosition(x: currentPosition.X,
             y: currentPosition.Y + 1);
     }
 

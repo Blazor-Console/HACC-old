@@ -1,4 +1,3 @@
-using System.Runtime.Versioning;
 using HACC.Models.EventArgs;
 using NStack;
 using Terminal.Gui;
@@ -81,7 +80,7 @@ public partial class WebConsoleDriver
 
     public override void Move(int col, int row)
     {
-        this._terminalSettings.SetCursorPosition(x: col,
+        this.TerminalSettings.SetCursorPosition(x: col,
             y: row);
 
         if (this.Clip.Contains(x: col,
@@ -101,7 +100,7 @@ public partial class WebConsoleDriver
 
     public override void AddRune(Rune rune)
     {
-        var currentPosition = this._terminalSettings.CursorPosition;
+        var currentPosition = this.TerminalSettings.CursorPosition;
         rune = MakePrintable(c: rune);
         if (this.Clip.Contains(x: currentPosition.X,
                 y: currentPosition.Y))
@@ -127,7 +126,7 @@ public partial class WebConsoleDriver
             this._needMove = true;
         }
 
-        this._terminalSettings.SetCursorPosition(x: currentPosition.X + 1,
+        this.TerminalSettings.SetCursorPosition(x: currentPosition.X + 1,
             y: currentPosition.Y);
         //if (ccol == Cols) {
         //	ccol = 0;
@@ -160,7 +159,7 @@ public partial class WebConsoleDriver
 
     public override void Init(Action terminalResized)
     {
-        this._terminalSettings = new TerminalSettings();
+        this.TerminalSettings = new TerminalSettings();
         this.TerminalResized = terminalResized;
         this.Clear();
         this.ResizeScreen();
@@ -579,8 +578,8 @@ public partial class WebConsoleDriver
 
     public void SetBufferSize(int width, int height)
     {
-        this._terminalSettings.BufferRows = height;
-        this._terminalSettings.BufferColumns = width;
+        this.TerminalSettings.BufferRows = height;
+        this.TerminalSettings.BufferColumns = width;
         this.WindowRows = height;
         this.WindowColumns = width;
         this.ProcessResize();

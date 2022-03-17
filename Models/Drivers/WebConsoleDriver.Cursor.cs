@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Runtime.Versioning;
 using Spectre.Console;
 
 namespace HACC.Models.Drivers;
@@ -29,15 +28,15 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public int CursorLeft
     {
-        get => this._terminalSettings.CursorPosition.X;
+        get => this.TerminalSettings.CursorPosition.X;
         set
         {
-            if (value < 0 || value >= this._terminalSettings.BufferColumns)
+            if (value < 0 || value >= this.TerminalSettings.BufferColumns)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value));
 
-            this._terminalSettings.CursorPosition = new Point(
+            this.TerminalSettings.CursorPosition = new Point(
                 x: value,
-                y: this._terminalSettings.CursorPosition.Y);
+                y: this.TerminalSettings.CursorPosition.Y);
         }
     }
 
@@ -63,23 +62,20 @@ public partial class WebConsoleDriver
     //     The set operation is invoked on an operating system other than Windows.
     public int CursorSize
     {
-        get => this._terminalSettings.CursorSize;
-        set
-        {
-            this._terminalSettings.CursorSize = value;
-        }
+        get => this.TerminalSettings.CursorSize;
+        set => this.TerminalSettings.CursorSize = value;
     }
 
     public Point CursorPosition
     {
-        get => this._terminalSettings.CursorPosition;
+        get => this.TerminalSettings.CursorPosition;
         set
         {
-            if (value.X < 0 || value.X >= this._terminalSettings.BufferColumns)
+            if (value.X < 0 || value.X >= this.TerminalSettings.BufferColumns)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value.X));
-            if (value.Y < 0 || value.Y >= this._terminalSettings.BufferRows)
+            if (value.Y < 0 || value.Y >= this.TerminalSettings.BufferRows)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value.Y));
-            this._terminalSettings.CursorPosition = value;
+            this.TerminalSettings.CursorPosition = value;
         }
     }
 
@@ -102,14 +98,14 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public int CursorTop
     {
-        get => this._terminalSettings.CursorPosition.Y;
+        get => this.TerminalSettings.CursorPosition.Y;
         set
         {
-            if (value < 0 || value >= this._terminalSettings.BufferRows)
+            if (value < 0 || value >= this.TerminalSettings.BufferRows)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value));
 
-            this._terminalSettings.CursorPosition = new Point(
-                x: this._terminalSettings.CursorPosition.X,
+            this.TerminalSettings.CursorPosition = new Point(
+                x: this.TerminalSettings.CursorPosition.X,
                 y: value);
         }
     }
@@ -132,11 +128,8 @@ public partial class WebConsoleDriver
     //     The get operation is invoked on an operating system other than Windows.
     public bool CursorVisible
     {
-        get => this._terminalSettings.CursorVisible;
-        set
-        {
-            this._terminalSettings.CursorVisible = value;
-        }
+        get => this.TerminalSettings.CursorVisible;
+        set => this.TerminalSettings.CursorVisible = value;
     }
 
 
@@ -152,8 +145,8 @@ public partial class WebConsoleDriver
     public (int Left, int Top) GetCursorPosition()
     {
         return (
-            Left: this._terminalSettings.CursorPosition.X,
-            Top: this._terminalSettings.CursorPosition.Y
+            Left: this.TerminalSettings.CursorPosition.X,
+            Top: this.TerminalSettings.CursorPosition.Y
         );
     }
 
@@ -182,7 +175,7 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public void SetCursorPosition(int left, int top)
     {
-        this._terminalSettings.SetCursorPosition(x: left,
+        this.TerminalSettings.SetCursorPosition(x: left,
             y: top);
     }
 }

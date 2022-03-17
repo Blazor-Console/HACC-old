@@ -1,5 +1,4 @@
-﻿using System.Runtime.Versioning;
-using HACC.Configuration;
+﻿using HACC.Configuration;
 
 namespace HACC.Models.Drivers;
 
@@ -28,8 +27,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public ConsoleColor BackgroundColor
     {
-        get => this._terminalSettings.TerminalBackground;
-        set => this._terminalSettings.TerminalBackground = value;
+        get => this.TerminalSettings.TerminalBackground;
+        set => this.TerminalSettings.TerminalBackground = value;
     }
 
     //
@@ -51,8 +50,8 @@ public partial class WebConsoleDriver
     //     An I/O error occurred.
     public ConsoleColor ForegroundColor
     {
-        get => this._terminalSettings.TerminalForeground;
-        set => this._terminalSettings.TerminalForeground = value;
+        get => this.TerminalSettings.TerminalForeground;
+        set => this.TerminalSettings.TerminalForeground = value;
     }
 
     //

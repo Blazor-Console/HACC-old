@@ -1,14 +1,13 @@
 ﻿using System.Globalization;
-using System.Runtime.Versioning;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
-using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Terminal.Gui.Resources;
 
 namespace HACC.Components;
 
@@ -25,16 +24,16 @@ public partial class WebConsole : ComponentBase
     private Canvas2DContext? _canvas2DContextStdOut = null;
 
     /// <summary>
-    /// Initializes a web console.
+    ///     Initializes a web console.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
+    /// <param name="webConsoleDriver"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public WebConsole(ILogger logger, WebConsoleDriver webConsoleDriver)
     {
-        if (webConsoleDriver == null) throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
-                message: "ConsoleDriver must be provided.");
         this._logger = logger;
-        this._webConsoleDriver = webConsoleDriver;
+        this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
+            message: Strings.ConsoleDriverRequired);
     }
 
     [Parameter] public static ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;

@@ -1,5 +1,4 @@
-﻿using System.Runtime.Versioning;
-using System.Text;
+﻿using System.Text;
 using HACC.Configuration;
 using HACC.Enumerations;
 using Spectre.Console;
