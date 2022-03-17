@@ -24,7 +24,6 @@ public class WebMainLoopDriver : IMainLoopDriver
 
     private readonly AutoResetEvent keyReady = new(initialState: false);
     private readonly AutoResetEvent waitForProbe = new(initialState: false);
-    private List<Func<bool>> _idleHandlers = new();
 
     /// <summary>
     ///     Invoked when a Key is pressed.
@@ -53,7 +52,7 @@ public class WebMainLoopDriver : IMainLoopDriver
     {
         if (mainLoop is null) throw new ArgumentException(message: "MainLoop must be provided");
 
-        this.mainLoop =mainLoop;
+        this.mainLoop = mainLoop;
         //var readThread = new Thread(start: this.ConsoleKeyReader);
         //readThread.Start();
         //Task.Run(action: this.ConsoleKeyReader);
