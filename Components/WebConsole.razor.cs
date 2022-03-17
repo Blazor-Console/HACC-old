@@ -3,11 +3,11 @@ using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
 using HACC.Models.Drivers;
+using HACC.Resources;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Terminal.Gui.Resources;
 
 namespace HACC.Components;
 
@@ -33,7 +33,7 @@ public partial class WebConsole : ComponentBase
     {
         this._logger = logger;
         this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
-            message: Strings.ConsoleDriverRequired);
+            message: WebStrings.ConsoleDriverRequired);
     }
 
     [Parameter] public static ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
