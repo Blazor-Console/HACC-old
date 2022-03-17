@@ -7,7 +7,6 @@ using Terminal.Gui;
 
 namespace HACC.Applications;
 
-[SupportedOSPlatform(platformName: "browser")]
 public class WebApplication
 {
     public readonly WebConsoleDriver WebConsoleDriver;

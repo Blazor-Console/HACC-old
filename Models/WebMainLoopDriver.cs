@@ -18,7 +18,6 @@ namespace HACC.Models;
 ///     Monitoring of file descriptors is only available on Unix, there
 ///     does not seem to be a way of supporting this on Windows.
 /// </remarks>
-[SupportedOSPlatform(platformName: "browser")]
 public class WebMainLoopDriver : IMainLoopDriver
 {
     private readonly Func<ConsoleKeyInfo> consoleKeyReaderFn;
@@ -69,9 +68,9 @@ public class WebMainLoopDriver : IMainLoopDriver
         var now = DateTime.UtcNow.Ticks;
 
         int waitTimeout;
-        if (this.mainLoop.Timeouts.Count > 0)
+        if (this.mainLoop.timeouts.Count > 0)
         {
-            waitTimeout = (int) ((this.mainLoop.Timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
+            waitTimeout = (int) ((this.mainLoop.timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
             if (waitTimeout < 0)
                 return true;
         }

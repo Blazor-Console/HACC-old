@@ -11,7 +11,7 @@ public class WebClipboard : ClipboardBase
 {
     [Parameter] public string Text { get; set; } = string.Empty;
 
-    [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
+    [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
     public override bool IsSupported => true;
 

@@ -9,7 +9,6 @@ namespace HACC.Models.Drivers;
 // Summary:
 //     Represents the standard input, output, and error streams for console applications.
 //     This class cannot be inherited.
-[SupportedOSPlatform(platformName: "browser")]
 public partial class WebConsoleDriver
 {
     public void Write(IRenderable renderable)

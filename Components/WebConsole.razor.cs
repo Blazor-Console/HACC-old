@@ -12,7 +12,6 @@ using Microsoft.JSInterop;
 
 namespace HACC.Components;
 
-[SupportedOSPlatform(platformName: "browser")]
 public partial class WebConsole : ComponentBase
 {
     private readonly ILogger _logger;
@@ -38,12 +37,12 @@ public partial class WebConsole : ComponentBase
         this._webConsoleDriver = webConsoleDriver;
     }
 
-    [Parameter] public ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
+    [Parameter] public static ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
 
-    private BECanvasComponent CanvasReferenceStdOut { get; set; } = null!;
-    private BECanvasComponent CanvasReferenceStdErr { get; set; } = null!;
+    private BECanvasComponent CanvasReferenceStdOut { get; set; } = default!;
+    private BECanvasComponent CanvasReferenceStdErr { get; set; } = default!;
 
-    [Inject] private IJSRuntime JsInterop { get; set; } = null!;
+    [Inject] private IJSRuntime JsInterop { get; set; } = default!;
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {

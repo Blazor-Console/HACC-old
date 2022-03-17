@@ -6,7 +6,6 @@ using Attribute = Terminal.Gui.Attribute;
 
 namespace HACC.Models.Drivers;
 
-[SupportedOSPlatform(platformName: "browser")]
 public partial class WebConsoleDriver
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
