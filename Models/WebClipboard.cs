@@ -9,18 +9,6 @@ namespace HACC.Models;
 /// </summary>
 public class WebClipboard : ClipboardBase
 {
-    private static WebClipboard? _instance;
-
-    public WebClipboard()
-    {
-        if (_instance != null)
-            throw new InvalidOperationException(message: "Only one instance of WebClipboard is allowed.");
-        _instance = this;
-    }
-
-    public static WebClipboard Instance =>
-        _instance ?? throw new InvalidOperationException(message: "WebClipboard is not initialized.");
-
     [Parameter] public string Text { get; set; } = string.Empty;
 
     [Inject] private IJSRuntime JsRuntime { get; set; } = null!;

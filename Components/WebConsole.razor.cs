@@ -15,7 +15,6 @@ namespace HACC.Components;
 [SupportedOSPlatform(platformName: "browser")]
 public partial class WebConsole : ComponentBase
 {
-    private static WebConsole? _singleton = null;
     private readonly ILogger _logger;
     private readonly WebConsoleDriver _webConsoleDriver;
 
@@ -27,21 +26,16 @@ public partial class WebConsole : ComponentBase
     private Canvas2DContext? _canvas2DContextStdOut = null;
 
     /// <summary>
+    /// Initializes a web console.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    /// <param name="webClipboard">dependency injected clipboard</param>
-    /// <exception cref="InvalidOperationException"></exception>
-    public WebConsole(ILogger logger, WebClipboard webClipboard)
+    /// <exception cref="ArgumentNullException"></exception>
+    public WebConsole(ILogger logger, WebConsoleDriver webConsoleDriver)
     {
-        if (_singleton is not null)
-            throw new InvalidOperationException(message: "ConsoleDriver can only be instantiated once.");
-        _singleton = this;
+        if (webConsoleDriver == null) throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
+                message: "ConsoleDriver must be provided.");
         this._logger = logger;
-        this._webConsoleDriver = new WebConsoleDriver(
-            logger: this._logger ?? throw new InvalidOperationException(),
-            webClipboard: webClipboard,
-            console: this,
-            terminalSettings: new TerminalSettings());
+        this._webConsoleDriver = webConsoleDriver;
     }
 
     [Parameter] public ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
@@ -50,9 +44,6 @@ public partial class WebConsole : ComponentBase
     private BECanvasComponent CanvasReferenceStdErr { get; set; } = null!;
 
     [Inject] private IJSRuntime JsInterop { get; set; } = null!;
-
-    public static WebConsole Instance =>
-        _singleton ?? throw new ArgumentException(message: "ConsoleDriver not instantiated");
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
