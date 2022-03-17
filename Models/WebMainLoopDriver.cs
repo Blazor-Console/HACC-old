@@ -64,9 +64,9 @@ public class WebMainLoopDriver : IMainLoopDriver
         var now = DateTime.UtcNow.Ticks;
 
         int waitTimeout;
-        if (this._mainLoop.timeouts.Count > 0)
+        if (this._mainLoop.Timeouts.Count > 0)
         {
-            waitTimeout = (int) ((this._mainLoop.timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
+            waitTimeout = (int) ((this._mainLoop.Timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
             if (waitTimeout < 0)
                 return true;
         }
