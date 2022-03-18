@@ -16,12 +16,12 @@ public partial class WebConsole : ComponentBase
     private readonly ILogger _logger;
     private readonly WebConsoleDriver _webConsoleDriver;
 
-    private Canvas2DContext? _canvas2DContextStdErr = null;
+    private Canvas2DContext? _canvas2DContextStdErr;
 
     /// <summary>
     ///     not created until OnAfterRender
     /// </summary>
-    private Canvas2DContext? _canvas2DContextStdOut = null;
+    private Canvas2DContext? _canvas2DContextStdOut;
 
     /// <summary>
     ///     Initializes a web console.
