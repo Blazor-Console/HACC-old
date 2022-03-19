@@ -31,7 +31,7 @@ public partial class WebConsoleDriver
         get => this.TerminalSettings.CursorPosition.X;
         set
         {
-            if (value < 0 || value >= this.TerminalSettings.BufferColumns)
+            if (value < 0 || value > this.TerminalSettings.BufferColumns)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value));
 
             this.TerminalSettings.CursorPosition = new Point(
@@ -71,9 +71,9 @@ public partial class WebConsoleDriver
         get => this.TerminalSettings.CursorPosition;
         set
         {
-            if (value.X < 0 || value.X >= this.TerminalSettings.BufferColumns)
+            if (value.X < 0 || value.X > this.TerminalSettings.BufferColumns)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value.X));
-            if (value.Y < 0 || value.Y >= this.TerminalSettings.BufferRows)
+            if (value.Y < 0 || value.Y > this.TerminalSettings.BufferRows)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value.Y));
             this.TerminalSettings.CursorPosition = value;
         }
@@ -101,7 +101,7 @@ public partial class WebConsoleDriver
         get => this.TerminalSettings.CursorPosition.Y;
         set
         {
-            if (value < 0 || value >= this.TerminalSettings.BufferRows)
+            if (value < 0 || value > this.TerminalSettings.BufferRows)
                 throw new ArgumentOutOfRangeException(paramName: nameof(value));
 
             this.TerminalSettings.CursorPosition = new Point(

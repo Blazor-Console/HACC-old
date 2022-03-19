@@ -11,8 +11,8 @@ public static class Defaults
     public const int MaximumRows = 1000;
     public const int InitialTerminalWidth = 640;
     public const int InitialTerminalHeight = 480;
-    public const int InitialBufferRows = 80;
-    public const int InitialBufferColumns = 24;
+    public const int InitialBufferRows = 25;
+    public const int InitialBufferColumns = 80;
     public const int InitialColumns = 80;
     public const int InitialRows = 24;
     public const int CursorSize = 100;
