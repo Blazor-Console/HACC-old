@@ -12,12 +12,13 @@ public class WebApplication
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
 
-    public WebApplication(WebConsoleDriver webConsoleDriver)
+    public WebApplication(ILogger logger)
     {
-        this.WebConsoleDriver = webConsoleDriver;
+        this.WebConsoleDriver = new WebConsoleDriver(logger);
         // TODO: we should be able to implement something that reads from the actual key events set up in WebConsole.razor for key press events on the console
         // Maybe from the Canvas2DContext StdIn
-        this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
+        //this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
+        this.WebMainLoopDriver = new WebMainLoopDriver(WebConsoleDriver);
     }
 
     public virtual void Init()
@@ -29,7 +30,8 @@ public class WebApplication
 
     public virtual void Run()
     {
-        Application.Run();
+        //Application.Run();
+        Application.Begin(Application.Top);
     }
 
     public virtual void Shutdown()

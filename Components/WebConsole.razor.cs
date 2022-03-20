@@ -14,7 +14,7 @@ namespace HACC.Components;
 public partial class WebConsole : ComponentBase
 {
     private readonly ILogger _logger;
-    private readonly WebConsoleDriver _webConsoleDriver;
+    //private readonly WebConsoleDriver _webConsoleDriver;
 
     private Canvas2DContext? _canvas2DContextStdErr;
 
@@ -29,11 +29,16 @@ public partial class WebConsole : ComponentBase
     /// <param name="logger">dependency injected logger</param>
     /// <param name="webConsoleDriver"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public WebConsole(ILogger logger, WebConsoleDriver webConsoleDriver)
+    //public WebConsole(ILogger logger, WebConsoleDriver webConsoleDriver)
+    //{
+    //    this._logger = logger;
+    //    this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
+    //        message: WebStrings.ConsoleDriverRequired);
+    //}
+
+    public WebConsole(ILogger logger)
     {
         this._logger = logger;
-        this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
-            message: WebStrings.ConsoleDriverRequired);
     }
 
     [Parameter] public static ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
@@ -47,7 +52,7 @@ public partial class WebConsole : ComponentBase
     {
         this._logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
-        this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
+        //this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
         this._logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
@@ -57,30 +62,30 @@ public partial class WebConsole : ComponentBase
         this._canvas2DContextStdOut = await this.CanvasReferenceStdOut.CreateCanvas2DAsync();
         this._canvas2DContextStdErr = await this.CanvasReferenceStdErr.CreateCanvas2DAsync();
 
-        await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
-        await this._canvas2DContextStdOut.ClearRectAsync(
-            x: 0,
-            y: 0,
-            width: this._webConsoleDriver.WindowWidthPixels,
-            height: this._webConsoleDriver.WindowHeightPixels);
-        await this._canvas2DContextStdOut.FillRectAsync(
-            x: 0,
-            y: 0,
-            width: this._webConsoleDriver.WindowWidthPixels,
-            height: this._webConsoleDriver.WindowHeightPixels);
+        //await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
+        //await this._canvas2DContextStdOut.ClearRectAsync(
+        //    x: 0,
+        //    y: 0,
+        //    width: this._webConsoleDriver.WindowWidthPixels,
+        //    height: this._webConsoleDriver.WindowHeightPixels);
+        //await this._canvas2DContextStdOut.FillRectAsync(
+        //    x: 0,
+        //    y: 0,
+        //    width: this._webConsoleDriver.WindowWidthPixels,
+        //    height: this._webConsoleDriver.WindowHeightPixels);
 
 
-        await this._canvas2DContextStdErr.SetFillStyleAsync(value: "blue");
-        await this._canvas2DContextStdErr.ClearRectAsync(
-            x: 0,
-            y: 0,
-            width: this._webConsoleDriver.WindowWidthPixels,
-            height: this._webConsoleDriver.WindowHeightPixels);
-        await this._canvas2DContextStdErr.FillRectAsync(
-            x: 0,
-            y: 0,
-            width: this._webConsoleDriver.WindowWidthPixels,
-            height: this._webConsoleDriver.WindowHeightPixels);
+        //await this._canvas2DContextStdErr.SetFillStyleAsync(value: "blue");
+        //await this._canvas2DContextStdErr.ClearRectAsync(
+        //    x: 0,
+        //    y: 0,
+        //    width: this._webConsoleDriver.WindowWidthPixels,
+        //    height: this._webConsoleDriver.WindowHeightPixels);
+        //await this._canvas2DContextStdErr.FillRectAsync(
+        //    x: 0,
+        //    y: 0,
+        //    width: this._webConsoleDriver.WindowWidthPixels,
+        //    height: this._webConsoleDriver.WindowHeightPixels);
         this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 

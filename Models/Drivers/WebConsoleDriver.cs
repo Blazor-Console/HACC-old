@@ -13,8 +13,9 @@ namespace HACC.Models.Drivers;
 /// </summary>
 public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 {
-    private readonly WebConsole _console;
-    private readonly ILogger _logger;
+    public ILogger Logger { get; }
+
+    public WebConsole ConsoleWeb { get; }
 
     /// <summary>
     ///     Initializes a web console driver.
@@ -22,14 +23,15 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     /// <param name="logger">dependency injected logger</param>
     public WebConsoleDriver(ILogger logger)
     {
-        this._logger = logger;
+        this.Logger = logger;
         this.Clipboard = new WebClipboard();
         // ReSharper disable HeapView.ObjectAllocation.Evident
         this.TerminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool [this.BufferRows];
-        this._console = new WebConsole(logger: logger,
-            webConsoleDriver: this);
+        //this.ConsoleWeb = new WebConsole(logger: logger,
+        //    webConsoleDriver: this);
+        this.ConsoleWeb = new WebConsole(logger: logger);
         // ReSharper restore HeapView.ObjectAllocation.Evident
     }
 

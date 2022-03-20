@@ -293,7 +293,7 @@ public partial class WebConsoleDriver
                 }
             }
 
-            var task = this._console.DrawBufferToNewFrame(
+            var task = this.ConsoleWeb.DrawBufferToNewFrame(
                 buffer: this.Contents,
                 firstRender: firstRender);
             // ReSharper disable once HeapView.ObjectAllocation.Evident

@@ -1,3 +1,5 @@
+using HACC.Components;
+using HACC.Models.Drivers;
 using Terminal.Gui;
 
 namespace HACC.Models;
@@ -19,7 +21,9 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
+    //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
+    private readonly WebConsoleDriver _webConsoleDriver;
+    private readonly WebConsole _consoleWeb;
 
     private readonly AutoResetEvent _keyReady = new(initialState: false);
     private readonly AutoResetEvent _waitForProbe = new(initialState: false);
@@ -41,10 +45,17 @@ public class WebMainLoopDriver : IMainLoopDriver
     ///     NetMainLoop or WindowsMainLoop).
     /// </param>
     /// <param name="consoleKeyReaderFn"></param>
-    public WebMainLoopDriver(Func<ConsoleKeyInfo>? consoleKeyReaderFn = null)
+    //public WebMainLoopDriver(Func<ConsoleKeyInfo>? consoleKeyReaderFn = null)
+    //{
+    //    this._consoleKeyReaderFn =
+    //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
+    //}
+
+    public WebMainLoopDriver(WebConsoleDriver webConsoleDriver = null)
     {
-        this._consoleKeyReaderFn =
-            consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
+        this._webConsoleDriver =
+            webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver));
+        _consoleWeb = ((WebConsoleDriver)webConsoleDriver).ConsoleWeb;
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
@@ -96,7 +107,7 @@ public class WebMainLoopDriver : IMainLoopDriver
         while (true)
         {
             this._waitForProbe.WaitOne();
-            this._keyResult = this._consoleKeyReaderFn();
+            //this._keyResult = this._consoleKeyReaderFn();
             this._keyReady.Set();
         }
     }
