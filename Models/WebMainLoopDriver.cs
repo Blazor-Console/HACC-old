@@ -21,12 +21,14 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
-    private readonly WebConsoleDriver _webConsoleDriver;
     private readonly WebConsole _consoleWeb;
 
     private readonly AutoResetEvent _keyReady = new(initialState: false);
+
     private readonly AutoResetEvent _waitForProbe = new(initialState: false);
+
+    //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
+    private readonly WebConsoleDriver _webConsoleDriver;
 
     private ConsoleKeyInfo? _keyResult;
     private MainLoop _mainLoop;
@@ -50,12 +52,11 @@ public class WebMainLoopDriver : IMainLoopDriver
     //    this._consoleKeyReaderFn =
     //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
     //}
-
     public WebMainLoopDriver(WebConsoleDriver webConsoleDriver = null)
     {
         this._webConsoleDriver =
             webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver));
-        _consoleWeb = ((WebConsoleDriver)webConsoleDriver).ConsoleWeb;
+        this._consoleWeb = webConsoleDriver.ConsoleWeb;
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)

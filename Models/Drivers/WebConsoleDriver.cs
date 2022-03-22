@@ -13,10 +13,6 @@ namespace HACC.Models.Drivers;
 /// </summary>
 public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 {
-    public ILogger Logger { get; }
-
-    public WebConsole ConsoleWeb { get; }
-
     /// <summary>
     ///     Initializes a web console driver.
     /// </summary>
@@ -34,6 +30,10 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
         this.ConsoleWeb = new WebConsole(logger: logger);
         // ReSharper restore HeapView.ObjectAllocation.Evident
     }
+
+    public ILogger Logger { get; }
+
+    public WebConsole ConsoleWeb { get; }
 
     // TODO: resize, etc if terminal settings updated
     public TerminalSettings TerminalSettings { get; private set; }

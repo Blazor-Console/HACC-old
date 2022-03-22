@@ -1,9 +1,6 @@
 ﻿using System.Globalization;
-using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
-using HACC.Models.Drivers;
-using HACC.Resources;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -14,20 +11,16 @@ namespace HACC.Components;
 public partial class WebConsole : ComponentBase
 {
     private readonly ILogger _logger;
+
+    private ConsoleType _activeConsoleType = ConsoleType.StandardOutput;
     //private readonly WebConsoleDriver _webConsoleDriver;
 
-    private Canvas2DContext? _canvas2DContextStdErr;
-
-    /// <summary>
-    ///     not created until OnAfterRender
-    /// </summary>
-    private Canvas2DContext? _canvas2DContextStdOut;
+    private Canvas2DContext? _canvas2DContext;
 
     /// <summary>
     ///     Initializes a web console.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    /// <param name="webConsoleDriver"></param>
     /// <exception cref="ArgumentNullException"></exception>
     //public WebConsole(ILogger logger, WebConsoleDriver webConsoleDriver)
     //{
@@ -35,18 +28,24 @@ public partial class WebConsole : ComponentBase
     //    this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
     //        message: WebStrings.ConsoleDriverRequired);
     //}
-
     public WebConsole(ILogger logger)
     {
         this._logger = logger;
     }
 
-    [Parameter] public static ConsoleType ActiveConsole { get; set; } = ConsoleType.StandardOutput;
-
-    private BECanvasComponent CanvasReferenceStdOut { get; set; } = default!;
-    private BECanvasComponent CanvasReferenceStdErr { get; set; } = default!;
-
     [Inject] private IJSRuntime JsInterop { get; set; } = default!;
+
+    [Parameter]
+    public ConsoleType ActiveConsole
+    {
+        get => this._activeConsoleType;
+        set
+        {
+            if (value == this._activeConsoleType) return;
+            Task.Run(function: async () => await this.RedrawCanvas());
+            value = this._activeConsoleType;
+        }
+    }
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -56,12 +55,16 @@ public partial class WebConsole : ComponentBase
         this._logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
-    private async Task InitializeNewCanvasFrame()
+    public async Task<object> DrawBufferToPng()
+    {
+        return await this.JsInterop.InvokeAsync<object>(identifier: "window.canvasToPng");
+    }
+
+    private async Task RedrawCanvas()
     {
         this._logger.LogDebug(message: "InitializeNewCanvasFrame");
-        this._canvas2DContextStdOut = await this.CanvasReferenceStdOut.CreateCanvas2DAsync();
-        this._canvas2DContextStdErr = await this.CanvasReferenceStdErr.CreateCanvas2DAsync();
 
+        // TODO: actually clear the canvas
         //await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
         //await this._canvas2DContextStdOut.ClearRectAsync(
         //    x: 0,
@@ -89,14 +92,14 @@ public partial class WebConsole : ComponentBase
         this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
-    public async Task DrawBufferToNewFrame(int[,,] buffer, bool? firstRender = null)
+    public async Task DrawUpdatesToCanvas(int[,,] buffer, bool? firstRender = null)
     {
         this._logger.LogDebug(message: "DrawBufferToFrame");
-        if (firstRender.HasValue && firstRender.Value || this._canvas2DContextStdOut is null)
-            await this.InitializeNewCanvasFrame();
-        // draw changes from dirty lines
-        await this._canvas2DContextStdOut!.SetFontAsync(value: "8px serif");
-        await this._canvas2DContextStdOut.StrokeTextAsync(text: "blah",
+        if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
+            await this.RedrawCanvas();
+        await this._canvas2DContext!.SetFontAsync(value: "8px serif");
+        // TODO: example text, actually implement
+        await this._canvas2DContext.StrokeTextAsync(text: "drawing changes from dirty lines....",
             x: 10,
             y: 100);
         this._logger.LogDebug(message: "DrawBufferToFrame: end");
@@ -142,21 +145,25 @@ public partial class WebConsole : ComponentBase
 
     private async Task OnCanvasClick(MouseEventArgs obj)
     {
+        // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
     private async Task OnCanvasKeyDown(KeyboardEventArgs obj)
     {
+        // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
     private async Task OnCanvasKeyUp(KeyboardEventArgs obj)
     {
+        // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
     private async Task OnCanvasKeyPress(KeyboardEventArgs arg)
     {
+        // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 }

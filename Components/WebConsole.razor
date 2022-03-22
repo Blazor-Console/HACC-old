@@ -1,11 +1,4 @@
 ﻿@using HACC.Enumerations
 @using HACC.Components
 
-@if (WebConsole.ActiveConsole is ConsoleType.StandardOutput)
-{
-    <BECanvas Width="640" Height="480" @ref="CanvasReferenceStdOut" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
-}
-else if (WebConsole.ActiveConsole is ConsoleType.StandardError)
-{
-    <BECanvas Width="640" Height="480" @ref="CanvasReferenceStdErr" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
-}
+<BECanvas Width="640" Height="480" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
