@@ -12,7 +12,6 @@ public partial class WebConsole : ComponentBase
 {
     private readonly ILogger _logger;
 
-    private ConsoleType _activeConsoleType = ConsoleType.StandardOutput;
     //private readonly WebConsoleDriver _webConsoleDriver;
 
     private Canvas2DContext? _canvas2DContext;
@@ -34,18 +33,6 @@ public partial class WebConsole : ComponentBase
     }
 
     [Inject] private IJSRuntime JsInterop { get; set; } = default!;
-
-    [Parameter]
-    public ConsoleType ActiveConsole
-    {
-        get => this._activeConsoleType;
-        set
-        {
-            if (value == this._activeConsoleType) return;
-            Task.Run(function: async () => await this.RedrawCanvas());
-            value = this._activeConsoleType;
-        }
-    }
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
