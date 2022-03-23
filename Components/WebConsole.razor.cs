@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
 using HACC.Enumerations;
 using Microsoft.AspNetCore.Components;
@@ -15,6 +16,9 @@ public partial class WebConsole : ComponentBase
     //private readonly WebConsoleDriver _webConsoleDriver;
 
     private Canvas2DContext? _canvas2DContext;
+
+    private ElementReference _divCanvas;
+    private BECanvasComponent _beCanvas;
 
     /// <summary>
     ///     Initializes a web console.

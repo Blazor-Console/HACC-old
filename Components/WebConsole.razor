@@ -1,4 +1,6 @@
 ﻿@using HACC.Enumerations
 @using HACC.Components
 
-<BECanvas Width="640" Height="480" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress"></BECanvas>
+<div @ref="_divCanvas" @onclick="OnCanvasClick" @onkeydown="OnCanvasKeyDown" @onkeyup="OnCanvasKeyUp" @onkeypress="OnCanvasKeyPress">
+<BECanvas @ref="_beCanvas" Width="640" Height="480"></BECanvas>
+</div>
