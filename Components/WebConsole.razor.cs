@@ -31,10 +31,10 @@ public partial class WebConsole : ComponentBase
     //    this._webConsoleDriver = webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver),
     //        message: WebStrings.ConsoleDriverRequired);
     //}
-    public WebConsole(ILogger logger)
-    {
-        this._logger = logger;
-    }
+    //public WebConsole(ILogger logger)
+    //{
+    //    this._logger = logger;
+    //}
 
     [Inject] private IJSRuntime JsInterop { get; set; } = default!;
 

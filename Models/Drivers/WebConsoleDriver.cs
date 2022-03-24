@@ -27,7 +27,7 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
         this._dirtyLine = new bool [this.BufferRows];
         //this.ConsoleWeb = new WebConsole(logger: logger,
         //    webConsoleDriver: this);
-        this.ConsoleWeb = new WebConsole(logger: logger);
+        //this.ConsoleWeb = new WebConsole(logger: logger);
         // ReSharper restore HeapView.ObjectAllocation.Evident
     }
 
