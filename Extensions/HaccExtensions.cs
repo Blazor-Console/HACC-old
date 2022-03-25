@@ -15,6 +15,7 @@ public static class HaccExtensions
     public static ILoggerFactory LoggerFactory =>
         _loggerFactory ?? throw new InvalidOperationException(message: "Call UseHacc() first");
 
+    public static ILogger<T> CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
     public static WebAssemblyHostBuilder UseHacc(this WebAssemblyHostBuilder builder)
     {
         builder.Logging.ClearProviders();

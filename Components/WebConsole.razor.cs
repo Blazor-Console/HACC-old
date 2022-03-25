@@ -21,7 +21,7 @@ public partial class WebConsole : ComponentBase
 
     public WebConsole()
     {
-        this._logger = HaccExtensions.LoggerFactory.CreateLogger<WebConsole>();
+        this._logger = HaccExtensions.CreateLogger<WebConsole>();
         this._jsInterop = HaccExtensions.GetService<IJSRuntime>();
     }
 
