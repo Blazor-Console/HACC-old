@@ -1,3 +1,6 @@
+using HACC.Applications;
+using HACC.Models;
+using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,12 +35,11 @@ public static class HaccExtensions
 
         _serviceProvider = builder.Services.BuildServiceProvider();
         _loggerFactory = _serviceProvider.GetService<ILoggerFactory>()!;
-        //builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebApplication(webConsoleDriver: new WebConsoleDriver(
-        //    logger: serviceProvider.GetService<ILoggerFactory>()!.CreateLogger("Logging"))));
-        //builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebConsole(
-        //    logger: serviceProvider.GetService<ILoggerFactory>()!.CreateLogger("Logging")));
-        //builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebApplication(
-        //    logger: serviceProvider.GetService<ILoggerFactory>()!.CreateLogger("Logging")));
+        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebClipboard());
+        var webConsoleDriver = new WebConsoleDriver();
+        builder.Services.AddSingleton(implementationFactory: serviceProvider => webConsoleDriver);
+        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebMainLoopDriver());
+        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebApplication());
         return builder;
     }
 

@@ -1,4 +1,5 @@
 ﻿using HACC.Components;
+using HACC.Extensions;
 using HACC.Spectre;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -17,10 +18,10 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     ///     Initializes a web console driver.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    public WebConsoleDriver(ILogger logger)
+    public WebConsoleDriver()
     {
-        this.Logger = logger;
-        this.Clipboard = new WebClipboard();
+        this.Logger = HaccExtensions.CreateLogger<WebConsoleDriver>();
+        this.Clipboard = HaccExtensions.GetService<WebClipboard>();
         // ReSharper disable HeapView.ObjectAllocation.Evident
         this.TerminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];

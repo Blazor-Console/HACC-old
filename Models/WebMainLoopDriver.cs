@@ -1,4 +1,5 @@
 using HACC.Components;
+using HACC.Extensions;
 using HACC.Models.Drivers;
 using Terminal.Gui;
 
@@ -52,11 +53,10 @@ public class WebMainLoopDriver : IMainLoopDriver
     //    this._consoleKeyReaderFn =
     //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
     //}
-    public WebMainLoopDriver(WebConsoleDriver webConsoleDriver = null)
+    public WebMainLoopDriver()
     {
-        this._webConsoleDriver =
-            webConsoleDriver ?? throw new ArgumentNullException(paramName: nameof(webConsoleDriver));
-        this._consoleWeb = webConsoleDriver.ConsoleWeb;
+        this._webConsoleDriver = HaccExtensions.GetService<WebConsoleDriver>();
+        this._consoleWeb = this._webConsoleDriver.ConsoleWeb;
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)

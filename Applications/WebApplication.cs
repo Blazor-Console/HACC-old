@@ -1,5 +1,6 @@
 using System.Runtime.Versioning;
 using HACC.Components;
+using HACC.Extensions;
 using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.Extensions.Logging;
@@ -12,13 +13,13 @@ public class WebApplication
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
 
-    public WebApplication(ILogger logger)
+    public WebApplication()
     {
-        this.WebConsoleDriver = new WebConsoleDriver(logger);
+        this.WebConsoleDriver = HaccExtensions.GetService<WebConsoleDriver>();
         // TODO: we should be able to implement something that reads from the actual key events set up in WebConsole.razor for key press events on the console
         // Maybe from the Canvas2DContext StdIn
         //this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
-        this.WebMainLoopDriver = new WebMainLoopDriver(WebConsoleDriver);
+        this.WebMainLoopDriver = HaccExtensions.GetService<WebMainLoopDriver>();
     }
 
     public virtual void Init()
