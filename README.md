@@ -16,8 +16,7 @@ Will update readme once alpha is attained.
 
 ## Development
 
-* Clone git@github.com:HACC-ers/HACC.Development.git recursively
-* Would love a collaborator on this and other projects.
+* https://github.com/HACC-ers/HACC.Development/wiki/Developing
 
 ## Future
 
