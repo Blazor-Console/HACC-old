@@ -1,16 +1,12 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Logging;
-using static Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions;
 
 namespace HACC.Extensions;
 
 public static class HaccExtensions
 {
-    public static void UsingHacc(this WebAssemblyHostBuilder builder)
+    public static WebAssemblyHostBuilder UseHacc(this WebAssemblyHostBuilder builder)
     {
-        builder.Services.AddScoped(implementationFactory: sp => new HttpClient
-            {BaseAddress = new Uri(uriString: builder.HostEnvironment.BaseAddress)});
-
         builder.Logging.ClearProviders();
         builder.Logging.AddCustomLogging(configure: configuration =>
         {
@@ -29,5 +25,6 @@ public static class HaccExtensions
         //    logger: serviceProvider.GetService<ILoggerFactory>()!.CreateLogger("Logging")));
         //builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebApplication(
         //    logger: serviceProvider.GetService<ILoggerFactory>()!.CreateLogger("Logging")));
+        return builder;
     }
 }
