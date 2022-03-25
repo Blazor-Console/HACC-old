@@ -1,3 +1,4 @@
+using HACC.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Terminal.Gui;
@@ -9,9 +10,14 @@ namespace HACC.Models;
 /// </summary>
 public class WebClipboard : ClipboardBase
 {
-    [Parameter] public string Text { get; set; } = string.Empty;
+    private readonly IJSRuntime _jsRuntime;
 
-    [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    public WebClipboard()
+    {
+        this._jsRuntime = HaccExtensions.GetService<IJSRuntime>();
+    }
+
+    [Parameter] public string Text { get; set; } = string.Empty;
 
     public override bool IsSupported => true;
 
@@ -20,7 +26,7 @@ public class WebClipboard : ClipboardBase
         // ReSharper disable once HeapView.DelegateAllocation
         var task = Task.Run(function: async () =>
         {
-            var clipboardData = await this.JsRuntime.InvokeAsync<string>(identifier: "clipboardFunctions.getText");
+            var clipboardData = await this._jsRuntime.InvokeAsync<string>(identifier: "clipboardFunctions.getText");
             if (clipboardData is { } text) return text;
             return null;
         });
@@ -35,7 +41,7 @@ public class WebClipboard : ClipboardBase
         // ReSharper disable once HeapView.DelegateAllocation
         // ReSharper disable once HeapView.ObjectAllocation
         var task = Task.Run(
-            function: async () => await this.JsRuntime
+            function: async () => await this._jsRuntime
                 .InvokeAsync<bool>(
                     identifier: "clipboardFunctions.setText",
                     args: text)
