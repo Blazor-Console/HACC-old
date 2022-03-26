@@ -43,7 +43,7 @@ public static class HaccExtensions
         var webClipboard = new WebClipboard();
         var webConsoleDriver = new WebConsoleDriver(webClipboard: webClipboard);
         var webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: webConsoleDriver);
-        builder.Services.AddSingleton<WebClipboard>();
+        builder.Services.AddSingleton<WebClipboard>(implementationInstance: webClipboard);
         builder.Services.AddSingleton<WebConsoleDriver>(implementationInstance: webConsoleDriver);
         builder.Services.AddSingleton<WebMainLoopDriver>(implementationInstance: webMainLoopDriver);
         _webApplication = new WebApplication(
