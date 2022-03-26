@@ -89,29 +89,29 @@ public partial class WebConsole : ComponentBase
         if (duration is not null && frequency is not null && volume is not null && type is not null)
             // ReSharper disable HeapView.ObjectAllocation
             await JsInterop.InvokeAsync<Task>(
-                identifier: "beep",
+                identifier: "window.beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture),
                 type);
         if (duration is not null && frequency is not null && volume is not null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "beep",
+                identifier: "window.beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.CurrentCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is not null && volume is null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "beep",
+                identifier: "window.beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is null && volume is null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "beep",
+                identifier: "window.beep",
                 duration.Value.ToString(provider: CultureInfo.CurrentCulture));
         if (duration is null && frequency is null && volume is null && type is null)
             await JsInterop.InvokeVoidAsync(
-                identifier: "beep");
+                identifier: "window.beep");
         // ReSharper restore HeapView.ObjectAllocation
     }
 
