@@ -79,17 +79,17 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "InitializeNewCanvasFrame");
 
         // TODO: actually clear the canvas
-        //await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
-        //await this._canvas2DContextStdOut.ClearRectAsync(
-        //    x: 0,
-        //    y: 0,
-        //    width: this._webConsoleDriver.WindowWidthPixels,
-        //    height: this._webConsoleDriver.WindowHeightPixels);
-        //await this._canvas2DContextStdOut.FillRectAsync(
-        //    x: 0,
-        //    y: 0,
-        //    width: this._webConsoleDriver.WindowWidthPixels,
-        //    height: this._webConsoleDriver.WindowHeightPixels);
+        await this._canvas2DContext.SetFillStyleAsync(value: "blue");
+        await this._canvas2DContext.ClearRectAsync(
+            x: 0,
+            y: 0,
+            width: this.WebConsoleDriver.WindowWidthPixels,
+            height: this.WebConsoleDriver.WindowHeightPixels);
+        await this._canvas2DContext.FillRectAsync(
+            x: 0,
+            y: 0,
+            width: this.WebConsoleDriver.WindowWidthPixels,
+            height: this.WebConsoleDriver.WindowHeightPixels);
 
 
         //await this._canvas2DContextStdErr.SetFillStyleAsync(value: "blue");
