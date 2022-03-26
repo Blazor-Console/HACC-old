@@ -18,10 +18,10 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     ///     Initializes a web console driver.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    public WebConsoleDriver()
+    public WebConsoleDriver(WebClipboard webClipboard)
     {
         this.Logger = HaccExtensions.CreateLogger<WebConsoleDriver>();
-        this.Clipboard = HaccExtensions.GetService<WebClipboard>();
+        this.Clipboard = webClipboard;
         // ReSharper disable HeapView.ObjectAllocation.Evident
         this.TerminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];

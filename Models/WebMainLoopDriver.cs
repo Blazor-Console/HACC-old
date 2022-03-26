@@ -53,9 +53,9 @@ public class WebMainLoopDriver : IMainLoopDriver
     //    this._consoleKeyReaderFn =
     //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
     //}
-    public WebMainLoopDriver()
+    public WebMainLoopDriver(WebConsoleDriver webConsoleDriver)
     {
-        this._webConsoleDriver = HaccExtensions.GetService<WebConsoleDriver>();
+        this._webConsoleDriver = webConsoleDriver;
         this._consoleWeb = this._webConsoleDriver.ConsoleWeb;
     }
 

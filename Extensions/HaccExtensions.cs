@@ -35,11 +35,15 @@ public static class HaccExtensions
 
         _serviceProvider = builder.Services.BuildServiceProvider();
         _loggerFactory = _serviceProvider.GetService<ILoggerFactory>()!;
-        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebClipboard());
-        var webConsoleDriver = new WebConsoleDriver(); // depends on WebClipboard
-        builder.Services.AddSingleton(implementationFactory: serviceProvider => webConsoleDriver);
-        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebMainLoopDriver()); // depends on WebConsoleDriver
-        builder.Services.AddSingleton(implementationFactory: serviceProvider => new WebApplication()); // depends on WebMainLoopDriver and WebConsoleDriver
+        var webClipboard = new WebClipboard();
+        var webConsoleDriver = new WebConsoleDriver(webClipboard: webClipboard);
+        var webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: webConsoleDriver);
+        builder.Services.AddSingleton<WebClipboard>();
+        builder.Services.AddSingleton<WebConsoleDriver>(implementationInstance: webConsoleDriver);
+        builder.Services.AddSingleton<WebMainLoopDriver>(implementationInstance: webMainLoopDriver);
+        builder.Services.AddSingleton<WebApplication>(implementationInstance: new WebApplication(
+            webConsoleDriver: webConsoleDriver,
+            webMainLoopDriver: webMainLoopDriver));
         return builder;
     }
 

@@ -13,13 +13,13 @@ public class WebApplication
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
 
-    public WebApplication()
+    public WebApplication(WebConsoleDriver webConsoleDriver, WebMainLoopDriver webMainLoopDriver)
     {
-        this.WebConsoleDriver = HaccExtensions.GetService<WebConsoleDriver>();
+        this.WebConsoleDriver = webConsoleDriver;
         // TODO: we should be able to implement something that reads from the actual key events set up in WebConsole.razor for key press events on the console
         // Maybe from the Canvas2DContext StdIn
         //this.WebMainLoopDriver = new WebMainLoopDriver(() => FakeConsole.ReadKey(true));
-        this.WebMainLoopDriver = HaccExtensions.GetService<WebMainLoopDriver>();
+        this.WebMainLoopDriver = webMainLoopDriver;
     }
 
     public virtual void Init()
