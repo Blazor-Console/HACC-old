@@ -267,31 +267,31 @@ public partial class WebConsoleDriver
     {
         lock (this.Contents)
         {
-            var top = this.Top;
-            var left = this.Left;
-            var rows = Math.Min(val1: this.WindowRows + top,
-                val2: this.Rows);
-            var cols = this.Cols;
+            //var top = this.Top;
+            //var left = this.Left;
+            //var rows = Math.Min(val1: this.WindowRows + top,
+            //    val2: this.Rows);
+            //var cols = this.Cols;
 
-            this.CursorTop = 0;
-            this.CursorLeft = 0;
-            for (var row = top; row < rows; row++)
-            {
-                this._dirtyLine[row] = false;
-                for (var col = left; col < cols; col++)
-                {
-                    this.Contents[row,
-                        col,
-                        2] = 0;
-                    var color = this.Contents[row,
-                        col,
-                        1];
-                    if (color != this._redrawColor) this.SetColor(color: color);
-                    this.Write(value: (char) this.Contents[row,
-                        col,
-                        0]);
-                }
-            }
+            //this.CursorTop = 0;
+            //this.CursorLeft = 0;
+            //for (var row = top; row < rows; row++)
+            //{
+            //    this._dirtyLine[row] = false;
+            //    for (var col = left; col < cols; col++)
+            //    {
+            //        this.Contents[row,
+            //            col,
+            //            2] = 0;
+            //        var color = this.Contents[row,
+            //            col,
+            //            1];
+            //        if (color != this._redrawColor) this.SetColor(color: color);
+            //        this.Write(value: (char) this.Contents[row,
+            //            col,
+            //            0]);
+            //    }
+            //}
 
             var task = this._webConsole.DrawUpdatesToCanvas(
                 buffer: this.Contents,
@@ -305,6 +305,9 @@ public partial class WebConsoleDriver
 
     public override void Refresh()
     {
+        UpdateScreen();
+        return;
+
         var rows = this.Rows;
         var cols = this.Cols;
 

@@ -217,7 +217,7 @@ public partial class WebConsoleDriver
     public void Write(string? value)
     {
         var ustr = value is null ? ustring.Empty : ustring.Make(str: value);
-        this.AddStr(str: ustr);
+        //this.AddStr(str: ustr);
         var currentPosition = this.CursorPosition;
         this.SetCursorPosition(left: currentPosition.X + ustr.RuneCount,
             top: currentPosition.Y);
