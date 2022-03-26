@@ -24,7 +24,6 @@ public class WebMainLoopDriver : IMainLoopDriver
     private readonly AutoResetEvent _keyReady = new(initialState: false);
 
     private readonly AutoResetEvent _waitForProbe = new(initialState: false);
-    private readonly WebConsole _webConsole;
 
     //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
     private readonly WebConsoleDriver _webConsoleDriver;
@@ -54,7 +53,6 @@ public class WebMainLoopDriver : IMainLoopDriver
     public WebMainLoopDriver(WebConsoleDriver webConsoleDriver)
     {
         this._webConsoleDriver = webConsoleDriver;
-        this._webConsole = this._webConsoleDriver.ConsoleWeb;
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)

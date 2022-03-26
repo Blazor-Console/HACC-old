@@ -13,22 +13,10 @@ public static class HaccExtensions
     private static ServiceProvider? _serviceProvider;
     private static ILoggerFactory? _loggerFactory;
 
-    private static WebApplication? _webApplication;
     private static WebClipboard? _webClipboard;
-    private static WebConsoleDriver? _webConsoleDriver;
-    private static WebMainLoopDriver? _webMainLoopDriver;
-
-    public static WebApplication WebApplication =>
-        _webApplication ?? throw new InvalidOperationException(message: DefaultError);
 
     public static WebClipboard WebClipboard =>
         _webClipboard ?? throw new InvalidOperationException(message: DefaultError);
-
-    public static WebConsoleDriver WebConsoleDriver =>
-        _webConsoleDriver ?? throw new InvalidOperationException(message: DefaultError);
-
-    public static WebMainLoopDriver WebMainLoopDriver =>
-        _webMainLoopDriver ?? throw new InvalidOperationException(message: DefaultError);
 
     public static ServiceProvider ServiceProvider =>
         _serviceProvider ?? throw new InvalidOperationException(message: DefaultError);
@@ -58,15 +46,7 @@ public static class HaccExtensions
         _serviceProvider = builder.Services.BuildServiceProvider();
         _loggerFactory = _serviceProvider.GetService<ILoggerFactory>()!;
         _webClipboard = new WebClipboard();
-        _webConsoleDriver = new WebConsoleDriver(webClipboard: _webClipboard);
-        _webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: _webConsoleDriver);
-        _webApplication = new WebApplication(
-            webConsoleDriver: _webConsoleDriver,
-            webMainLoopDriver: _webMainLoopDriver);
-        builder.Services.AddSingleton(implementationInstance: _webClipboard);
-        builder.Services.AddSingleton(implementationInstance: _webConsoleDriver);
-        builder.Services.AddSingleton(implementationInstance: _webMainLoopDriver);
-        builder.Services.AddSingleton(implementationInstance: _webApplication);
+
         return builder;
     }
 

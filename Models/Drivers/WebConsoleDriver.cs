@@ -18,25 +18,21 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     ///     Initializes a web console driver.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    public WebConsoleDriver(WebClipboard webClipboard)
+    public WebConsoleDriver(WebClipboard webClipboard, WebConsole webConsole)
     {
         this.Logger = HaccExtensions.CreateLogger<WebConsoleDriver>();
         this.Clipboard = webClipboard;
-        // ReSharper disable HeapView.ObjectAllocation.Evident
+        this._webConsole = webConsole;
         this.TerminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool[this.BufferRows];
-        //this.ConsoleWeb = new WebConsole(logger: logger,
-        //    webConsoleDriver: this);
-        //this.ConsoleWeb = new WebConsole(logger: logger);
-        // ReSharper restore HeapView.ObjectAllocation.Evident
     }
 
-    public ILogger Logger { get; }
+    public readonly ILogger<WebConsoleDriver> Logger;
 
-    public WebConsole ConsoleWeb { get; }
+    private readonly WebConsole _webConsole;
 
-    // TODO: resize, etc if terminal settings updated
+// TODO: resize, etc if terminal settings updated
     public TerminalSettings TerminalSettings { get; private set; }
 
     public Profile Profile => throw new NotImplementedException();
