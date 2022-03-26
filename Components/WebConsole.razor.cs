@@ -1,7 +1,10 @@
 ﻿using System.Globalization;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using HACC.Applications;
 using HACC.Extensions;
+using HACC.Models;
+using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -13,11 +16,27 @@ public partial class WebConsole : ComponentBase
 {
     private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
+
     private BECanvasComponent? _beCanvas;
 
     private Canvas2DContext? _canvas2DContext;
 
     private ElementReference _divCanvas;
+
+    public WebConsole()
+    {
+        this.WebConsoleDriver = new WebConsoleDriver(webClipboard: HaccExtensions.WebClipboard);
+        this.WebMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: this.WebConsoleDriver);
+        this.WebApplication = new WebApplication(
+            webConsoleDriver: this.WebConsoleDriver,
+            webMainLoopDriver: this.WebMainLoopDriver);
+    }
+
+    public WebApplication WebApplication { get; }
+
+    public WebConsoleDriver WebConsoleDriver { get; }
+
+    public WebMainLoopDriver WebMainLoopDriver { get; }
 
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
