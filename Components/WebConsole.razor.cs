@@ -20,12 +20,12 @@ public partial class WebConsole : ComponentBase
     /// <summary>
     /// Null until after render
     /// </summary>
-    private BECanvasComponent? _beCanvas;
+    private BECanvasComponent _beCanvas;
 
     /// <summary>
     /// Null until after render when we initialize it from the beCanvas reference
     /// </summary>
-    private Canvas2DContext? _canvas2DContext;
+    private Canvas2DContext _canvas2DContext;
 
     /// <summary>
     /// Null until after render
