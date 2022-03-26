@@ -13,6 +13,10 @@ public static class HaccExtensions
     private static ServiceProvider? _serviceProvider;
     private static ILoggerFactory? _loggerFactory;
 
+    private static WebApplication? _webApplication;
+
+    public static WebApplication WebApplication =>
+        _webApplication ?? throw new InvalidOperationException(message: "Call UseHacc() first");
     public static ServiceProvider ServiceProvider =>
         _serviceProvider ?? throw new InvalidOperationException(message: "Call UseHacc() first");
 
@@ -42,9 +46,10 @@ public static class HaccExtensions
         builder.Services.AddSingleton<WebClipboard>();
         builder.Services.AddSingleton<WebConsoleDriver>(implementationInstance: webConsoleDriver);
         builder.Services.AddSingleton<WebMainLoopDriver>(implementationInstance: webMainLoopDriver);
-        builder.Services.AddSingleton<WebApplication>(implementationInstance: new WebApplication(
+        _webApplication = new WebApplication(
             webConsoleDriver: webConsoleDriver,
-            webMainLoopDriver: webMainLoopDriver));
+            webMainLoopDriver: webMainLoopDriver);
+        builder.Services.AddSingleton<WebApplication>(implementationInstance: _webApplication);
         return builder;
     }
 
