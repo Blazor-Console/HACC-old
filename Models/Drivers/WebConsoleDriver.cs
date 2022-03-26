@@ -18,10 +18,11 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     ///     Initializes a web console driver.
     /// </summary>
     /// <param name="logger">dependency injected logger</param>
-    public WebConsoleDriver(WebClipboard webClipboard)
+    public WebConsoleDriver(WebClipboard webClipboard, WebConsole webConsole)
     {
         this.Logger = HaccExtensions.CreateLogger<WebConsoleDriver>();
         this.Clipboard = webClipboard;
+        this._webConsole = webConsole;
         this.TerminalSettings = new TerminalSettings();
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool[this.BufferRows];
@@ -29,13 +30,7 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 
     public readonly ILogger<WebConsoleDriver> Logger;
 
-    private WebConsole? _consoleWeb;
-
-    public WebConsole ConsoleWeb
-    {
-        get => this._consoleWeb ?? throw new InvalidOperationException("ConsoleWeb is not initialized");
-        set => this._consoleWeb = value;
-    }
+    private WebConsole? _webConsole;
 
 // TODO: resize, etc if terminal settings updated
     public TerminalSettings TerminalSettings { get; private set; }

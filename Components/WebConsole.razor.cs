@@ -25,7 +25,9 @@ public partial class WebConsole : ComponentBase
 
     public WebConsole()
     {
-        this.WebConsoleDriver = new WebConsoleDriver(webClipboard: HaccExtensions.WebClipboard);
+        this.WebConsoleDriver = new WebConsoleDriver(
+            webClipboard: HaccExtensions.WebClipboard,
+            webConsole: this);
         this.WebMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: this.WebConsoleDriver);
         this.WebApplication = new WebApplication(
             webConsoleDriver: this.WebConsoleDriver,
