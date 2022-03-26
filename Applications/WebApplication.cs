@@ -1,9 +1,5 @@
-using System.Runtime.Versioning;
-using HACC.Components;
-using HACC.Extensions;
 using HACC.Models;
 using HACC.Models.Drivers;
-using Microsoft.Extensions.Logging;
 using Terminal.Gui;
 
 namespace HACC.Applications;
@@ -32,7 +28,7 @@ public class WebApplication
     public virtual void Run()
     {
         //Application.Run();
-        Application.Begin(Application.Top);
+        Application.Begin(toplevel: Application.Top);
     }
 
     public virtual void Shutdown()

@@ -53,7 +53,7 @@ public partial class WebConsoleDriver
         var rows = this.Rows;
 
         // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this.Contents = new int [rows, cols, 3];
+        this.Contents = new int[rows, cols, 3];
         for (var r = 0; r < rows; r++)
         for (var c = 0; c < cols; c++)
         {
@@ -69,7 +69,7 @@ public partial class WebConsoleDriver
                 2] = 0;
         }
 
-        this._dirtyLine = new bool [rows];
+        this._dirtyLine = new bool[rows];
         for (var row = 0; row < rows; row++) this._dirtyLine[row] = true;
     }
 
@@ -669,8 +669,8 @@ public partial class WebConsoleDriver
             width: this.Cols,
             height: this.Rows);
 
-        this.Contents = new int [this.Rows, this.Cols, 3];
-        this._dirtyLine = new bool [this.Rows];
+        this.Contents = new int[this.Rows, this.Cols, 3];
+        this._dirtyLine = new bool[this.Rows];
     }
 
     private void UpdateOffScreen()

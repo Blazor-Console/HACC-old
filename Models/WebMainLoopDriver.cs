@@ -1,5 +1,4 @@
 using HACC.Components;
-using HACC.Extensions;
 using HACC.Models.Drivers;
 using Terminal.Gui;
 
@@ -22,11 +21,10 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly WebConsole _webConsole;
-
     private readonly AutoResetEvent _keyReady = new(initialState: false);
 
     private readonly AutoResetEvent _waitForProbe = new(initialState: false);
+    private readonly WebConsole _webConsole;
 
     //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
     private readonly WebConsoleDriver _webConsoleDriver;

@@ -1,5 +1,4 @@
 using HACC.Applications;
-using HACC.Components;
 using HACC.Models;
 using HACC.Models.Drivers;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -10,6 +9,7 @@ namespace HACC.Extensions;
 
 public static class HaccExtensions
 {
+    private const string DefaultError = "Call UseHacc() first";
     private static ServiceProvider? _serviceProvider;
     private static ILoggerFactory? _loggerFactory;
 
@@ -18,7 +18,6 @@ public static class HaccExtensions
     private static WebConsoleDriver? _webConsoleDriver;
     private static WebMainLoopDriver? _webMainLoopDriver;
 
-    private const string DefaultError = "Call UseHacc() first";
     public static WebApplication WebApplication =>
         _webApplication ?? throw new InvalidOperationException(message: DefaultError);
 
@@ -37,7 +36,11 @@ public static class HaccExtensions
     public static ILoggerFactory LoggerFactory =>
         _loggerFactory ?? throw new InvalidOperationException(message: DefaultError);
 
-    public static ILogger<T> CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
+    public static ILogger<T> CreateLogger<T>()
+    {
+        return LoggerFactory.CreateLogger<T>();
+    }
+
     public static WebAssemblyHostBuilder UseHacc(this WebAssemblyHostBuilder builder)
     {
         builder.Logging.ClearProviders();
@@ -54,16 +57,16 @@ public static class HaccExtensions
 
         _serviceProvider = builder.Services.BuildServiceProvider();
         _loggerFactory = _serviceProvider.GetService<ILoggerFactory>()!;
-        var webClipboard = new WebClipboard();
-        var webConsoleDriver = new WebConsoleDriver(webClipboard: webClipboard);
-        var webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: webConsoleDriver);
-        builder.Services.AddSingleton<WebClipboard>(implementationInstance: webClipboard);
-        builder.Services.AddSingleton<WebConsoleDriver>(implementationInstance: webConsoleDriver);
-        builder.Services.AddSingleton<WebMainLoopDriver>(implementationInstance: webMainLoopDriver);
+        _webClipboard = new WebClipboard();
+        _webConsoleDriver = new WebConsoleDriver(webClipboard: _webClipboard);
+        _webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: _webConsoleDriver);
         _webApplication = new WebApplication(
-            webConsoleDriver: webConsoleDriver,
-            webMainLoopDriver: webMainLoopDriver);
-        builder.Services.AddSingleton<WebApplication>(implementationInstance: _webApplication);
+            webConsoleDriver: _webConsoleDriver,
+            webMainLoopDriver: _webMainLoopDriver);
+        builder.Services.AddSingleton(implementationInstance: _webClipboard);
+        builder.Services.AddSingleton(implementationInstance: _webConsoleDriver);
+        builder.Services.AddSingleton(implementationInstance: _webMainLoopDriver);
+        builder.Services.AddSingleton(implementationInstance: _webApplication);
         return builder;
     }
 

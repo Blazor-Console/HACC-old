@@ -11,6 +11,7 @@ namespace HACC.Models;
 public class WebClipboard : ClipboardBase
 {
     private readonly IJSRuntime _jsRuntime;
+
     public WebClipboard()
     {
         this._jsRuntime = HaccExtensions.GetService<IJSRuntime>();
