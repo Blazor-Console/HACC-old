@@ -17,10 +17,19 @@ public partial class WebConsole : ComponentBase
     private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
 
+    /// <summary>
+    /// Null until after render
+    /// </summary>
     private BECanvasComponent? _beCanvas;
 
+    /// <summary>
+    /// Null until after render when we initialize it from the beCanvas reference
+    /// </summary>
     private Canvas2DContext? _canvas2DContext;
 
+    /// <summary>
+    /// Null until after render
+    /// </summary>
     private ElementReference _divCanvas;
 
     public WebConsole()
@@ -44,6 +53,7 @@ public partial class WebConsole : ComponentBase
     {
         Logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
+        this._canvas2DContext = await this._beCanvas.CreateCanvas2DAsync();
         //this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
         Logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
