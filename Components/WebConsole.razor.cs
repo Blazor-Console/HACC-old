@@ -51,12 +51,11 @@ public partial class WebConsole : ComponentBase
 
     public bool CanvasInitialized => this._canvas2DContext is { };
 
-    protected new async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         Logger.LogDebug(message: "OnAfterRenderAsync");
-        await base.OnAfterRenderAsync(firstRender: firstRender);
+        await base.OnAfterRenderAsync(firstRender);
         this._canvas2DContext = await this._beCanvas.CreateCanvas2DAsync();
-        //this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
         Logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
