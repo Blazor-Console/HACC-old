@@ -37,7 +37,6 @@ public static class HaccExtensions
         _serviceProvider = builder.Services.BuildServiceProvider();
         _loggerFactory = _serviceProvider.GetService<ILoggerFactory>()!;
         var webClipboard = new WebClipboard();
-        var webConsole = new WebConsole();
         var webConsoleDriver = new WebConsoleDriver(webClipboard: webClipboard);
         var webMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: webConsoleDriver);
         builder.Services.AddSingleton<WebClipboard>();
