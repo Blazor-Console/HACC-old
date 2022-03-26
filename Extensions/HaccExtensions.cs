@@ -14,14 +14,28 @@ public static class HaccExtensions
     private static ILoggerFactory? _loggerFactory;
 
     private static WebApplication? _webApplication;
+    private static WebClipboard? _webClipboard;
+    private static WebConsoleDriver? _webConsoleDriver;
+    private static WebMainLoopDriver? _webMainLoopDriver;
 
+    private const string DefaultError = "Call UseHacc() first";
     public static WebApplication WebApplication =>
-        _webApplication ?? throw new InvalidOperationException(message: "Call UseHacc() first");
+        _webApplication ?? throw new InvalidOperationException(message: DefaultError);
+
+    public static WebClipboard WebClipboard =>
+        _webClipboard ?? throw new InvalidOperationException(message: DefaultError);
+
+    public static WebConsoleDriver WebConsoleDriver =>
+        _webConsoleDriver ?? throw new InvalidOperationException(message: DefaultError);
+
+    public static WebMainLoopDriver WebMainLoopDriver =>
+        _webMainLoopDriver ?? throw new InvalidOperationException(message: DefaultError);
+
     public static ServiceProvider ServiceProvider =>
-        _serviceProvider ?? throw new InvalidOperationException(message: "Call UseHacc() first");
+        _serviceProvider ?? throw new InvalidOperationException(message: DefaultError);
 
     public static ILoggerFactory LoggerFactory =>
-        _loggerFactory ?? throw new InvalidOperationException(message: "Call UseHacc() first");
+        _loggerFactory ?? throw new InvalidOperationException(message: DefaultError);
 
     public static ILogger<T> CreateLogger<T>() => LoggerFactory.CreateLogger<T>();
     public static WebAssemblyHostBuilder UseHacc(this WebAssemblyHostBuilder builder)
