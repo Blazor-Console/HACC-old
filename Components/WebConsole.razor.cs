@@ -49,6 +49,8 @@ public partial class WebConsole : ComponentBase
 
     public WebMainLoopDriver WebMainLoopDriver { get; }
 
+    public bool CanvasInitialized => this._canvas2DContext is { };
+
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
         Logger.LogDebug(message: "OnAfterRenderAsync");
@@ -58,13 +60,22 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
-    public async Task<object> DrawBufferToPng()
+    public async Task<object?> DrawBufferToPng()
     {
+        if (!this.CanvasInitialized)
+        {
+            return null;
+        }
         return await JsInterop.InvokeAsync<object>(identifier: "window.canvasToPng");
     }
 
     private async Task RedrawCanvas()
     {
+        if (!this.CanvasInitialized)
+        {
+            return;
+        }
+
         Logger.LogDebug(message: "InitializeNewCanvasFrame");
 
         // TODO: actually clear the canvas
@@ -97,6 +108,10 @@ public partial class WebConsole : ComponentBase
 
     public async Task DrawUpdatesToCanvas(int[,,] buffer, bool? firstRender = null)
     {
+        if (!this.CanvasInitialized)
+        {
+            return;
+        }
         Logger.LogDebug(message: "DrawBufferToFrame");
         if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
             await this.RedrawCanvas();
