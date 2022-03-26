@@ -11,36 +11,30 @@ namespace HACC.Components;
 
 public partial class WebConsole : ComponentBase
 {
-    private readonly IJSRuntime _jsInterop;
-    private readonly ILogger _logger;
+    private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
+    private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
     private BECanvasComponent? _beCanvas;
 
     private Canvas2DContext? _canvas2DContext;
 
     private ElementReference _divCanvas;
 
-    public WebConsole()
-    {
-        this._logger = HaccExtensions.CreateLogger<WebConsole>();
-        this._jsInterop = HaccExtensions.GetService<IJSRuntime>();
-    }
-
     protected new async Task OnAfterRenderAsync(bool firstRender)
     {
-        this._logger.LogDebug(message: "OnAfterRenderAsync");
+        Logger.LogDebug(message: "OnAfterRenderAsync");
         await base.OnAfterRenderAsync(firstRender: firstRender);
         //this._webConsoleDriver.UpdateScreen(firstRender: firstRender);
-        this._logger.LogDebug(message: "OnAfterRenderAsync: end");
+        Logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
     public async Task<object> DrawBufferToPng()
     {
-        return await this._jsInterop.InvokeAsync<object>(identifier: "window.canvasToPng");
+        return await JsInterop.InvokeAsync<object>(identifier: "window.canvasToPng");
     }
 
     private async Task RedrawCanvas()
     {
-        this._logger.LogDebug(message: "InitializeNewCanvasFrame");
+        Logger.LogDebug(message: "InitializeNewCanvasFrame");
 
         // TODO: actually clear the canvas
         //await this._canvas2DContextStdOut.SetFillStyleAsync(value: "blue");
@@ -67,12 +61,12 @@ public partial class WebConsole : ComponentBase
         //    y: 0,
         //    width: this._webConsoleDriver.WindowWidthPixels,
         //    height: this._webConsoleDriver.WindowHeightPixels);
-        this._logger.LogDebug(message: "InitializeNewCanvasFrame: end");
+        Logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
     public async Task DrawUpdatesToCanvas(int[,,] buffer, bool? firstRender = null)
     {
-        this._logger.LogDebug(message: "DrawBufferToFrame");
+        Logger.LogDebug(message: "DrawBufferToFrame");
         if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
             await this.RedrawCanvas();
         await this._canvas2DContext!.SetFontAsync(value: "8px serif");
@@ -80,7 +74,7 @@ public partial class WebConsole : ComponentBase
         await this._canvas2DContext.StrokeTextAsync(text: "drawing changes from dirty lines....",
             x: 10,
             y: 100);
-        this._logger.LogDebug(message: "DrawBufferToFrame: end");
+        Logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 
     /// <summary>
@@ -94,29 +88,29 @@ public partial class WebConsole : ComponentBase
     {
         if (duration is not null && frequency is not null && volume is not null && type is not null)
             // ReSharper disable HeapView.ObjectAllocation
-            await this._jsInterop.InvokeAsync<Task>(
+            await JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture),
                 type);
         if (duration is not null && frequency is not null && volume is not null && type is null)
-            await this._jsInterop.InvokeAsync<Task>(
+            await JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.CurrentCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is not null && volume is null && type is null)
-            await this._jsInterop.InvokeAsync<Task>(
+            await JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is null && volume is null && type is null)
-            await this._jsInterop.InvokeAsync<Task>(
+            await JsInterop.InvokeAsync<Task>(
                 identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.CurrentCulture));
         if (duration is null && frequency is null && volume is null && type is null)
-            await this._jsInterop.InvokeVoidAsync(
+            await JsInterop.InvokeVoidAsync(
                 identifier: "beep");
         // ReSharper restore HeapView.ObjectAllocation
     }

@@ -22,7 +22,7 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly WebConsole _consoleWeb;
+    private readonly WebConsole _webConsole;
 
     private readonly AutoResetEvent _keyReady = new(initialState: false);
 
@@ -56,7 +56,7 @@ public class WebMainLoopDriver : IMainLoopDriver
     public WebMainLoopDriver(WebConsoleDriver webConsoleDriver)
     {
         this._webConsoleDriver = webConsoleDriver;
-        this._consoleWeb = this._webConsoleDriver.ConsoleWeb;
+        this._webConsole = this._webConsoleDriver.ConsoleWeb;
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
