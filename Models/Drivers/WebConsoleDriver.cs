@@ -30,7 +30,7 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 
     public readonly ILogger<WebConsoleDriver> Logger;
 
-    private WebConsole? _webConsole;
+    private readonly WebConsole _webConsole;
 
 // TODO: resize, etc if terminal settings updated
     public TerminalSettings TerminalSettings { get; private set; }

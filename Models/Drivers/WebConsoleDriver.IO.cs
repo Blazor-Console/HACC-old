@@ -210,7 +210,7 @@ public partial class WebConsoleDriver
         var type = Enum.GetName(
             enumType: typeof(BeepType),
             value: beepType)!.ToLowerInvariant();
-        await this.ConsoleWeb.Beep(
+        await this._webConsole.Beep(
             duration: duration,
             frequency: frequency,
             volume: volume,
