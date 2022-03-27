@@ -1,5 +1,5 @@
 using HACC.Components;
-using HACC.Models.Drivers;
+using HACC.Models.Structs;
 using Terminal.Gui;
 
 namespace HACC.Models;
@@ -21,20 +21,18 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly AutoResetEvent _keyReady = new(initialState: false);
+    private readonly ManualResetEventSlim _keyReady = new ManualResetEventSlim(initialState: false);
 
-    private readonly AutoResetEvent _waitForProbe = new(initialState: false);
+    private readonly WebConsole _webConsole;
 
-    //private readonly Func<ConsoleKeyInfo> _consoleKeyReaderFn;
-    private readonly WebConsoleDriver _webConsoleDriver;
-
-    private ConsoleKeyInfo? _keyResult;
+    Queue<InputResult?> _inputResult = new Queue<InputResult?>();
     private MainLoop _mainLoop;
+    CancellationTokenSource tokenSource = new CancellationTokenSource();
 
     /// <summary>
-    ///     Invoked when a Key is pressed.
+    ///     Invoked when a Key is pressed, mouse is clicked or on resizing.
     /// </summary>
-    public Action<ConsoleKeyInfo> KeyPressed;
+    public Action<InputResult> ProcessInput;
 
 
     /// <summary>
@@ -50,9 +48,16 @@ public class WebMainLoopDriver : IMainLoopDriver
     //    this._consoleKeyReaderFn =
     //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
     //}
-    public WebMainLoopDriver(WebConsoleDriver webConsoleDriver)
+    public WebMainLoopDriver(WebConsole webConsole)
     {
-        this._webConsoleDriver = webConsoleDriver;
+        this._webConsole = webConsole ?? throw new ArgumentNullException("Console driver instance must be provided.");
+        this._webConsole.ReadConsoleInput += _webConsole_ReadConsoleInput;
+    }
+
+    private void _webConsole_ReadConsoleInput(InputResult obj)
+    {
+        _inputResult.Enqueue(obj);
+        _keyReady.Set();
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
@@ -65,16 +70,49 @@ public class WebMainLoopDriver : IMainLoopDriver
 
     void IMainLoopDriver.Wakeup()
     {
+        _keyReady.Set();
     }
 
     bool IMainLoopDriver.EventsPending(bool wait)
     {
-        var now = DateTime.UtcNow.Ticks;
-
-        int waitTimeout;
-        if (this._mainLoop.Timeouts.Count > 0)
+        if (CheckTimers(wait, out var waitTimeout))
         {
-            waitTimeout = (int) ((this._mainLoop.Timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
+            return true;
+        }
+
+        try
+        {
+            if (!tokenSource.IsCancellationRequested)
+            {
+                _keyReady.Wait(waitTimeout, tokenSource.Token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return true;
+        }
+        finally
+        {
+            _keyReady.Reset();
+        }
+
+        if (!tokenSource.IsCancellationRequested)
+        {
+            return _inputResult.Count > 0 || CheckTimers(wait, out _);
+        }
+
+        tokenSource.Dispose();
+        tokenSource = new CancellationTokenSource();
+        return true;
+    }
+
+    bool CheckTimers(bool wait, out int waitTimeout)
+    {
+        long now = DateTime.UtcNow.Ticks;
+
+        if (_mainLoop.Timeouts.Count > 0)
+        {
+            waitTimeout = (int)((_mainLoop.Timeouts.Keys[0] - now) / TimeSpan.TicksPerMillisecond);
             if (waitTimeout < 0)
                 return true;
         }
@@ -86,26 +124,20 @@ public class WebMainLoopDriver : IMainLoopDriver
         if (!wait)
             waitTimeout = 0;
 
-        this._keyResult = null;
-        this._waitForProbe.Set();
-        this._keyReady.WaitOne(millisecondsTimeout: waitTimeout);
-        return this._keyResult.HasValue;
+        int ic;
+        lock (_mainLoop.IdleHandlers)
+        {
+            ic = _mainLoop.IdleHandlers.Count;
+        }
+
+        return ic > 0;
     }
 
     void IMainLoopDriver.MainIteration()
     {
-        if (!this._keyResult.HasValue) return;
-        this.KeyPressed?.Invoke(obj: this._keyResult.Value);
-        this._keyResult = null;
-    }
-
-    private void ConsoleKeyReader()
-    {
-        while (true)
+        while (_inputResult.Count > 0)
         {
-            this._waitForProbe.WaitOne();
-            //this._keyResult = this._consoleKeyReaderFn();
-            this._keyReady.Set();
+            ProcessInput?.Invoke(obj: _inputResult.Dequeue().Value);
         }
     }
 }

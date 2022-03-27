@@ -5,6 +5,7 @@ using HACC.Applications;
 using HACC.Extensions;
 using HACC.Models;
 using HACC.Models.Drivers;
+using HACC.Models.Structs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,7 @@ public partial class WebConsole : ComponentBase
         this.WebConsoleDriver = new WebConsoleDriver(
             webClipboard: HaccExtensions.WebClipboard,
             webConsole: this);
-        this.WebMainLoopDriver = new WebMainLoopDriver(webConsoleDriver: this.WebConsoleDriver);
+        this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
         this.WebApplication = new WebApplication(
             webConsoleDriver: this.WebConsoleDriver,
             webMainLoopDriver: this.WebMainLoopDriver);
@@ -50,6 +51,8 @@ public partial class WebConsole : ComponentBase
     public WebMainLoopDriver WebMainLoopDriver { get; }
 
     public bool CanvasInitialized => this._canvas2DContext is { };
+
+    public event Action<InputResult> ReadConsoleInput;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -163,7 +166,15 @@ public partial class WebConsole : ComponentBase
     private async Task OnCanvasClick(MouseEventArgs obj)
     {
         // of relevance: ActiveConsole
-        throw new NotImplementedException();
+        var res = new InputResult()
+        {
+            EventType = Models.Enums.EventType.Mouse,
+            MouseEvent = new MouseEvent()
+            {
+                ButtonState = Models.Enums.MouseButtonState.Button1Clicked
+            }
+        };
+        ReadConsoleInput?.Invoke(res);
     }
 
     private async Task OnCanvasKeyDown(KeyboardEventArgs obj)

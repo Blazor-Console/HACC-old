@@ -1,7 +1,10 @@
+using HACC.Models.Enums;
 using HACC.Models.EventArgs;
+using HACC.Models.Structs;
 using NStack;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
+using MouseEvent = Terminal.Gui.MouseEvent;
 
 namespace HACC.Models.Drivers;
 
@@ -55,19 +58,19 @@ public partial class WebConsoleDriver
         // ReSharper disable once HeapView.ObjectAllocation.Evident
         this.Contents = new int[rows, cols, 3];
         for (var r = 0; r < rows; r++)
-        for (var c = 0; c < cols; c++)
-        {
-            this.Contents[r,
-                c,
-                0] = ' ';
-            this.Contents[r,
-                c,
-                1] = MakeColor(f: ConsoleColor.Gray,
-                b: ConsoleColor.Black);
-            this.Contents[r,
-                c,
-                2] = 0;
-        }
+            for (var c = 0; c < cols; c++)
+            {
+                this.Contents[r,
+                    c,
+                    0] = ' ';
+                this.Contents[r,
+                    c,
+                    1] = MakeColor(f: ConsoleColor.Gray,
+                    b: ConsoleColor.Black);
+                this.Contents[r,
+                    c,
+                    2] = 0;
+            }
 
         this._dirtyLine = new bool[rows];
         for (var row = 0; row < rows; row++) this._dirtyLine[row] = true;
@@ -112,7 +115,7 @@ public partial class WebConsoleDriver
 
             this.Contents[currentPosition.Y,
                 currentPosition.X,
-                0] = (int) (uint) rune;
+                0] = (int)(uint)rune;
             this.Contents[currentPosition.Y,
                 currentPosition.X,
                 1] = this._currentAttribute;
@@ -151,9 +154,9 @@ public partial class WebConsoleDriver
     {
         // Encode the colors into the int value.
         return new Attribute(
-            value: (((int) f & 0xffff) << 16) | ((int) b & 0xffff),
-            foreground: (Color) f,
-            background: (Color) b
+            value: (((int)f & 0xffff) << 16) | ((int)b & 0xffff),
+            foreground: (Color)f,
+            background: (Color)b
         );
     }
 
@@ -239,8 +242,8 @@ public partial class WebConsoleDriver
 
     public override Attribute MakeAttribute(Color fore, Color back)
     {
-        return MakeColor(f: (ConsoleColor) fore,
-            b: (ConsoleColor) back);
+        return MakeColor(f: (ConsoleColor)fore,
+            b: (ConsoleColor)back);
     }
 
     private int _redrawColor = -1;
@@ -250,12 +253,12 @@ public partial class WebConsoleDriver
         this._redrawColor = color;
         var values = Enum.GetValues(enumType: typeof(ConsoleColor))
             .OfType<ConsoleColor>()
-            .Select(selector: s => (int) s);
+            .Select(selector: s => (int)s);
         var enumerable = values as int[] ?? values.ToArray();
-        if (enumerable.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor) (color & 0xffff);
+        if (enumerable.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor)(color & 0xffff);
 
         if (enumerable.Contains(value: (color >> 16) & 0xffff))
-            this.ForegroundColor = (ConsoleColor) ((color >> 16) & 0xffff);
+            this.ForegroundColor = (ConsoleColor)((color >> 16) & 0xffff);
     }
 
     public override void UpdateScreen()
@@ -338,7 +341,7 @@ public partial class WebConsoleDriver
                         1];
                     if (color != this._redrawColor) this.SetColor(color: color);
 
-                    this.Write(value: (char) this.Contents[row,
+                    this.Write(value: (char)this.Contents[row,
                         col,
                         0]);
                     this.Contents[row,
@@ -398,7 +401,7 @@ public partial class WebConsoleDriver
                     key: Key.Enter);
             case ConsoleKey.Spacebar:
                 return MapKeyModifiers(keyInfo: keyInfo,
-                    key: keyInfo.KeyChar == 0 ? Key.Space : (Key) keyInfo.KeyChar);
+                    key: keyInfo.KeyChar == 0 ? Key.Space : (Key)keyInfo.KeyChar);
             case ConsoleKey.Backspace:
                 return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Backspace);
@@ -425,64 +428,64 @@ public partial class WebConsoleDriver
                 if (keyInfo.KeyChar == 0)
                     return Key.Unknown;
 
-                return (Key) keyInfo.KeyChar;
+                return (Key)keyInfo.KeyChar;
         }
 
         var key = keyInfo.Key;
         switch (key)
         {
             case >= ConsoleKey.A and <= ConsoleKey.Z:
-            {
-                var delta = key - ConsoleKey.A;
-                switch (keyInfo.Modifiers)
                 {
-                    case ConsoleModifiers.Control:
-                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
-                    case ConsoleModifiers.Alt:
-                        return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
-                }
+                    var delta = key - ConsoleKey.A;
+                    switch (keyInfo.Modifiers)
+                    {
+                        case ConsoleModifiers.Control:
+                            return (Key)((uint)Key.CtrlMask | ((uint)Key.A + delta));
+                        case ConsoleModifiers.Alt:
+                            return (Key)((uint)Key.AltMask | ((uint)Key.A + delta));
+                    }
 
-                if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
-                    return (Key) keyInfo.KeyChar;
-                if (keyInfo.KeyChar == 0)
-                    return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
-                return (Key) keyInfo.KeyChar;
-            }
+                    if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
+                        return (Key)keyInfo.KeyChar;
+                    if (keyInfo.KeyChar == 0)
+                        return (Key)((uint)Key.AltMask | (uint)Key.CtrlMask | ((uint)Key.A + delta));
+                    return (Key)keyInfo.KeyChar;
+                }
             case >= ConsoleKey.D0 and <= ConsoleKey.D9:
-            {
-                var delta = key - ConsoleKey.D0;
-                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                switch (keyInfo.Modifiers)
                 {
-                    case ConsoleModifiers.Alt:
-                        return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
-                    case ConsoleModifiers.Control:
-                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
+                    var delta = key - ConsoleKey.D0;
+                    // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                    switch (keyInfo.Modifiers)
+                    {
+                        case ConsoleModifiers.Alt:
+                            return (Key)((uint)Key.AltMask | ((uint)Key.D0 + delta));
+                        case ConsoleModifiers.Control:
+                            return (Key)((uint)Key.CtrlMask | ((uint)Key.D0 + delta));
+                    }
+
+                    if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
+                        return MapKeyModifiers(keyInfo: keyInfo,
+                            key: (Key)((uint)Key.D0 + delta));
+
+                    return (Key)keyInfo.KeyChar;
                 }
-
-                if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
-                    return MapKeyModifiers(keyInfo: keyInfo,
-                        key: (Key) ((uint) Key.D0 + delta));
-
-                return (Key) keyInfo.KeyChar;
-            }
             case >= ConsoleKey.F1 and <= ConsoleKey.F12:
-            {
-                var delta = key - ConsoleKey.F1;
-                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
-                    0)
-                    return MapKeyModifiers(keyInfo: keyInfo,
-                        key: (Key) ((uint) Key.F1 + delta));
+                {
+                    var delta = key - ConsoleKey.F1;
+                    if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
+                        0)
+                        return MapKeyModifiers(keyInfo: keyInfo,
+                            key: (Key)((uint)Key.F1 + delta));
 
-                return (Key) ((uint) Key.F1 + delta);
-            }
+                    return (Key)((uint)Key.F1 + delta);
+                }
         }
 
         if (keyInfo.KeyChar != 0)
             return MapKeyModifiers(keyInfo: keyInfo,
-                key: (Key) keyInfo.KeyChar);
+                key: (Key)keyInfo.KeyChar);
 
-        return (Key) 0xffffffff;
+        return (Key)0xffffffff;
     }
 
     private KeyModifiers _keyModifiers;
@@ -501,7 +504,9 @@ public partial class WebConsoleDriver
     }
 
     private Action<KeyEvent> _keyHandler;
+    private Action<KeyEvent> _keyDownHandler;
     private Action<KeyEvent> _keyUpHandler;
+    private Action<MouseEvent> _mouseHandler;
 
     public override void PrepareToRun(MainLoop mainLoop, Action<KeyEvent> keyHandler, Action<KeyEvent> keyDownHandler,
         Action<KeyEvent> keyUpHandler, Action<MouseEvent> mouseHandler)
@@ -511,36 +516,157 @@ public partial class WebConsoleDriver
 
         // ReSharper disable once HeapView.DelegateAllocation
         // Note: Net doesn't support keydown/up events and thus any passed keyDown/UpHandlers will never be called
-        (mainLoop.Driver as WebMainLoopDriver)!.KeyPressed += this.OnKeyPressed;
+        (mainLoop.Driver as WebMainLoopDriver)!.ProcessInput += this.ProcessInput;
     }
 
-    private void OnKeyPressed(ConsoleKeyInfo consoleKey)
+    private void ProcessInput(InputResult inputEvent)
     {
-        this.ProcessInput(consoleKey: consoleKey);
+        switch (inputEvent.EventType)
+        {
+            case EventType.Key:
+                _keyModifiers = new KeyModifiers();
+                var map = MapKey(inputEvent.ConsoleKeyInfo);
+                if (map == (Key)0xffffffff)
+                {
+                    return;
+                }
+                _keyDownHandler(new KeyEvent(map, _keyModifiers));
+                _keyHandler(new KeyEvent(map, _keyModifiers));
+                _keyUpHandler(new KeyEvent(map, _keyModifiers));
+                break;
+            case EventType.Mouse:
+                _mouseHandler(ToDriverMouse(inputEvent.MouseEvent));
+                break;
+            case EventType.Resize:
+                this.TerminalSettings.WindowColumns = inputEvent.ResizeEvent.Size.Width;
+                this.TerminalSettings.WindowRows = inputEvent.ResizeEvent.Size.Height;
+                break;
+        }
     }
 
-    private void ProcessInput(ConsoleKeyInfo consoleKey)
+    private MouseEvent ToDriverMouse(Structs.MouseEvent me)
     {
-        // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this._keyModifiers = new KeyModifiers();
-        var map = MapKey(keyInfo: consoleKey);
-        if (map == (Key) 0xffffffff)
-            return;
+        MouseFlags mouseFlag = 0;
 
-        // ReSharper disable HeapView.BoxingAllocation
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Alt)) this._keyModifiers.Alt = true;
+        if ((me.ButtonState & MouseButtonState.Button1Pressed) != 0)
+        {
+            mouseFlag |= MouseFlags.Button1Pressed;
+        }
+        if ((me.ButtonState & MouseButtonState.Button1Released) != 0)
+        {
+            mouseFlag |= MouseFlags.Button1Released;
+        }
+        if ((me.ButtonState & MouseButtonState.Button1Clicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button1Clicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button1DoubleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button1DoubleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button1TripleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button1TripleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button2Pressed) != 0)
+        {
+            mouseFlag |= MouseFlags.Button2Pressed;
+        }
+        if ((me.ButtonState & MouseButtonState.Button2Released) != 0)
+        {
+            mouseFlag |= MouseFlags.Button2Released;
+        }
+        if ((me.ButtonState & MouseButtonState.Button2Clicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button2Clicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button2DoubleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button2DoubleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button2TrippleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button2TripleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button3Pressed) != 0)
+        {
+            mouseFlag |= MouseFlags.Button3Pressed;
+        }
+        if ((me.ButtonState & MouseButtonState.Button3Released) != 0)
+        {
+            mouseFlag |= MouseFlags.Button3Released;
+        }
+        if ((me.ButtonState & MouseButtonState.Button3Clicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button3Clicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button3DoubleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button3DoubleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button3TripleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button3TripleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledUp) != 0)
+        {
+            mouseFlag |= MouseFlags.WheeledUp;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledDown) != 0)
+        {
+            mouseFlag |= MouseFlags.WheeledDown;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledLeft) != 0)
+        {
+            mouseFlag |= MouseFlags.WheeledLeft;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledRight) != 0)
+        {
+            mouseFlag |= MouseFlags.WheeledRight;
+        }
+        if ((me.ButtonState & MouseButtonState.Button4Pressed) != 0)
+        {
+            mouseFlag |= MouseFlags.Button4Pressed;
+        }
+        if ((me.ButtonState & MouseButtonState.Button4Released) != 0)
+        {
+            mouseFlag |= MouseFlags.Button4Released;
+        }
+        if ((me.ButtonState & MouseButtonState.Button4Clicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button4Clicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button4DoubleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button4DoubleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.Button4TripleClicked) != 0)
+        {
+            mouseFlag |= MouseFlags.Button4TripleClicked;
+        }
+        if ((me.ButtonState & MouseButtonState.ReportMousePosition) != 0)
+        {
+            mouseFlag |= MouseFlags.ReportMousePosition;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonShift) != 0)
+        {
+            mouseFlag |= MouseFlags.ButtonShift;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonCtrl) != 0)
+        {
+            mouseFlag |= MouseFlags.ButtonCtrl;
+        }
+        if ((me.ButtonState & MouseButtonState.ButtonAlt) != 0)
+        {
+            mouseFlag |= MouseFlags.ButtonAlt;
+        }
 
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Shift)) this._keyModifiers.Shift = true;
-
-        if (consoleKey.Modifiers.HasFlag(flag: ConsoleModifiers.Control)) this._keyModifiers.Ctrl = true;
-        // ReSharper restore HeapView.BoxingAllocation
-
-        // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this._keyHandler(obj: new KeyEvent(k: map,
-            km: this._keyModifiers));
-        // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this._keyUpHandler(obj: new KeyEvent(k: map,
-            km: this._keyModifiers));
+        return new MouseEvent()
+        {
+            X = me.Position.X,
+            Y = me.Position.Y,
+            Flags = mouseFlag
+        };
     }
 
     public override Attribute GetAttribute()
@@ -572,11 +698,24 @@ public partial class WebConsoleDriver
 
     public override void SendKeys(char keyChar, ConsoleKey key, bool shift, bool alt, bool control)
     {
-        this.ProcessInput(consoleKey: new ConsoleKeyInfo(keyChar: keyChar,
-            key: key,
-            shift: shift,
-            alt: alt,
-            control: control));
+        InputResult input = new InputResult();
+        ConsoleKey ck;
+        if (char.IsLetter(keyChar))
+        {
+            ck = key;
+        }
+        else
+        {
+            ck = (ConsoleKey)'\0';
+        }
+        input.EventType = EventType.Key;
+        input.ConsoleKeyInfo = new ConsoleKeyInfo(keyChar, ck, shift, alt, control);
+
+        try
+        {
+            ProcessInput(input);
+        }
+        catch (OverflowException) { }
     }
 
     public void SetBufferSize(int width, int height)
@@ -682,19 +821,19 @@ public partial class WebConsoleDriver
         try
         {
             for (var row = 0; row < this.Rows; row++)
-            for (var c = 0; c < this.Cols; c++)
-            {
-                this.Contents[row,
-                    c,
-                    0] = ' ';
-                this.Contents[row,
-                    c,
-                    1] = Colors.TopLevel.Normal;
-                this.Contents[row,
-                    c,
-                    2] = 0;
-                this._dirtyLine[row] = true;
-            }
+                for (var c = 0; c < this.Cols; c++)
+                {
+                    this.Contents[row,
+                        c,
+                        0] = ' ';
+                    this.Contents[row,
+                        c,
+                        1] = Colors.TopLevel.Normal;
+                    this.Contents[row,
+                        c,
+                        2] = 0;
+                    this._dirtyLine[row] = true;
+                }
         }
         catch (IndexOutOfRangeException)
         {
@@ -708,18 +847,18 @@ public partial class WebConsoleDriver
         background = default;
         // ReSharper disable HeapView.ObjectAllocation
         var values = Enum.GetValues(enumType: typeof(ConsoleColor)).OfType<ConsoleColor>()
-            .Select(selector: s => (int) s);
+            .Select(selector: s => (int)s);
         // ReSharper restore HeapView.ObjectAllocation
         var enumerable = values as int[] ?? values.ToArray();
         if (enumerable.Contains(value: value & 0xffff))
         {
             hasColor = true;
-            background = (Color) (ConsoleColor) (value & 0xffff);
+            background = (Color)(ConsoleColor)(value & 0xffff);
         }
 
         if (!enumerable.Contains(value: (value >> 16) & 0xffff)) return hasColor;
         hasColor = true;
-        foreground = (Color) (ConsoleColor) ((value >> 16) & 0xffff);
+        foreground = (Color)(ConsoleColor)((value >> 16) & 0xffff);
 
         return hasColor;
     }

@@ -27,8 +27,8 @@ public class WebApplication
 
     public virtual void Run()
     {
-        //Application.Run();
-        Application.Begin(toplevel: Application.Top);
+        Application.Run();
+        //Application.Begin(toplevel: Application.Top);
     }
 
     public virtual void Shutdown()
