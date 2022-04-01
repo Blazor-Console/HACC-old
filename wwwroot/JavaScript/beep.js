@@ -8,6 +8,7 @@
 //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
 //callback to use on end of tone
 window.audioContextBeep = (duration, frequency, volume, type, callback) => {
+    //if you have another AudioContext class use that one, as some browsers have a limit
     var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
 
     var oscillator = audioCtx.createOscillator();

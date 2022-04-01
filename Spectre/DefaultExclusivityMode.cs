@@ -26,7 +26,7 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
         }
     }
 
-    public async Task<T> Run<T>(Func<Task<T>> func)
+    public async Task<T> RunAsync<T>(Func<Task<T>> func)
     {
         // Try acquiring the exclusivity semaphore
         if (!await this._semaphore.WaitAsync(millisecondsTimeout: 0).ConfigureAwait(continueOnCapturedContext: false))

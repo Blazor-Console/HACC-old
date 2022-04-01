@@ -17,49 +17,62 @@ public partial class WebConsole : ComponentBase
 {
     private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
+    private int screenWidth = 640;
+    private int screenHeight = 480;
 
     /// <summary>
     /// Null until after render
     /// </summary>
-    private BECanvasComponent _beCanvas;
+    private BECanvasComponent? _beCanvas;
 
     /// <summary>
     /// Null until after render when we initialize it from the beCanvas reference
     /// </summary>
-    private Canvas2DContext _canvas2DContext;
+    private Canvas2DContext? _canvas2DContext;
 
     /// <summary>
     /// Null until after render
     /// </summary>
-    private ElementReference _divCanvas;
+    private ElementReference? _divCanvas;
 
-    public WebConsole()
-    {
-        this.WebConsoleDriver = new WebConsoleDriver(
-            webClipboard: HaccExtensions.WebClipboard,
-            webConsole: this);
-        this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
-        this.WebApplication = new WebApplication(
-            webConsoleDriver: this.WebConsoleDriver,
-            webMainLoopDriver: this.WebMainLoopDriver);
-    }
+    public WebApplication? WebApplication { get; private set; }
 
-    public WebApplication WebApplication { get; }
+    public WebConsoleDriver? WebConsoleDriver { get; private set; }
 
-    public WebConsoleDriver WebConsoleDriver { get; }
-
-    public WebMainLoopDriver WebMainLoopDriver { get; }
+    public WebMainLoopDriver? WebMainLoopDriver { get; private set; }
 
     public bool CanvasInitialized => this._canvas2DContext is { };
 
-    public event Action<InputResult> ReadConsoleInput;
+    [Parameter]
+    public EventCallback OnLoaded { get; set; }
+
+    public event Action<InputResult>? ReadConsoleInput;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Logger.LogDebug(message: "OnAfterRenderAsync");
+        if (firstRender)
+        {
+            this.WebConsoleDriver = new WebConsoleDriver(
+                webClipboard: HaccExtensions.WebClipboard,
+                webConsole: this);
+            this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
+            this.WebApplication = new WebApplication(
+                webConsoleDriver: this.WebConsoleDriver,
+                webMainLoopDriver: this.WebMainLoopDriver);
+
+            Logger.LogDebug(message: "OnAfterRenderAsync");
+            _canvas2DContext = await _beCanvas.CreateCanvas2DAsync();
+            await _canvas2DContext.SetTextBaselineAsync(TextBaseline.Top);
+
+            await JsInterop!.InvokeVoidAsync("initConsole", DotNetObjectReference.Create(this));
+            // this will make sure that the viewport is correctly initialized
+            await JsInterop!.InvokeAsync<object>("consoleWindowResize", DotNetObjectReference.Create(this));
+
+            //await this.OnLoaded.InvokeAsync();
+
+            Logger.LogDebug(message: "OnAfterRenderAsync: end");
+        }
         await base.OnAfterRenderAsync(firstRender);
-        this._canvas2DContext = await this._beCanvas.CreateCanvas2DAsync();
-        Logger.LogDebug(message: "OnAfterRenderAsync: end");
     }
 
     public async Task<object?> DrawBufferToPng()
@@ -68,7 +81,7 @@ public partial class WebConsole : ComponentBase
         {
             return null;
         }
-        return await JsInterop.InvokeAsync<object>(identifier: "window.canvasToPng");
+        return await JsInterop!.InvokeAsync<object>(identifier: "canvasToPng");
     }
 
     private async Task RedrawCanvas()
@@ -81,7 +94,7 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "InitializeNewCanvasFrame");
 
         // TODO: actually clear the canvas
-        await this._canvas2DContext.SetFillStyleAsync(value: "blue");
+        await this._canvas2DContext!.SetFillStyleAsync(value: "blue");
         await this._canvas2DContext.ClearRectAsync(
             x: 0,
             y: 0,
@@ -163,6 +176,7 @@ public partial class WebConsole : ComponentBase
         // ReSharper restore HeapView.ObjectAllocation
     }
 
+    [JSInvokable]
     private async Task OnCanvasClick(MouseEventArgs obj)
     {
         // of relevance: ActiveConsole
@@ -177,21 +191,42 @@ public partial class WebConsole : ComponentBase
         ReadConsoleInput?.Invoke(res);
     }
 
+    [JSInvokable]
     private async Task OnCanvasKeyDown(KeyboardEventArgs obj)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
+    [JSInvokable]
     private async Task OnCanvasKeyUp(KeyboardEventArgs obj)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
+    [JSInvokable]
     private async Task OnCanvasKeyPress(KeyboardEventArgs arg)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
+    }
+
+    [JSInvokable]
+    public async ValueTask OnResize(int screenWidth, int screenHeight)
+    {
+        if (_canvas2DContext == null) return;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        var res = new InputResult()
+        {
+            EventType = Models.Enums.EventType.Resize,
+            ResizeEvent = new ResizeEvent()
+            {
+                Size = new System.Drawing.Size(screenWidth, screenHeight)
+            }
+        };
+        ReadConsoleInput?.Invoke(res);
+        this.WebConsoleDriver!.Refresh();
     }
 }
