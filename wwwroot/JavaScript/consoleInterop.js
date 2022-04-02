@@ -8,10 +8,20 @@
     console.instance.invokeMethodAsync('OnResize', console.canvas.width, console.canvas.height);
 }
 
+function onFocus() {
+    if (!window.console.canvas)
+        return;
+
+    console.instance.invokeMethodAsync('OnFocus');
+}
+
 window.consoleWindowResize = (instance) => {
     onResize();
 };
 
+window.consoleWindowFocus = (instance) => {
+    onFocus();
+}
 window.initConsole = (instance) => {
     var canvasContainer = document.getElementById('_divCanvas'),
         canvases = canvasContainer.getElementsByTagName('canvas') || [];
@@ -45,4 +55,5 @@ window.initConsole = (instance) => {
     }
 
     window.addEventListener("resize", onResize);
+    window.addEventListener("focus", onFocus);
 };

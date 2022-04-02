@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace HACC.Models.Structs;
 
-public struct MouseEvent
+public struct WebMouseEvent
 {
 	public Point Position;
 	public MouseButtonState ButtonState;

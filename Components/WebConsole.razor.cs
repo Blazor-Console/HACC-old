@@ -48,27 +48,34 @@ public partial class WebConsole : ComponentBase
 
     public event Action<InputResult>? ReadConsoleInput;
 
+    protected override Task OnInitializedAsync()
+    {
+        this.WebConsoleDriver = new WebConsoleDriver(
+            webClipboard: HaccExtensions.WebClipboard,
+            webConsole: this);
+        this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
+        this.WebApplication = new WebApplication(
+            webConsoleDriver: this.WebConsoleDriver,
+            webMainLoopDriver: this.WebMainLoopDriver);
+
+        return base.OnInitializedAsync();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            this.WebConsoleDriver = new WebConsoleDriver(
-                webClipboard: HaccExtensions.WebClipboard,
-                webConsole: this);
-            this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
-            this.WebApplication = new WebApplication(
-                webConsoleDriver: this.WebConsoleDriver,
-                webMainLoopDriver: this.WebMainLoopDriver);
-
             Logger.LogDebug(message: "OnAfterRenderAsync");
             _canvas2DContext = await _beCanvas.CreateCanvas2DAsync();
             await _canvas2DContext.SetTextBaselineAsync(TextBaseline.Top);
 
-            await JsInterop!.InvokeVoidAsync("initConsole", DotNetObjectReference.Create(this));
+            var thisObject = DotNetObjectReference.Create(this);
+            await JsInterop!.InvokeVoidAsync("initConsole", thisObject);
             // this will make sure that the viewport is correctly initialized
-            await JsInterop!.InvokeAsync<object>("consoleWindowResize", DotNetObjectReference.Create(this));
+            await JsInterop!.InvokeAsync<object>("consoleWindowResize", thisObject);
+            await JsInterop!.InvokeAsync<object>("consoleWindowFocus", thisObject);
 
-            //await this.OnLoaded.InvokeAsync();
+            await this.OnLoaded.InvokeAsync();
 
             Logger.LogDebug(message: "OnAfterRenderAsync: end");
         }
@@ -98,7 +105,7 @@ public partial class WebConsole : ComponentBase
         await this._canvas2DContext.ClearRectAsync(
             x: 0,
             y: 0,
-            width: this.WebConsoleDriver.WindowWidthPixels,
+            width: this.WebConsoleDriver!.WindowWidthPixels,
             height: this.WebConsoleDriver.WindowHeightPixels);
         await this._canvas2DContext.FillRectAsync(
             x: 0,
@@ -177,13 +184,13 @@ public partial class WebConsole : ComponentBase
     }
 
     [JSInvokable]
-    private async Task OnCanvasClick(MouseEventArgs obj)
+    public async Task OnCanvasClick(MouseEventArgs obj)
     {
         // of relevance: ActiveConsole
         var res = new InputResult()
         {
             EventType = Models.Enums.EventType.Mouse,
-            MouseEvent = new MouseEvent()
+            MouseEvent = new WebMouseEvent()
             {
                 ButtonState = Models.Enums.MouseButtonState.Button1Clicked
             }
@@ -192,21 +199,21 @@ public partial class WebConsole : ComponentBase
     }
 
     [JSInvokable]
-    private async Task OnCanvasKeyDown(KeyboardEventArgs obj)
+    public async Task OnCanvasKeyDown(KeyboardEventArgs obj)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
     [JSInvokable]
-    private async Task OnCanvasKeyUp(KeyboardEventArgs obj)
+    public async Task OnCanvasKeyUp(KeyboardEventArgs obj)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
     }
 
     [JSInvokable]
-    private async Task OnCanvasKeyPress(KeyboardEventArgs arg)
+    public async Task OnCanvasKeyPress(KeyboardEventArgs arg)
     {
         // of relevance: ActiveConsole
         throw new NotImplementedException();
@@ -227,6 +234,20 @@ public partial class WebConsole : ComponentBase
             }
         };
         ReadConsoleInput?.Invoke(res);
-        this.WebConsoleDriver!.Refresh();
+    }
+
+    [JSInvokable]
+    public async ValueTask OnFocus()
+    {
+        if (_canvas2DContext == null) return;
+        //var res = new InputResult()
+        //{
+        //    EventType = Models.Enums.EventType.Resize,
+        //    ResizeEvent = new ResizeEvent()
+        //    {
+        //        Size = new System.Drawing.Size(screenWidth, screenHeight)
+        //    }
+        //};
+        //ReadConsoleInput?.Invoke(res);
     }
 }

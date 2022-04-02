@@ -49,6 +49,8 @@ public partial class WebConsoleDriver
     /// </summary>
     private int[,,] Contents { get; set; }
 
+    internal bool firstRender = true;
+
     // ReSharper disable once UnusedMember.Local
     private void UpdateOffscreen()
     {
@@ -263,11 +265,11 @@ public partial class WebConsoleDriver
 
     public override void UpdateScreen()
     {
-        this.UpdateScreen(firstRender: false);
-    }
+        if (firstRender)
+        {
+            return;
+        }
 
-    public void UpdateScreen(bool firstRender)
-    {
         lock (this.Contents)
         {
             //var top = this.Top;
@@ -300,8 +302,8 @@ public partial class WebConsoleDriver
                 buffer: this.Contents,
                 firstRender: firstRender);
             // ReSharper disable once HeapView.ObjectAllocation.Evident
-            this.NewFrame(sender: this,
-                e: new NewFrameEventArgs(sender: this));
+            //this.NewFrame(sender: this,
+            //    e: new NewFrameEventArgs(sender: this));
             task.RunSynchronously();
         }
     }
@@ -488,7 +490,7 @@ public partial class WebConsoleDriver
         return (Key)0xffffffff;
     }
 
-    private KeyModifiers _keyModifiers;
+    private KeyModifiers? _keyModifiers;
 
     private static Key MapKeyModifiers(ConsoleKeyInfo keyInfo, Key key)
     {
@@ -503,16 +505,18 @@ public partial class WebConsoleDriver
         return keyMod != Key.Null ? keyMod | key : key;
     }
 
-    private Action<KeyEvent> _keyHandler;
-    private Action<KeyEvent> _keyDownHandler;
-    private Action<KeyEvent> _keyUpHandler;
-    private Action<MouseEvent> _mouseHandler;
+    private Action<KeyEvent>? _keyHandler;
+    private Action<KeyEvent>? _keyDownHandler;
+    private Action<KeyEvent>? _keyUpHandler;
+    private Action<MouseEvent>? _mouseHandler;
 
     public override void PrepareToRun(MainLoop mainLoop, Action<KeyEvent> keyHandler, Action<KeyEvent> keyDownHandler,
         Action<KeyEvent> keyUpHandler, Action<MouseEvent> mouseHandler)
     {
         this._keyHandler = keyHandler;
+        this._keyDownHandler = keyDownHandler;
         this._keyUpHandler = keyUpHandler;
+        this._mouseHandler = mouseHandler;
 
         // ReSharper disable once HeapView.DelegateAllocation
         // Note: Net doesn't support keydown/up events and thus any passed keyDown/UpHandlers will never be called
@@ -525,26 +529,51 @@ public partial class WebConsoleDriver
         {
             case EventType.Key:
                 _keyModifiers = new KeyModifiers();
-                var map = MapKey(inputEvent.ConsoleKeyInfo);
+                var map = MapKey(inputEvent.KeyEvent.ConsoleKeyInfo);
                 if (map == (Key)0xffffffff)
                 {
-                    return;
+                    KeyEvent key = new KeyEvent();
+
+                    if (inputEvent.KeyEvent.KeyDown)
+                    {
+                        _keyDownHandler(key);
+                    }
+                    else
+                    {
+                        _keyUpHandler(key);
+                    }
                 }
-                _keyDownHandler(new KeyEvent(map, _keyModifiers));
-                _keyHandler(new KeyEvent(map, _keyModifiers));
-                _keyUpHandler(new KeyEvent(map, _keyModifiers));
+                else
+                {
+                    if (inputEvent.KeyEvent.KeyDown)
+                    {
+                        _keyDownHandler(new KeyEvent(map, _keyModifiers));
+                        _keyHandler(new KeyEvent(map, _keyModifiers));
+                    }
+                    else
+                    {
+                        _keyUpHandler(new KeyEvent(map, _keyModifiers));
+                    }
+                    if (!inputEvent.KeyEvent.KeyDown)
+                    {
+                        _keyModifiers = null;
+                    }
+                }
                 break;
             case EventType.Mouse:
                 _mouseHandler(ToDriverMouse(inputEvent.MouseEvent));
                 break;
             case EventType.Resize:
-                this.TerminalSettings.WindowColumns = inputEvent.ResizeEvent.Size.Width;
-                this.TerminalSettings.WindowRows = inputEvent.ResizeEvent.Size.Height;
+                this.TerminalSettings.WindowColumns = TerminalSettings.BufferColumns = inputEvent.ResizeEvent.Size.Width;
+                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows = inputEvent.ResizeEvent.Size.Height;
+                ResizeScreen();
+                UpdateOffScreen();
+                TerminalResized?.Invoke();
                 break;
         }
     }
 
-    private MouseEvent ToDriverMouse(Structs.MouseEvent me)
+    private MouseEvent ToDriverMouse(WebMouseEvent me)
     {
         MouseFlags mouseFlag = 0;
 
@@ -709,7 +738,7 @@ public partial class WebConsoleDriver
             ck = (ConsoleKey)'\0';
         }
         input.EventType = EventType.Key;
-        input.ConsoleKeyInfo = new ConsoleKeyInfo(keyChar, ck, shift, alt, control);
+        input.KeyEvent.ConsoleKeyInfo = new ConsoleKeyInfo(keyChar, ck, shift, alt, control);
 
         try
         {

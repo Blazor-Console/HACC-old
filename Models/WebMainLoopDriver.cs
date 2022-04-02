@@ -21,13 +21,13 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    private readonly ManualResetEventSlim _keyReady = new ManualResetEventSlim(initialState: false);
+    //private readonly AutoResetEvent _keyReady = new(initialState: false);
+    //private readonly AutoResetEvent _waitForProbe = new(initialState: false);
 
     private readonly WebConsole _webConsole;
 
     Queue<InputResult?> _inputResult = new Queue<InputResult?>();
     private MainLoop _mainLoop;
-    CancellationTokenSource tokenSource = new CancellationTokenSource();
 
     /// <summary>
     ///     Invoked when a Key is pressed, mouse is clicked or on resizing.
@@ -57,7 +57,8 @@ public class WebMainLoopDriver : IMainLoopDriver
     private void _webConsole_ReadConsoleInput(InputResult obj)
     {
         _inputResult.Enqueue(obj);
-        _keyReady.Set();
+        _mainLoop.MainIteration();
+        //_waitForProbe.Set();
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
@@ -65,12 +66,27 @@ public class WebMainLoopDriver : IMainLoopDriver
         this._mainLoop = mainLoop ?? throw new ArgumentException(message: "MainLoop must be provided");
         //var readThread = new Thread(start: this.ConsoleKeyReader);
         //readThread.Start();
-        //Task.Run(action: this.ConsoleKeyReader);
+        //Task.Run(WebInputHandler);
     }
+
+    //private void WebInputHandler()
+    //{
+    //    while (true)
+    //    {
+    //        this._waitForProbe.WaitOne(_inputResult.Count > 0 ? 0 : 10);
+    //        //this._waitForProbe.Reset();
+    //        //this._keyResult = this._consoleKeyReaderFn();
+    //        if (_inputResult.Count > 0)
+    //        {
+    //            this._keyReady.Set();
+    //        }
+    //    }
+    //}
 
     void IMainLoopDriver.Wakeup()
     {
-        _keyReady.Set();
+        //_keyReady.Set();
+        _mainLoop.MainIteration();
     }
 
     bool IMainLoopDriver.EventsPending(bool wait)
@@ -79,31 +95,11 @@ public class WebMainLoopDriver : IMainLoopDriver
         {
             return true;
         }
+        //this._waitForProbe.Set();
+        //_keyReady.WaitOne(millisecondsTimeout: waitTimeout);
+        //_keyReady.Reset();
 
-        try
-        {
-            if (!tokenSource.IsCancellationRequested)
-            {
-                _keyReady.Wait(waitTimeout, tokenSource.Token);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            return true;
-        }
-        finally
-        {
-            _keyReady.Reset();
-        }
-
-        if (!tokenSource.IsCancellationRequested)
-        {
-            return _inputResult.Count > 0 || CheckTimers(wait, out _);
-        }
-
-        tokenSource.Dispose();
-        tokenSource = new CancellationTokenSource();
-        return true;
+        return _inputResult.Count > 0 || CheckTimers(wait, out _);
     }
 
     bool CheckTimers(bool wait, out int waitTimeout)
@@ -137,7 +133,7 @@ public class WebMainLoopDriver : IMainLoopDriver
     {
         while (_inputResult.Count > 0)
         {
-            ProcessInput?.Invoke(obj: _inputResult.Dequeue().Value);
+            ProcessInput?.Invoke(obj: _inputResult.Dequeue()!.Value);
         }
     }
 }

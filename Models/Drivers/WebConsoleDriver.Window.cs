@@ -269,7 +269,7 @@ public partial class WebConsoleDriver
             top: 0);
     }
 
-    public event NewFrameHandler NewFrame;
+    public event NewFrameHandler? NewFrame;
 
     //
     // Parameters:

@@ -27,8 +27,10 @@ public class WebApplication
 
     public virtual void Run()
     {
-        Application.Run();
-        //Application.Begin(toplevel: Application.Top);
+        //Application.Run();
+        Application.Begin(toplevel: Application.Top);
+        WebConsoleDriver.firstRender = false;
+        Task.Run(Application.Refresh);
     }
 
     public virtual void Shutdown()
