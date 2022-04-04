@@ -21,12 +21,8 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
-    //private readonly AutoResetEvent _keyReady = new(initialState: false);
-    //private readonly AutoResetEvent _waitForProbe = new(initialState: false);
-
     private readonly WebConsole _webConsole;
-
-    Queue<InputResult?> _inputResult = new Queue<InputResult?>();
+    private Queue<InputResult> _inputResult = new Queue<InputResult>();
     private MainLoop _mainLoop;
 
     /// <summary>
@@ -38,67 +34,30 @@ public class WebMainLoopDriver : IMainLoopDriver
     /// <summary>
     ///     Creates a new Mainloop.
     /// </summary>
-    /// <param name="driver">
-    ///     Should match the <see cref="ConsoleDriver" /> (one of the implementations UnixMainLoop,
-    ///     NetMainLoop or WindowsMainLoop).
-    /// </param>
-    /// <param name="consoleKeyReaderFn"></param>
-    //public WebMainLoopDriver(Func<ConsoleKeyInfo>? consoleKeyReaderFn = null)
-    //{
-    //    this._consoleKeyReaderFn =
-    //        consoleKeyReaderFn ?? throw new ArgumentNullException(paramName: nameof(consoleKeyReaderFn));
-    //}
+    /// <param name="webConsole"></param>
     public WebMainLoopDriver(WebConsole webConsole)
     {
         this._webConsole = webConsole ?? throw new ArgumentNullException("Console driver instance must be provided.");
-        this._webConsole.ReadConsoleInput += _webConsole_ReadConsoleInput;
-    }
-
-    private void _webConsole_ReadConsoleInput(InputResult obj)
-    {
-        _inputResult.Enqueue(obj);
-        _mainLoop.MainIteration();
-        //_waitForProbe.Set();
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
     {
         this._mainLoop = mainLoop ?? throw new ArgumentException(message: "MainLoop must be provided");
-        //var readThread = new Thread(start: this.ConsoleKeyReader);
-        //readThread.Start();
-        //Task.Run(WebInputHandler);
+        this._webConsole.ReadConsoleInput += WebConsole_ReadConsoleInput;
     }
 
-    //private void WebInputHandler()
-    //{
-    //    while (true)
-    //    {
-    //        this._waitForProbe.WaitOne(_inputResult.Count > 0 ? 0 : 10);
-    //        //this._waitForProbe.Reset();
-    //        //this._keyResult = this._consoleKeyReaderFn();
-    //        if (_inputResult.Count > 0)
-    //        {
-    //            this._keyReady.Set();
-    //        }
-    //    }
-    //}
+    private void WebConsole_ReadConsoleInput(InputResult obj)
+    {
+        _inputResult.Enqueue(obj);
+    }
 
     void IMainLoopDriver.Wakeup()
     {
-        //_keyReady.Set();
-        _mainLoop.MainIteration();
+        _mainLoop.EventsPending(false);
     }
 
     bool IMainLoopDriver.EventsPending(bool wait)
     {
-        if (CheckTimers(wait, out var waitTimeout))
-        {
-            return true;
-        }
-        //this._waitForProbe.Set();
-        //_keyReady.WaitOne(millisecondsTimeout: waitTimeout);
-        //_keyReady.Reset();
-
         return _inputResult.Count > 0 || CheckTimers(wait, out _);
     }
 
@@ -133,7 +92,7 @@ public class WebMainLoopDriver : IMainLoopDriver
     {
         while (_inputResult.Count > 0)
         {
-            ProcessInput?.Invoke(obj: _inputResult.Dequeue()!.Value);
+            ProcessInput?.Invoke(obj: _inputResult.Dequeue());
         }
     }
 }

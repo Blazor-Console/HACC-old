@@ -17,7 +17,8 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
     /// <summary>
     ///     Initializes a web console driver.
     /// </summary>
-    /// <param name="logger">dependency injected logger</param>
+    /// <param name="webClipboard"></param>
+    /// <param name="webConsole"></param>
     public WebConsoleDriver(WebClipboard webClipboard, WebConsole webConsole)
     {
         this.Logger = HaccExtensions.CreateLogger<WebConsoleDriver>();

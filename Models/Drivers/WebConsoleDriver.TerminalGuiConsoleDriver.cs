@@ -298,13 +298,17 @@ public partial class WebConsoleDriver
             //    }
             //}
 
-            var task = this._webConsole.DrawUpdatesToCanvas(
+            Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
                 buffer: this.Contents,
-                firstRender: firstRender);
+                firstRender: firstRender));
+
+            //var task = this._webConsole.DrawUpdatesToCanvas(
+            //    buffer: this.Contents,
+            //    firstRender: firstRender);
             // ReSharper disable once HeapView.ObjectAllocation.Evident
             //this.NewFrame(sender: this,
             //    e: new NewFrameEventArgs(sender: this));
-            task.RunSynchronously();
+            //task.RunSynchronously();
         }
     }
 

@@ -1,4 +1,17 @@
-﻿function onResize() {
+﻿function canvasHasFocus() {
+    if (!window.console.canvas)
+        return false;
+
+    const elem = document.querySelector('canvas');
+
+    if (elem === document.activeElement) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function onResize() {
     if (!window.console.canvas)
         return;
 
@@ -15,6 +28,13 @@ function onFocus() {
     console.instance.invokeMethodAsync('OnFocus');
 }
 
+function onBeforeUnload() {
+    if (!window.console.canvas)
+        return;
+
+    console.instance.invokeMethodAsync('OnBeforeUnload');
+}
+
 window.consoleWindowResize = (instance) => {
     onResize();
 };
@@ -22,6 +42,11 @@ window.consoleWindowResize = (instance) => {
 window.consoleWindowFocus = (instance) => {
     onFocus();
 }
+
+window.consoleWindowBeforeUnload = (instance) => {
+    onBeforeUnload();
+}
+
 window.initConsole = (instance) => {
     var canvasContainer = document.getElementById('_divCanvas'),
         canvases = canvasContainer.getElementsByTagName('canvas') || [];
@@ -31,23 +56,35 @@ window.initConsole = (instance) => {
     };
 
     if (window.console.canvas) {
-        window.console.canvas.onmousemove = (e) => {
-            console.instance.invokeMethodAsync('OnCanvasClick', e);
-        };
+        //window.console.canvas.onmousemove = (e) => {
+        //    if (!canvasHasFocus)
+        //        return;
+        //    console.instance.invokeMethodAsync('OnCanvasClick', e);
+        //};
         window.console.canvas.onmousedown = (e) => {
+            if (!canvasHasFocus)
+                return;
             console.instance.invokeMethodAsync('OnCanvasClick', e);
         };
         window.console.canvas.onmouseup = (e) => {
+            if (!canvasHasFocus)
+                return;
             console.instance.invokeMethodAsync('OnCanvasClick', e);
         };
 
         window.console.canvas.onkeydown = (e) => {
+            if (!canvasHasFocus)
+                return;
             console.instance.invokeMethodAsync('OnCanvasKeyDown', e);
         };
         window.console.canvas.onkeyup = (e) => {
+            if (!canvasHasFocus)
+                return;
             console.instance.invokeMethodAsync('OnCanvasKeyUp', e);
         };
         window.console.canvas.onblur = (e) => {
+            if (!canvasHasFocus)
+                return;
             window.console.canvas.focus();
         };
         window.console.canvas.tabIndex = 0;
@@ -56,4 +93,5 @@ window.initConsole = (instance) => {
 
     window.addEventListener("resize", onResize);
     window.addEventListener("focus", onFocus);
+    window.addEventListener("beforeunload", onBeforeUnload);
 };

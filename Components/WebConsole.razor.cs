@@ -43,10 +43,13 @@ public partial class WebConsole : ComponentBase
 
     public bool CanvasInitialized => this._canvas2DContext is { };
 
+    private Queue<InputResult> _inputResultQueue = new Queue<InputResult>();
+
     [Parameter]
     public EventCallback OnLoaded { get; set; }
 
-    public event Action<InputResult>? ReadConsoleInput;
+    public event Action<InputResult> ReadConsoleInput;
+    public event Action RunIterationNeeded;
 
     protected override Task OnInitializedAsync()
     {
@@ -56,7 +59,8 @@ public partial class WebConsole : ComponentBase
         this.WebMainLoopDriver = new WebMainLoopDriver(webConsole: this);
         this.WebApplication = new WebApplication(
             webConsoleDriver: this.WebConsoleDriver,
-            webMainLoopDriver: this.WebMainLoopDriver);
+            webMainLoopDriver: this.WebMainLoopDriver,
+            webConsole: this);
 
         return base.OnInitializedAsync();
     }
@@ -74,6 +78,7 @@ public partial class WebConsole : ComponentBase
             // this will make sure that the viewport is correctly initialized
             await JsInterop!.InvokeAsync<object>("consoleWindowResize", thisObject);
             await JsInterop!.InvokeAsync<object>("consoleWindowFocus", thisObject);
+            await JsInterop!.InvokeAsync<object>("consoleWindowBeforeUnload", thisObject);
 
             await this.OnLoaded.InvokeAsync();
 
@@ -137,6 +142,7 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "DrawBufferToFrame");
         if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
             await this.RedrawCanvas();
+        await this._canvas2DContext!.SetStrokeStyleAsync(value: "blue");
         await this._canvas2DContext!.SetFontAsync(value: "8px serif");
         // TODO: example text, actually implement
         await this._canvas2DContext.StrokeTextAsync(text: "drawing changes from dirty lines....",
@@ -183,11 +189,17 @@ public partial class WebConsole : ComponentBase
         // ReSharper restore HeapView.ObjectAllocation
     }
 
+    private void OnReadConsoleInput(InputResult inputResult)
+    {
+        ReadConsoleInput?.Invoke(inputResult);
+        RunIterationNeeded?.Invoke();
+    }
+
     [JSInvokable]
     public async Task OnCanvasClick(MouseEventArgs obj)
     {
         // of relevance: ActiveConsole
-        var res = new InputResult()
+        var inputResult = new InputResult()
         {
             EventType = Models.Enums.EventType.Mouse,
             MouseEvent = new WebMouseEvent()
@@ -195,7 +207,7 @@ public partial class WebConsole : ComponentBase
                 ButtonState = Models.Enums.MouseButtonState.Button1Clicked
             }
         };
-        ReadConsoleInput?.Invoke(res);
+        OnReadConsoleInput(inputResult);
     }
 
     [JSInvokable]
@@ -225,7 +237,7 @@ public partial class WebConsole : ComponentBase
         if (_canvas2DContext == null) return;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-        var res = new InputResult()
+        var inputResult = new InputResult()
         {
             EventType = Models.Enums.EventType.Resize,
             ResizeEvent = new ResizeEvent()
@@ -233,21 +245,18 @@ public partial class WebConsole : ComponentBase
                 Size = new System.Drawing.Size(screenWidth, screenHeight)
             }
         };
-        ReadConsoleInput?.Invoke(res);
+        OnReadConsoleInput(inputResult);
     }
 
     [JSInvokable]
     public async ValueTask OnFocus()
     {
         if (_canvas2DContext == null) return;
-        //var res = new InputResult()
-        //{
-        //    EventType = Models.Enums.EventType.Resize,
-        //    ResizeEvent = new ResizeEvent()
-        //    {
-        //        Size = new System.Drawing.Size(screenWidth, screenHeight)
-        //    }
-        //};
-        //ReadConsoleInput?.Invoke(res);
+    }
+
+    [JSInvokable]
+    public async ValueTask OnBeforeUnload()
+    {
+        if (_canvas2DContext == null) return;
     }
 }
