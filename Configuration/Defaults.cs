@@ -14,7 +14,7 @@ public static class Defaults
     public const int InitialBufferRows = 25;
     public const int InitialBufferColumns = 80;
     public const int InitialColumns = 80;
-    public const int InitialRows = 24;
+    public const int InitialRows = 25;
     public const int CursorSize = 100;
     public const int CursorHeight = 100;
     public const bool CursorVisibility = true;
@@ -27,6 +27,6 @@ public static class Defaults
     public const float BeepDurationMsec = 50.0f;
     public const float BeepVolume = 1.0f;
     public const BeepType BeepType = Enumerations.BeepType.Sine;
-    public const int FontSize = 10;
-    public const string FontType = "Serif";
+    public const int FontSize = 16;
+    public const string FontType = "serif";
 }

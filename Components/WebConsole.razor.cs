@@ -71,7 +71,6 @@ public partial class WebConsole : ComponentBase
         {
             Logger.LogDebug(message: "OnAfterRenderAsync");
             _canvas2DContext = await _beCanvas.CreateCanvas2DAsync();
-            await _canvas2DContext.SetTextBaselineAsync(TextBaseline.Top);
 
             var thisObject = DotNetObjectReference.Create(this);
             await JsInterop!.InvokeVoidAsync("initConsole", thisObject);
@@ -142,16 +141,17 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "DrawBufferToFrame");
         //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
         //    await this.RedrawCanvas();
+        await this._canvas2DContext!.SetFontAsync(
+            value: $"{WebConsoleDriver!.TerminalSettings.FontSize}px " +
+            $"{WebConsoleDriver!.TerminalSettings.FontType}");
+        await _canvas2DContext.SetTextBaselineAsync(TextBaseline.Top);
         await this._canvas2DContext!.SetFillStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalBackground}");
-        await this._canvas2DContext.ClearRectAsync(
+        await _canvas2DContext.FillRectAsync(
             x: x,
             y: y,
-            width: output.Length,
-            height: this.WebConsoleDriver.WindowHeightPixels);
+            width: output.Length * this.WebConsoleDriver!.TerminalSettings.FontSize,
+            height: this.WebConsoleDriver!.TerminalSettings.FontSize);
         await this._canvas2DContext!.SetStrokeStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalForeground}");
-        await this._canvas2DContext!.SetFontAsync(
-            value: $"{WebConsoleDriver!.TerminalSettings.FontSize}px" +
-            $"{WebConsoleDriver!.TerminalSettings.FontType}");
         // TODO: example text, actually implement
         await this._canvas2DContext.StrokeTextAsync(text: output,
             x: x,

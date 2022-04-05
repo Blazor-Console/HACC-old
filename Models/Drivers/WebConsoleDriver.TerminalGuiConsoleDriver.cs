@@ -53,7 +53,6 @@ public partial class WebConsoleDriver
 
     private static readonly bool sync = false;
 
-
     private bool _needMove;
 
     public override void Move(int col, int row)
@@ -276,10 +275,12 @@ public partial class WebConsoleDriver
                         if (color != this._redrawColor)
                         {
                             if (output.Length > 0)
-                                Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
+                            {
+                                _ = this._webConsole!.DrawUpdatesToCanvas(
                                     output: output.ToString(),
-                                    x: col,
-                                    y: row));
+                                    x: startCol,
+                                    y: row * TerminalSettings.FontSize);
+                            }
                             startCol = col;
                             output = new System.Text.StringBuilder();
                             this.SetColor(color: color);
@@ -289,10 +290,12 @@ public partial class WebConsoleDriver
                         col,
                         2] = 0;
                         if (col == cols - 1)
-                            Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
+                        {
+                            _ = this._webConsole.DrawUpdatesToCanvas(
                                 output: output.ToString(),
-                                x: col,
-                                y: row));
+                                x: startCol * TerminalSettings.FontSize,
+                                y: row * TerminalSettings.FontSize);
+                        }
                     }
                 }
             }
@@ -312,50 +315,49 @@ public partial class WebConsoleDriver
     public override void Refresh()
     {
         UpdateScreen();
-        return;
 
-        var rows = this.Rows;
-        var cols = this.Cols;
+        //var rows = this.Rows;
+        //var cols = this.Cols;
 
-        var savedRow = this.CursorTop;
-        var savedCol = this.CursorLeft;
-        for (var row = 0; row < rows; row++)
-        {
-            if (!this._dirtyLine[row])
-                continue;
-            this._dirtyLine[row] = false;
-            for (var col = 0; col < cols; col++)
-            {
-                if (this.Contents[row,
-                        col,
-                        2] != 1)
-                    continue;
+        //var savedRow = this.CursorTop;
+        //var savedCol = this.CursorLeft;
+        //for (var row = 0; row < rows; row++)
+        //{
+        //    if (!this._dirtyLine[row])
+        //        continue;
+        //    this._dirtyLine[row] = false;
+        //    for (var col = 0; col < cols; col++)
+        //    {
+        //        if (this.Contents[row,
+        //                col,
+        //                2] != 1)
+        //            continue;
 
-                this.CursorTop = row;
-                this.CursorLeft = col;
-                for (;
-                     col < cols && this.Contents[row,
-                         col,
-                         2] == 1;
-                     col++)
-                {
-                    var color = this.Contents[row,
-                        col,
-                        1];
-                    if (color != this._redrawColor) this.SetColor(color: color);
+        //        this.CursorTop = row;
+        //        this.CursorLeft = col;
+        //        for (;
+        //             col < cols && this.Contents[row,
+        //                 col,
+        //                 2] == 1;
+        //             col++)
+        //        {
+        //            var color = this.Contents[row,
+        //                col,
+        //                1];
+        //            if (color != this._redrawColor) this.SetColor(color: color);
 
-                    this.Write(value: (char)this.Contents[row,
-                        col,
-                        0]);
-                    this.Contents[row,
-                        col,
-                        2] = 0;
-                }
-            }
-        }
+        //            this.Write(value: (char)this.Contents[row,
+        //                col,
+        //                0]);
+        //            this.Contents[row,
+        //                col,
+        //                2] = 0;
+        //        }
+        //    }
+        //}
 
-        this.CursorTop = savedRow;
-        this.CursorLeft = savedCol;
+        //this.CursorTop = savedRow;
+        //this.CursorLeft = savedCol;
     }
 
     private Attribute _currentAttribute;
