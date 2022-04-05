@@ -51,33 +51,6 @@ public partial class WebConsoleDriver
 
     internal bool firstRender = true;
 
-    // ReSharper disable once UnusedMember.Local
-    private void UpdateOffscreen()
-    {
-        var cols = this.Cols;
-        var rows = this.Rows;
-
-        // ReSharper disable once HeapView.ObjectAllocation.Evident
-        this.Contents = new int[rows, cols, 3];
-        for (var r = 0; r < rows; r++)
-            for (var c = 0; c < cols; c++)
-            {
-                this.Contents[r,
-                    c,
-                    0] = ' ';
-                this.Contents[r,
-                    c,
-                    1] = MakeColor(f: ConsoleColor.Gray,
-                    b: ConsoleColor.Black);
-                this.Contents[r,
-                    c,
-                    2] = 0;
-            }
-
-        this._dirtyLine = new bool[rows];
-        for (var row = 0; row < rows; row++) this._dirtyLine[row] = true;
-    }
-
     private static readonly bool sync = false;
 
 
@@ -272,35 +245,59 @@ public partial class WebConsoleDriver
 
         lock (this.Contents)
         {
-            //var top = this.Top;
-            //var left = this.Left;
-            //var rows = Math.Min(val1: this.WindowRows + top,
-            //    val2: this.Rows);
-            //var cols = this.Cols;
+            var top = this.Top;
+            var left = this.Left;
+            var rows = Math.Min(val1: this.WindowRows + top,
+                val2: this.Rows);
+            var cols = this.Cols;
 
-            //this.CursorTop = 0;
-            //this.CursorLeft = 0;
-            //for (var row = top; row < rows; row++)
-            //{
-            //    this._dirtyLine[row] = false;
-            //    for (var col = left; col < cols; col++)
-            //    {
-            //        this.Contents[row,
-            //            col,
-            //            2] = 0;
-            //        var color = this.Contents[row,
-            //            col,
-            //            1];
-            //        if (color != this._redrawColor) this.SetColor(color: color);
-            //        this.Write(value: (char) this.Contents[row,
-            //            col,
-            //            0]);
-            //    }
-            //}
+            this.CursorTop = 0;
+            this.CursorLeft = 0;
+            for (var row = top; row < rows; row++)
+            {
+                if (!_dirtyLine[row])
+                {
+                    continue;
+                }
+                this._dirtyLine[row] = false;
+                System.Text.StringBuilder output = new System.Text.StringBuilder();
+                for (var col = left; col < cols; col++)
+                {
+                    if (Contents[row, col, 2] != 1)
+                    {
+                        continue;
+                    }
+                    var startCol = 0;
+                    for (; col < cols; col++)
+                    {
+                        var color = this.Contents[row,
+                            col,
+                            1];
+                        if (color != this._redrawColor)
+                        {
+                            if (output.Length > 0)
+                                Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
+                                    output: output.ToString(),
+                                    x: col,
+                                    y: row));
+                            startCol = col;
+                            output = new System.Text.StringBuilder();
+                            this.SetColor(color: color);
+                        }
+                        output.Append((char)Contents[row, col, 0]);
+                        this.Contents[row,
+                        col,
+                        2] = 0;
+                        if (col == cols - 1)
+                            Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
+                                output: output.ToString(),
+                                x: col,
+                                y: row));
+                    }
+                }
+            }
 
-            Task.Run(() => this._webConsole.DrawUpdatesToCanvas(
-                buffer: this.Contents,
-                firstRender: firstRender));
+
 
             //var task = this._webConsole.DrawUpdatesToCanvas(
             //    buffer: this.Contents,
@@ -568,11 +565,11 @@ public partial class WebConsoleDriver
                 _mouseHandler(ToDriverMouse(inputEvent.MouseEvent));
                 break;
             case EventType.Resize:
-                this.TerminalSettings.WindowColumns = TerminalSettings.BufferColumns = inputEvent.ResizeEvent.Size.Width;
-                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows = inputEvent.ResizeEvent.Size.Height;
-                ResizeScreen();
-                UpdateOffScreen();
-                TerminalResized?.Invoke();
+                this.TerminalSettings.WindowColumns = TerminalSettings.BufferColumns =
+                    inputEvent.ResizeEvent.Size.Width / TerminalSettings.FontSize;
+                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows = 
+                    inputEvent.ResizeEvent.Size.Height / TerminalSettings.FontSize;
+                ProcessResize();
                 break;
         }
     }

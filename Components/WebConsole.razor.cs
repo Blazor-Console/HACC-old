@@ -133,21 +133,29 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
-    public async Task DrawUpdatesToCanvas(int[,,] buffer, bool? firstRender = null)
+    public async Task DrawUpdatesToCanvas(string output, double x, double y)
     {
         if (!this.CanvasInitialized)
         {
             return;
         }
         Logger.LogDebug(message: "DrawBufferToFrame");
-        if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
-            await this.RedrawCanvas();
-        await this._canvas2DContext!.SetStrokeStyleAsync(value: "blue");
-        await this._canvas2DContext!.SetFontAsync(value: "8px serif");
+        //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
+        //    await this.RedrawCanvas();
+        await this._canvas2DContext!.SetFillStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalBackground}");
+        await this._canvas2DContext.ClearRectAsync(
+            x: x,
+            y: y,
+            width: output.Length,
+            height: this.WebConsoleDriver.WindowHeightPixels);
+        await this._canvas2DContext!.SetStrokeStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalForeground}");
+        await this._canvas2DContext!.SetFontAsync(
+            value: $"{WebConsoleDriver!.TerminalSettings.FontSize}px" +
+            $"{WebConsoleDriver!.TerminalSettings.FontType}");
         // TODO: example text, actually implement
-        await this._canvas2DContext.StrokeTextAsync(text: "drawing changes from dirty lines....",
-            x: 10,
-            y: 100);
+        await this._canvas2DContext.StrokeTextAsync(text: output,
+            x: x,
+            y: y);
         Logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 

@@ -27,4 +27,6 @@ public static class Defaults
     public const float BeepDurationMsec = 50.0f;
     public const float BeepVolume = 1.0f;
     public const BeepType BeepType = Enumerations.BeepType.Sine;
+    public const int FontSize = 10;
+    public const string FontType = "Serif";
 }

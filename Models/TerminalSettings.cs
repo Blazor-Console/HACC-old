@@ -90,7 +90,15 @@ public record TerminalSettings
     /// </summary>
     public int WindowWidthPixels;
 
-    // TODO: Font size/etc
+    /// <summary>
+    ///     Terminal font size
+    /// </summary>
+    public int FontSize;
+
+    /// <summary>
+    ///     Terminal font type
+    /// </summary>
+    public string FontType;
 
     public TerminalSettings(
         string title = "",
@@ -108,7 +116,9 @@ public record TerminalSettings
         int cursorHeight = Defaults.CursorHeight,
         int cursorSize = Defaults.CursorSize,
         ConsoleColor terminalBackground = Defaults.BackgroundColor,
-        ConsoleColor terminalForeground = Defaults.ForegroundColor)
+        ConsoleColor terminalForeground = Defaults.ForegroundColor,
+        int fontSize = Defaults.FontSize,
+        string fontType = Defaults.FontType)
     {
         this.Title = title;
         this.WindowWidthPixels = windowWidthPixels;
@@ -128,6 +138,8 @@ public record TerminalSettings
         this.CursorSize = cursorSize;
         this.TerminalBackground = terminalBackground;
         this.TerminalForeground = terminalForeground;
+        this.FontSize = fontSize;
+        this.FontType = fontType;
     }
 
     public void SetCursorPosition(int x, int y)
