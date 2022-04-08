@@ -4,5 +4,5 @@ namespace HACC.Models.Structs;
 
 public struct ResizeEvent
 {
-	public Size Size;
+    public Size Size;
 }

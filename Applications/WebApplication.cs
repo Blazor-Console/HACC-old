@@ -7,13 +7,13 @@ namespace HACC.Applications;
 
 public class WebApplication
 {
-    private Application.RunState state;
-    private bool wait = true;
-    private bool _initialized;
+    public readonly WebConsole WebConsole;
 
     public readonly WebConsoleDriver WebConsoleDriver;
     public readonly WebMainLoopDriver WebMainLoopDriver;
-    public readonly WebConsole WebConsole;
+    private bool _initialized;
+    private Application.RunState state;
+    private readonly bool wait = true;
 
     public WebApplication(WebConsoleDriver webConsoleDriver,
         WebMainLoopDriver webMainLoopDriver, WebConsole webConsole)
@@ -23,44 +23,48 @@ public class WebApplication
         // Maybe from the Canvas2DContext StdIn
         this.WebMainLoopDriver = webMainLoopDriver;
         this.WebConsole = webConsole;
-        this.WebConsole.RunIterationNeeded += WebConsole_RunIterationNeeded;
+        this.WebConsole.RunIterationNeeded += this.WebConsole_RunIterationNeeded;
     }
 
     private void WebConsole_RunIterationNeeded()
     {
-        Application.RunIteration(state, wait, false);
+        Application.RunIteration(state: this.state,
+            wait: this.wait,
+            firstIteration: false);
     }
 
     public virtual void Init()
     {
-        if (_initialized) return;
+        if (this._initialized) return;
 
         Application.Init(
             driver: this.WebConsoleDriver,
             mainLoopDriver: this.WebMainLoopDriver);
-        _initialized = true;
+        this._initialized = true;
     }
 
     public virtual void Run(Func<Exception, bool> errorHandler = null)
     {
-        Run(Application.Top, errorHandler);
+        this.Run(view: Application.Top,
+            errorHandler: errorHandler);
     }
 
-    public virtual void Run<T>(Func<Exception, bool> errorHandler = null) where T : Toplevel, new()
+    public virtual void Run<T>(Func<Exception, bool> errorHandler = null)
+        where T : Toplevel, new()
     {
-        if (_initialized && Application.Driver != null)
+        if (this._initialized && Application.Driver != null)
         {
             var top = new T();
             if (top.GetType().BaseType != typeof(Toplevel))
-            {
-                throw new ArgumentException(top.GetType().BaseType.Name);
-            }
-            Run(top, errorHandler);
+                throw new ArgumentException(message: top.GetType().BaseType.Name);
+            this.Run(view: top,
+                errorHandler: errorHandler);
         }
         else
         {
-            Init();
-            Run(Application.Top, errorHandler);
+            this.Init();
+            this.Run(view: Application.Top,
+                errorHandler: errorHandler);
         }
     }
 
@@ -68,36 +72,33 @@ public class WebApplication
     {
         try
         {
-            if (!_initialized)
-                Init();
+            if (!this._initialized) this.Init();
 
-            _ = Task.Run(() => state = Application.Begin(toplevel: view ?? Application.Top));
-            _ = Task.Run(() => WebConsoleDriver.firstRender = false);
-            _ = Task.Run(Application.Refresh);
-            _ = Task.Run(() => Application.RunIteration(state, wait, true));
+            _ = Task.Run(function: () => this.state = Application.Begin(toplevel: view ?? Application.Top));
+            _ = Task.Run(function: () => this.WebConsoleDriver.firstRender = false);
+            _ = Task.Run(action: Application.Refresh);
+            _ = Task.Run(action: () => Application.RunIteration(state: this.state,
+                wait: this.wait,
+                firstIteration: true));
         }
         catch (Exception error)
         {
-            if (errorHandler == null)
-            {
-                throw;
-            }
-            if (!errorHandler(error))
-                Shutdown();
+            if (errorHandler == null) throw;
+            if (!errorHandler(arg: error)) this.Shutdown();
         }
     }
 
     public virtual void End(Application.RunState runState = null)
     {
-        if (!_initialized) return;
+        if (!this._initialized) return;
 
-        if (runState != null || state != null)
-            Application.End(runState ?? state);
+        if (runState != null || this.state != null)
+            Application.End(runState: runState ?? this.state);
     }
 
     public virtual void Shutdown()
     {
         Application.Shutdown();
-        _initialized = false;
+        this._initialized = false;
     }
 }

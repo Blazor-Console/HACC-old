@@ -1,3 +1,5 @@
+using HACC.Enumerations;
+using HACC.Extensions;
 using HACC.Models.Enums;
 using HACC.Models.EventArgs;
 using HACC.Models.Structs;
@@ -54,14 +56,14 @@ public partial class WebConsoleDriver
     private static readonly bool sync = false;
 
     // Current row, and current col, tracked by Move/AddRune only
-    int ccol, crow;
+    private int ccol, crow;
 
     //private bool _needMove;
 
     public override void Move(int col, int row)
     {
-        ccol = col;
-        crow = row;
+        this.ccol = col;
+        this.crow = row;
 
         //this.TerminalSettings.SetCursorPosition(x: col,
         //    y: row);
@@ -121,54 +123,47 @@ public partial class WebConsoleDriver
 
     public override void AddRune(Rune rune)
     {
-        if (Contents.Length != Rows * Cols * 3)
-        {
-            return;
-        }
+        if (this.Contents.Length != this.Rows * this.Cols * 3) return;
         rune = MakePrintable(c: rune);
-        var runeWidth = Rune.ColumnWidth(rune);
-        if (this.Clip.Contains(x: ccol,
-                y: crow)
-             && ccol + Math.Max(runeWidth, 1) <= Cols)
+        var runeWidth = Rune.ColumnWidth(rune: rune);
+        if (this.Clip.Contains(x: this.ccol,
+                y: this.crow)
+            && this.ccol + Math.Max(val1: runeWidth,
+                val2: 1) <= this.Cols)
         {
-            this.Contents[crow,
-                ccol,
-                0] = (int)(uint)rune;
-            this.Contents[crow,
-                ccol,
-                1] = this._currentAttribute;
-            this.Contents[crow,
-                ccol,
-                2] = 1;
-            this._dirtyLine[crow] = true;
+            this.Contents[this.crow,
+                this.ccol,
+                (int) RuneDataType.Rune] = (int) (uint) rune;
+            this.Contents[this.crow,
+                this.ccol,
+                (int) RuneDataType.Attribute] = this._currentAttribute;
+            this.Contents[this.crow,
+                this.ccol,
+                (int) RuneDataType.DirtyFlag] = 1;
+            this._dirtyLine[this.crow] = true;
         }
-        else if (ccol > -1 && crow > -1
-            && ccol < Cols && crow < Rows)
+        else if (this.ccol > -1 && this.crow > -1
+                                && this.ccol < this.Cols && this.crow < this.Rows)
         {
-            Contents[crow,
-                ccol,
-                2] = 1;
-            this._dirtyLine[crow] = true;
+            this.Contents[this.crow,
+                this.ccol,
+                (int) RuneDataType.DirtyFlag] = 1;
+            this._dirtyLine[this.crow] = true;
         }
 
-        ccol++;
+        this.ccol++;
         if (runeWidth > 1)
-        {
-            for (int i = 1; i < runeWidth; i++)
+            for (var i = 1; i < runeWidth; i++)
             {
-                if (ccol < Cols)
-                {
-                    Contents[crow,
-                        ccol,
-                        2] = 0;
-                }
+                if (this.ccol < this.Cols)
+                    this.Contents[this.crow,
+                        this.ccol,
+                        (int) RuneDataType.DirtyFlag] = 0;
                 else
-                {
                     break;
-                }
-                ccol++;
+                this.ccol++;
             }
-        }
+
         //if (ccol == Cols) {
         //	ccol = 0;
         //	if (crow + 1 < WindowRows)
@@ -186,16 +181,6 @@ public partial class WebConsoleDriver
     {
         this.ResetColor();
         this.Clear();
-    }
-
-    private static Attribute MakeColor(ConsoleColor f, ConsoleColor b)
-    {
-        // Encode the colors into the int value.
-        return new Attribute(
-            value: (((int)f & 0xffff) << 16) | ((int)b & 0xffff),
-            foreground: (Color)f,
-            background: (Color)b
-        );
     }
 
     public override void Init(Action terminalResized)
@@ -216,169 +201,218 @@ public partial class WebConsoleDriver
             width: this.Cols,
             height: this.Rows);
 
-        Colors.TopLevel.Normal = MakeColor(f: ConsoleColor.Green,
-            b: ConsoleColor.Black);
-        Colors.TopLevel.Focus = MakeColor(f: ConsoleColor.White,
-            b: ConsoleColor.DarkCyan);
-        Colors.TopLevel.HotNormal = MakeColor(f: ConsoleColor.DarkYellow,
-            b: ConsoleColor.Black);
-        Colors.TopLevel.HotFocus = MakeColor(f: ConsoleColor.DarkBlue,
-            b: ConsoleColor.DarkCyan);
-        Colors.TopLevel.Disabled = MakeColor(f: ConsoleColor.DarkGray,
-            b: ConsoleColor.Black);
+        Colors.TopLevel.Normal = ColorExtensions.MakeAttribute(
+            foreground: ConsoleColor.Green,
+            background: ConsoleColor.Black);
+        Colors.TopLevel.Focus = this.MakeAttribute(
+            foreground: ConsoleColor.White,
+            background: ConsoleColor.DarkCyan);
+        Colors.TopLevel.HotNormal = this.MakeAttribute(
+            foreground: ConsoleColor.DarkYellow,
+            background: ConsoleColor.Black);
+        Colors.TopLevel.HotFocus = this.MakeAttribute(
+            foreground: ConsoleColor.DarkBlue,
+            background: ConsoleColor.DarkCyan);
+        Colors.TopLevel.Disabled = this.MakeAttribute(
+            foreground: ConsoleColor.DarkGray,
+            background: ConsoleColor.Black);
 
-        Colors.Base.Normal = MakeColor(f: ConsoleColor.White,
-            b: ConsoleColor.Blue);
-        Colors.Base.Focus = MakeColor(f: ConsoleColor.Black,
-            b: ConsoleColor.Cyan);
-        Colors.Base.HotNormal = MakeColor(f: ConsoleColor.Yellow,
-            b: ConsoleColor.Blue);
-        Colors.Base.HotFocus = MakeColor(f: ConsoleColor.Yellow,
-            b: ConsoleColor.Cyan);
-        Colors.Base.Disabled = MakeColor(f: ConsoleColor.DarkGray,
-            b: ConsoleColor.DarkBlue);
+        Colors.Base.Normal = this.MakeAttribute(
+            foreground: ConsoleColor.White,
+            background: ConsoleColor.Blue);
+        Colors.Base.Focus = this.MakeAttribute(
+            foreground: ConsoleColor.Black,
+            background: ConsoleColor.Cyan);
+        Colors.Base.HotNormal = this.MakeAttribute(
+            foreground: ConsoleColor.Yellow,
+            background: ConsoleColor.Blue);
+        Colors.Base.HotFocus = this.MakeAttribute(
+            foreground: ConsoleColor.Yellow,
+            background: ConsoleColor.Cyan);
+        Colors.Base.Disabled = this.MakeAttribute(
+            foreground: ConsoleColor.DarkGray,
+            background: ConsoleColor.DarkBlue);
 
         // Focused,
         //    Selected, Hot: Yellow on Black
         //    Selected, text: white on black
         //    Unselected, hot: yellow on cyan
         //    unselected, text: same as unfocused
-        Colors.Menu.HotFocus = MakeColor(f: ConsoleColor.Yellow,
-            b: ConsoleColor.Black);
-        Colors.Menu.Focus = MakeColor(f: ConsoleColor.White,
-            b: ConsoleColor.Black);
-        Colors.Menu.HotNormal = MakeColor(f: ConsoleColor.Yellow,
-            b: ConsoleColor.Cyan);
-        Colors.Menu.Normal = MakeColor(f: ConsoleColor.White,
-            b: ConsoleColor.Cyan);
-        Colors.Menu.Disabled = MakeColor(f: ConsoleColor.DarkGray,
-            b: ConsoleColor.Cyan);
+        Colors.Menu.HotFocus = this.MakeAttribute(
+            foreground: ConsoleColor.Yellow,
+            background: ConsoleColor.Black);
+        Colors.Menu.Focus = this.MakeAttribute(
+            foreground: ConsoleColor.White,
+            background: ConsoleColor.Black);
+        Colors.Menu.HotNormal = this.MakeAttribute(
+            foreground: ConsoleColor.Yellow,
+            background: ConsoleColor.Cyan);
+        Colors.Menu.Normal = this.MakeAttribute(
+            foreground: ConsoleColor.White,
+            background: ConsoleColor.Cyan);
+        Colors.Menu.Disabled = this.MakeAttribute(
+            foreground: ConsoleColor.DarkGray,
+            background: ConsoleColor.Cyan);
 
-        Colors.Dialog.Normal = MakeColor(f: ConsoleColor.Black,
-            b: ConsoleColor.Gray);
-        Colors.Dialog.Focus = MakeColor(f: ConsoleColor.Black,
-            b: ConsoleColor.Cyan);
-        Colors.Dialog.HotNormal = MakeColor(f: ConsoleColor.Blue,
-            b: ConsoleColor.Gray);
-        Colors.Dialog.HotFocus = MakeColor(f: ConsoleColor.Blue,
-            b: ConsoleColor.Cyan);
-        Colors.Dialog.Disabled = MakeColor(f: ConsoleColor.DarkGray,
-            b: ConsoleColor.Gray);
+        Colors.Dialog.Normal = this.MakeAttribute(
+            foreground: ConsoleColor.Black,
+            background: ConsoleColor.Gray);
+        Colors.Dialog.Focus = this.MakeAttribute(
+            foreground: ConsoleColor.Black,
+            background: ConsoleColor.Cyan);
+        Colors.Dialog.HotNormal = this.MakeAttribute(
+            foreground: ConsoleColor.Blue,
+            background: ConsoleColor.Gray);
+        Colors.Dialog.HotFocus = this.MakeAttribute(
+            foreground: ConsoleColor.Blue,
+            background: ConsoleColor.Cyan);
+        Colors.Dialog.Disabled = this.MakeAttribute(
+            foreground: ConsoleColor.DarkGray,
+            background: ConsoleColor.Gray);
 
-        Colors.Error.Normal = MakeColor(f: ConsoleColor.White,
-            b: ConsoleColor.Red);
-        Colors.Error.Focus = MakeColor(f: ConsoleColor.Black,
-            b: ConsoleColor.Gray);
-        Colors.Error.HotNormal = MakeColor(f: ConsoleColor.Yellow,
-            b: ConsoleColor.Red);
+        Colors.Error.Normal = this.MakeAttribute(
+            foreground: ConsoleColor.White,
+            background: ConsoleColor.Red);
+        Colors.Error.Focus = this.MakeAttribute(
+            foreground: ConsoleColor.Black,
+            background: ConsoleColor.Gray);
+        Colors.Error.HotNormal = this.MakeAttribute(
+            foreground: ConsoleColor.Yellow,
+            background: ConsoleColor.Red);
         Colors.Error.HotFocus = Colors.Error.HotNormal;
-        Colors.Error.Disabled = MakeColor(f: ConsoleColor.DarkGray,
-            b: ConsoleColor.White);
+        Colors.Error.Disabled = this.MakeAttribute(
+            foreground: ConsoleColor.DarkGray,
+            background: ConsoleColor.White);
 
         //MockConsole.Clear ();
     }
 
-    public override Attribute MakeAttribute(Color fore, Color back)
+    public override Attribute MakeAttribute(Color foreground, Color background)
     {
-        return MakeColor(f: (ConsoleColor)fore,
-            b: (ConsoleColor)back);
+        return ColorExtensions.MakeAttribute(
+            foreground: foreground,
+            background: background);
+    }
+
+    public Attribute MakeAttribute(ConsoleColor foreground, ConsoleColor background)
+    {
+        return ColorExtensions.MakeAttribute(
+            foreground: foreground,
+            background: background);
     }
 
     private int _redrawColor = -1;
 
-    private void SetColor(int color)
+    private void SetAttribute(int attribute)
     {
-        this._redrawColor = color;
+        this._redrawColor = attribute;
         var values = Enum.GetValues(enumType: typeof(ConsoleColor))
             .OfType<ConsoleColor>()
-            .Select(selector: s => (int)s);
+            .Select(selector: s => (int) s);
         var enumerable = values as int[] ?? values.ToArray();
-        if (enumerable.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor)(color & 0xffff);
+        if (enumerable.Contains(value: attribute & 0xffff)) this.BackgroundColor = (ConsoleColor) (attribute & 0xffff);
 
-        if (enumerable.Contains(value: (color >> 16) & 0xffff))
-            this.ForegroundColor = (ConsoleColor)((color >> 16) & 0xffff);
+        if (enumerable.Contains(value: (attribute >> 16) & 0xffff))
+            this.ForegroundColor = (ConsoleColor) ((attribute >> 16) & 0xffff);
     }
 
-    public override void UpdateScreen()
+    public IEnumerable<(int attribute, int row, int col, string text)> GetDirtySegments(bool markClean)
     {
-        if (firstRender)
-        {
-            return;
-        }
-
+        var dirtySegments = new List<(int attribute, int row, int col, string text)>();
         lock (this.Contents)
         {
+            var output = new System.Text.StringBuilder();
             var top = this.Top;
             var left = this.Left;
             var rows = Math.Min(val1: this.WindowRows + top,
                 val2: this.Rows);
             var cols = this.Cols;
-
-            this.CursorTop = 0;
-            this.CursorLeft = 0;
+            int? currentColor = null;
             for (var row = top; row < rows; row++)
             {
-                if (!_dirtyLine[row])
-                {
-                    continue;
-                }
-                this._dirtyLine[row] = false;
-                System.Text.StringBuilder output = new System.Text.StringBuilder();
-                var startCol = 0;
+                if (!this._dirtyLine[row]) continue;
+                var segmentStart = left;
                 for (var col = left; col < cols; col++)
                 {
-                    //for (; col < cols; col++)
-                    //{
-                        if (Contents[row, col, 2] != 1)
-                        {
-                            continue;
-                        }
-                        var color = this.Contents[row,
-                            col,
-                            1];
-                        if (color != this._redrawColor)
-                        {
-                            if (output.Length > 0)
-                            {
-                                Write(output.ToString(), startCol, row);
-                            }
-                            startCol = col;
-                            output = new System.Text.StringBuilder();
-                            this.SetColor(color: color);
-                        }
-                        output.Append((char)Contents[row, col, 0]);
+                    // get color at current position
+                    var color = this.Contents[
+                        row,
+                        col,
+                        (int) RuneDataType.Attribute];
+
+                    if (markClean)
                         this.Contents[row,
                             col,
-                            2] = 0;
-                        if (col == cols - 1)
-                        {
-                            Write(output.ToString(), startCol, row);
-                        }
-                    //}
+                            (int) RuneDataType.DirtyFlag] = 0;
+
+                    // append to buffer
+                    output.Append(value: (char) this.Contents[row,
+                        col,
+                        (int) RuneDataType.Rune]);
+
+                    // if color is same as current color, skip
+                    if (currentColor is not null && currentColor!.Value == color) continue;
+
+                    // we've reached a new color, add the segment and start a new one
+                    currentColor = color;
+                    segmentStart = col;
+                    if (output.Length <= 0) continue;
+                    dirtySegments.Add(item: (
+                        attribute: color,
+                        row,
+                        col: segmentStart,
+                        text: output.ToString()));
+                    output.Clear();
+                } // col
+
+                // in case the segment ends at the end of the line, add it
+                if (output.Length > 0)
+                {
+                    dirtySegments.Add(item: (
+                        attribute: currentColor!.Value,
+                        row,
+                        col: segmentStart,
+                        text: output.ToString()));
+                    output.Clear();
                 }
-            }
 
-            void Write(string text, int col, int row)
-            {
-                _ = this._webConsole.DrawUpdatesToCanvas(
-                    output: text,
-                    x: col * TerminalSettings.FontSize,
-                    y: row * TerminalSettings.FontSize);
-            }
-
-            //var task = this._webConsole.DrawUpdatesToCanvas(
-            //    buffer: this.Contents,
-            //    firstRender: firstRender);
-            // ReSharper disable once HeapView.ObjectAllocation.Evident
-            //this.NewFrame(sender: this,
-            //    e: new NewFrameEventArgs(sender: this));
-            //task.RunSynchronously();
+                if (markClean) this._dirtyLine[row] = false;
+            } // row
         }
+
+        return dirtySegments;
+    }
+
+    public override void UpdateScreen()
+    {
+        if (this.firstRender) return;
+
+        lock (this.Contents)
+        {
+            this.CursorTop = 0;
+            this.CursorLeft = 0;
+
+            foreach (var segment in this.GetDirtySegments(markClean: true))
+            {
+                this.SetAttribute(attribute: segment.attribute);
+                _ = this._webConsole.DrawDirtySegmentToCanvas(
+                    segment: segment,
+                    terminalSettings: this.TerminalSettings);
+            }
+        }
+
+        //var task = this._webConsole.DrawUpdatesToCanvas(
+        //    buffer: this.Contents,
+        //    firstRender: firstRender);
+        // ReSharper disable once HeapView.ObjectAllocation.Evident
+        //this.NewFrame(sender: this,
+        //    e: new NewFrameEventArgs(sender: this));
+        //task.RunSynchronously();
     }
 
     public override void Refresh()
     {
-        UpdateScreen();
+        this.UpdateScreen();
 
         //var rows = this.Rows;
         //var cols = this.Cols;
@@ -470,7 +504,7 @@ public partial class WebConsoleDriver
                     key: Key.Enter);
             case ConsoleKey.Spacebar:
                 return MapKeyModifiers(keyInfo: keyInfo,
-                    key: keyInfo.KeyChar == 0 ? Key.Space : (Key)keyInfo.KeyChar);
+                    key: keyInfo.KeyChar == 0 ? Key.Space : (Key) keyInfo.KeyChar);
             case ConsoleKey.Backspace:
                 return MapKeyModifiers(keyInfo: keyInfo,
                     key: Key.Backspace);
@@ -497,64 +531,64 @@ public partial class WebConsoleDriver
                 if (keyInfo.KeyChar == 0)
                     return Key.Unknown;
 
-                return (Key)keyInfo.KeyChar;
+                return (Key) keyInfo.KeyChar;
         }
 
         var key = keyInfo.Key;
         switch (key)
         {
             case >= ConsoleKey.A and <= ConsoleKey.Z:
+            {
+                var delta = key - ConsoleKey.A;
+                switch (keyInfo.Modifiers)
                 {
-                    var delta = key - ConsoleKey.A;
-                    switch (keyInfo.Modifiers)
-                    {
-                        case ConsoleModifiers.Control:
-                            return (Key)((uint)Key.CtrlMask | ((uint)Key.A + delta));
-                        case ConsoleModifiers.Alt:
-                            return (Key)((uint)Key.AltMask | ((uint)Key.A + delta));
-                    }
-
-                    if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
-                        return (Key)keyInfo.KeyChar;
-                    if (keyInfo.KeyChar == 0)
-                        return (Key)((uint)Key.AltMask | (uint)Key.CtrlMask | ((uint)Key.A + delta));
-                    return (Key)keyInfo.KeyChar;
+                    case ConsoleModifiers.Control:
+                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
+                    case ConsoleModifiers.Alt:
+                        return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
                 }
+
+                if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
+                    return (Key) keyInfo.KeyChar;
+                if (keyInfo.KeyChar == 0)
+                    return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
+                return (Key) keyInfo.KeyChar;
+            }
             case >= ConsoleKey.D0 and <= ConsoleKey.D9:
+            {
+                var delta = key - ConsoleKey.D0;
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                switch (keyInfo.Modifiers)
                 {
-                    var delta = key - ConsoleKey.D0;
-                    // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                    switch (keyInfo.Modifiers)
-                    {
-                        case ConsoleModifiers.Alt:
-                            return (Key)((uint)Key.AltMask | ((uint)Key.D0 + delta));
-                        case ConsoleModifiers.Control:
-                            return (Key)((uint)Key.CtrlMask | ((uint)Key.D0 + delta));
-                    }
-
-                    if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
-                        return MapKeyModifiers(keyInfo: keyInfo,
-                            key: (Key)((uint)Key.D0 + delta));
-
-                    return (Key)keyInfo.KeyChar;
+                    case ConsoleModifiers.Alt:
+                        return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
+                    case ConsoleModifiers.Control:
+                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
                 }
+
+                if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
+                    return MapKeyModifiers(keyInfo: keyInfo,
+                        key: (Key) ((uint) Key.D0 + delta));
+
+                return (Key) keyInfo.KeyChar;
+            }
             case >= ConsoleKey.F1 and <= ConsoleKey.F12:
-                {
-                    var delta = key - ConsoleKey.F1;
-                    if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
-                        0)
-                        return MapKeyModifiers(keyInfo: keyInfo,
-                            key: (Key)((uint)Key.F1 + delta));
+            {
+                var delta = key - ConsoleKey.F1;
+                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
+                    0)
+                    return MapKeyModifiers(keyInfo: keyInfo,
+                        key: (Key) ((uint) Key.F1 + delta));
 
-                    return (Key)((uint)Key.F1 + delta);
-                }
+                return (Key) ((uint) Key.F1 + delta);
+            }
         }
 
         if (keyInfo.KeyChar != 0)
             return MapKeyModifiers(keyInfo: keyInfo,
-                key: (Key)keyInfo.KeyChar);
+                key: (Key) keyInfo.KeyChar);
 
-        return (Key)0xffffffff;
+        return (Key) 0xffffffff;
     }
 
     private KeyModifiers? _keyModifiers;
@@ -595,47 +629,47 @@ public partial class WebConsoleDriver
         switch (inputEvent.EventType)
         {
             case EventType.Key:
-                _keyModifiers = new KeyModifiers();
-                var map = MapKey(inputEvent.KeyEvent.ConsoleKeyInfo);
-                if (map == (Key)0xffffffff)
+            {
+                this._keyModifiers = new KeyModifiers();
+                var map = MapKey(keyInfo: inputEvent.KeyEvent.ConsoleKeyInfo);
+                if (map == (Key) 0xffffffff)
                 {
-                    KeyEvent key = new KeyEvent();
+                    var key = new KeyEvent();
 
                     if (inputEvent.KeyEvent.KeyDown)
-                    {
-                        _keyDownHandler(key);
-                    }
+                        this._keyDownHandler?.Invoke(obj: key);
                     else
-                    {
-                        _keyUpHandler(key);
-                    }
+                        this._keyUpHandler?.Invoke(obj: key);
                 }
                 else
                 {
                     if (inputEvent.KeyEvent.KeyDown)
                     {
-                        _keyDownHandler(new KeyEvent(map, _keyModifiers));
-                        _keyHandler(new KeyEvent(map, _keyModifiers));
+                        this._keyDownHandler?.Invoke(obj: new KeyEvent(k: map,
+                            km: this._keyModifiers));
+                        this._keyHandler?.Invoke(obj: new KeyEvent(k: map,
+                            km: this._keyModifiers));
                     }
                     else
                     {
-                        _keyUpHandler(new KeyEvent(map, _keyModifiers));
+                        this._keyUpHandler?.Invoke(obj: new KeyEvent(k: map,
+                            km: this._keyModifiers));
                     }
-                    if (!inputEvent.KeyEvent.KeyDown)
-                    {
-                        _keyModifiers = null;
-                    }
+
+                    if (!inputEvent.KeyEvent.KeyDown) this._keyModifiers = null;
                 }
+
                 break;
+            }
             case EventType.Mouse:
-                _mouseHandler(ToDriverMouse(inputEvent.MouseEvent));
+                this._mouseHandler?.Invoke(obj: this.ToDriverMouse(me: inputEvent.MouseEvent));
                 break;
             case EventType.Resize:
-                this.TerminalSettings.WindowColumns = TerminalSettings.BufferColumns =
-                    inputEvent.ResizeEvent.Size.Width / TerminalSettings.FontSize;
-                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows =
-                    inputEvent.ResizeEvent.Size.Height / TerminalSettings.FontSize;
-                ProcessResize();
+                this.TerminalSettings.WindowColumns = this.TerminalSettings.BufferColumns =
+                    inputEvent.ResizeEvent.Size.Width / this.TerminalSettings.FontSizePixels;
+                this.TerminalSettings.WindowRows = this.TerminalSettings.BufferRows =
+                    inputEvent.ResizeEvent.Size.Height / this.TerminalSettings.FontSizePixels;
+                this.ProcessResize();
                 break;
         }
     }
@@ -644,124 +678,41 @@ public partial class WebConsoleDriver
     {
         MouseFlags mouseFlag = 0;
 
-        if ((me.ButtonState & MouseButtonState.Button1Pressed) != 0)
-        {
-            mouseFlag |= MouseFlags.Button1Pressed;
-        }
-        if ((me.ButtonState & MouseButtonState.Button1Released) != 0)
-        {
-            mouseFlag |= MouseFlags.Button1Released;
-        }
-        if ((me.ButtonState & MouseButtonState.Button1Clicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button1Clicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button1DoubleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button1DoubleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button1TripleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button1TripleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button2Pressed) != 0)
-        {
-            mouseFlag |= MouseFlags.Button2Pressed;
-        }
-        if ((me.ButtonState & MouseButtonState.Button2Released) != 0)
-        {
-            mouseFlag |= MouseFlags.Button2Released;
-        }
-        if ((me.ButtonState & MouseButtonState.Button2Clicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button2Clicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button2DoubleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button2DoubleClicked;
-        }
+        if ((me.ButtonState & MouseButtonState.Button1Pressed) != 0) mouseFlag |= MouseFlags.Button1Pressed;
+        if ((me.ButtonState & MouseButtonState.Button1Released) != 0) mouseFlag |= MouseFlags.Button1Released;
+        if ((me.ButtonState & MouseButtonState.Button1Clicked) != 0) mouseFlag |= MouseFlags.Button1Clicked;
+        if ((me.ButtonState & MouseButtonState.Button1DoubleClicked) != 0) mouseFlag |= MouseFlags.Button1DoubleClicked;
+        if ((me.ButtonState & MouseButtonState.Button1TripleClicked) != 0) mouseFlag |= MouseFlags.Button1TripleClicked;
+        if ((me.ButtonState & MouseButtonState.Button2Pressed) != 0) mouseFlag |= MouseFlags.Button2Pressed;
+        if ((me.ButtonState & MouseButtonState.Button2Released) != 0) mouseFlag |= MouseFlags.Button2Released;
+        if ((me.ButtonState & MouseButtonState.Button2Clicked) != 0) mouseFlag |= MouseFlags.Button2Clicked;
+        if ((me.ButtonState & MouseButtonState.Button2DoubleClicked) != 0) mouseFlag |= MouseFlags.Button2DoubleClicked;
         if ((me.ButtonState & MouseButtonState.Button2TrippleClicked) != 0)
-        {
             mouseFlag |= MouseFlags.Button2TripleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button3Pressed) != 0)
-        {
-            mouseFlag |= MouseFlags.Button3Pressed;
-        }
-        if ((me.ButtonState & MouseButtonState.Button3Released) != 0)
-        {
-            mouseFlag |= MouseFlags.Button3Released;
-        }
-        if ((me.ButtonState & MouseButtonState.Button3Clicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button3Clicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button3DoubleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button3DoubleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button3TripleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button3TripleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonWheeledUp) != 0)
-        {
-            mouseFlag |= MouseFlags.WheeledUp;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonWheeledDown) != 0)
-        {
-            mouseFlag |= MouseFlags.WheeledDown;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonWheeledLeft) != 0)
-        {
-            mouseFlag |= MouseFlags.WheeledLeft;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonWheeledRight) != 0)
-        {
-            mouseFlag |= MouseFlags.WheeledRight;
-        }
-        if ((me.ButtonState & MouseButtonState.Button4Pressed) != 0)
-        {
-            mouseFlag |= MouseFlags.Button4Pressed;
-        }
-        if ((me.ButtonState & MouseButtonState.Button4Released) != 0)
-        {
-            mouseFlag |= MouseFlags.Button4Released;
-        }
-        if ((me.ButtonState & MouseButtonState.Button4Clicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button4Clicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button4DoubleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button4DoubleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.Button4TripleClicked) != 0)
-        {
-            mouseFlag |= MouseFlags.Button4TripleClicked;
-        }
-        if ((me.ButtonState & MouseButtonState.ReportMousePosition) != 0)
-        {
-            mouseFlag |= MouseFlags.ReportMousePosition;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonShift) != 0)
-        {
-            mouseFlag |= MouseFlags.ButtonShift;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonCtrl) != 0)
-        {
-            mouseFlag |= MouseFlags.ButtonCtrl;
-        }
-        if ((me.ButtonState & MouseButtonState.ButtonAlt) != 0)
-        {
-            mouseFlag |= MouseFlags.ButtonAlt;
-        }
+        if ((me.ButtonState & MouseButtonState.Button3Pressed) != 0) mouseFlag |= MouseFlags.Button3Pressed;
+        if ((me.ButtonState & MouseButtonState.Button3Released) != 0) mouseFlag |= MouseFlags.Button3Released;
+        if ((me.ButtonState & MouseButtonState.Button3Clicked) != 0) mouseFlag |= MouseFlags.Button3Clicked;
+        if ((me.ButtonState & MouseButtonState.Button3DoubleClicked) != 0) mouseFlag |= MouseFlags.Button3DoubleClicked;
+        if ((me.ButtonState & MouseButtonState.Button3TripleClicked) != 0) mouseFlag |= MouseFlags.Button3TripleClicked;
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledUp) != 0) mouseFlag |= MouseFlags.WheeledUp;
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledDown) != 0) mouseFlag |= MouseFlags.WheeledDown;
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledLeft) != 0) mouseFlag |= MouseFlags.WheeledLeft;
+        if ((me.ButtonState & MouseButtonState.ButtonWheeledRight) != 0) mouseFlag |= MouseFlags.WheeledRight;
+        if ((me.ButtonState & MouseButtonState.Button4Pressed) != 0) mouseFlag |= MouseFlags.Button4Pressed;
+        if ((me.ButtonState & MouseButtonState.Button4Released) != 0) mouseFlag |= MouseFlags.Button4Released;
+        if ((me.ButtonState & MouseButtonState.Button4Clicked) != 0) mouseFlag |= MouseFlags.Button4Clicked;
+        if ((me.ButtonState & MouseButtonState.Button4DoubleClicked) != 0) mouseFlag |= MouseFlags.Button4DoubleClicked;
+        if ((me.ButtonState & MouseButtonState.Button4TripleClicked) != 0) mouseFlag |= MouseFlags.Button4TripleClicked;
+        if ((me.ButtonState & MouseButtonState.ReportMousePosition) != 0) mouseFlag |= MouseFlags.ReportMousePosition;
+        if ((me.ButtonState & MouseButtonState.ButtonShift) != 0) mouseFlag |= MouseFlags.ButtonShift;
+        if ((me.ButtonState & MouseButtonState.ButtonCtrl) != 0) mouseFlag |= MouseFlags.ButtonCtrl;
+        if ((me.ButtonState & MouseButtonState.ButtonAlt) != 0) mouseFlag |= MouseFlags.ButtonAlt;
 
-        return new MouseEvent()
+        return new MouseEvent
         {
             X = me.Position.X,
             Y = me.Position.Y,
-            Flags = mouseFlag
+            Flags = mouseFlag,
         };
     }
 
@@ -794,24 +745,26 @@ public partial class WebConsoleDriver
 
     public override void SendKeys(char keyChar, ConsoleKey key, bool shift, bool alt, bool control)
     {
-        InputResult input = new InputResult();
+        var input = new InputResult();
         ConsoleKey ck;
-        if (char.IsLetter(keyChar))
-        {
+        if (char.IsLetter(c: keyChar))
             ck = key;
-        }
         else
-        {
-            ck = (ConsoleKey)'\0';
-        }
+            ck = (ConsoleKey) '\0';
         input.EventType = EventType.Key;
-        input.KeyEvent.ConsoleKeyInfo = new ConsoleKeyInfo(keyChar, ck, shift, alt, control);
+        input.KeyEvent.ConsoleKeyInfo = new ConsoleKeyInfo(keyChar: keyChar,
+            key: ck,
+            shift: shift,
+            alt: alt,
+            control: control);
 
         try
         {
-            ProcessInput(input);
+            this.ProcessInput(inputEvent: input);
         }
-        catch (OverflowException) { }
+        catch (OverflowException)
+        {
+        }
     }
 
     public void SetBufferSize(int width, int height)
@@ -917,19 +870,19 @@ public partial class WebConsoleDriver
         try
         {
             for (var row = 0; row < this.Rows; row++)
-                for (var c = 0; c < this.Cols; c++)
-                {
-                    this.Contents[row,
-                        c,
-                        0] = ' ';
-                    this.Contents[row,
-                        c,
-                        1] = Colors.TopLevel.Normal;
-                    this.Contents[row,
-                        c,
-                        2] = 0;
-                    this._dirtyLine[row] = true;
-                }
+            for (var c = 0; c < this.Cols; c++)
+            {
+                this.Contents[row,
+                    c,
+                    (int) RuneDataType.Rune] = ' ';
+                this.Contents[row,
+                    c,
+                    (int) RuneDataType.Attribute] = Colors.TopLevel.Normal;
+                this.Contents[row,
+                    c,
+                    (int) RuneDataType.DirtyFlag] = 0;
+                this._dirtyLine[row] = true;
+            }
         }
         catch (IndexOutOfRangeException)
         {
@@ -941,20 +894,25 @@ public partial class WebConsoleDriver
         var hasColor = false;
         foreground = default;
         background = default;
-        // ReSharper disable HeapView.ObjectAllocation
-        var values = Enum.GetValues(enumType: typeof(ConsoleColor)).OfType<ConsoleColor>()
-            .Select(selector: s => (int)s);
-        // ReSharper restore HeapView.ObjectAllocation
+
+        var foregroundInt = value & 0xffff;
+        var backgroundInt = (value >> 16) & 0xffff;
+
+        var values = Enum.GetValues(
+                enumType: typeof(Color))
+            .OfType<Color>()
+            .Select(selector: color => (int) color);
+
         var enumerable = values as int[] ?? values.ToArray();
-        if (enumerable.Contains(value: value & 0xffff))
+        if (enumerable.Contains(value: foregroundInt))
         {
             hasColor = true;
-            background = (Color)(ConsoleColor)(value & 0xffff);
+            background = (Color) foregroundInt;
         }
 
-        if (!enumerable.Contains(value: (value >> 16) & 0xffff)) return hasColor;
+        if (!enumerable.Contains(value: backgroundInt)) return hasColor;
         hasColor = true;
-        foreground = (Color)(ConsoleColor)((value >> 16) & 0xffff);
+        foreground = (Color) backgroundInt;
 
         return hasColor;
     }

@@ -14,6 +14,10 @@ namespace HACC.Models.Drivers;
 /// </summary>
 public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
 {
+    private readonly WebConsole _webConsole;
+
+    public readonly ILogger<WebConsoleDriver> Logger;
+
     /// <summary>
     ///     Initializes a web console driver.
     /// </summary>
@@ -28,10 +32,6 @@ public sealed partial class WebConsoleDriver : ConsoleDriver, IAnsiConsole
         this.Contents = new int[this.BufferRows, this.BufferColumns, 3];
         this._dirtyLine = new bool[this.BufferRows];
     }
-
-    public readonly ILogger<WebConsoleDriver> Logger;
-
-    private readonly WebConsole _webConsole;
 
 // TODO: resize, etc if terminal settings updated
     public TerminalSettings TerminalSettings { get; private set; }

@@ -8,7 +8,8 @@ internal sealed class DefaultExclusivityMode : IExclusivityMode
 
     public DefaultExclusivityMode()
     {
-        this._semaphore = new SemaphoreSlim(initialCount: 1, maxCount: 1);
+        this._semaphore = new SemaphoreSlim(initialCount: 1,
+            maxCount: 1);
     }
 
     public T Run<T>(Func<T> func)

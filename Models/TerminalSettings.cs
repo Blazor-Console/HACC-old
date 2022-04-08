@@ -46,6 +46,16 @@ public record TerminalSettings
     public bool CursorVisible;
 
     /// <summary>
+    ///     Terminal font size in pixels
+    /// </summary>
+    public int FontSizePixels;
+
+    /// <summary>
+    ///     Terminal font type
+    /// </summary>
+    public string FontType;
+
+    /// <summary>
     ///     Whether the status bar is visible
     /// </summary>
     public bool StatusVisible;
@@ -90,16 +100,6 @@ public record TerminalSettings
     /// </summary>
     public int WindowWidthPixels;
 
-    /// <summary>
-    ///     Terminal font size
-    /// </summary>
-    public int FontSize;
-
-    /// <summary>
-    ///     Terminal font type
-    /// </summary>
-    public string FontType;
-
     public TerminalSettings(
         string title = "",
         int windowWidthPixels = Defaults.InitialTerminalWidth,
@@ -117,7 +117,7 @@ public record TerminalSettings
         int cursorSize = Defaults.CursorSize,
         ConsoleColor terminalBackground = Defaults.BackgroundColor,
         ConsoleColor terminalForeground = Defaults.ForegroundColor,
-        int fontSize = Defaults.FontSize,
+        int fontSizePixels = Defaults.FontSize,
         string fontType = Defaults.FontType)
     {
         this.Title = title;
@@ -138,7 +138,7 @@ public record TerminalSettings
         this.CursorSize = cursorSize;
         this.TerminalBackground = terminalBackground;
         this.TerminalForeground = terminalForeground;
-        this.FontSize = fontSize;
+        this.FontSizePixels = fontSizePixels;
         this.FontType = fontType;
     }
 
