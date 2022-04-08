@@ -12,11 +12,11 @@ Will update readme once alpha is attained.
 
 ## Tests
 
-- https://github.com/HACC-ers/HACC.Tests
+- https://github.com/Blazor-Console/HACC.Tests
 
 ## Development
 
-* https://github.com/HACC-ers/HACC.Development/wiki/Developing
+* https://github.com/Blazor-Console/HACC.Development/wiki/Developing
 
 ## Future
 
