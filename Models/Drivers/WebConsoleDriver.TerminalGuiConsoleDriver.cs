@@ -53,58 +53,122 @@ public partial class WebConsoleDriver
 
     private static readonly bool sync = false;
 
-    private bool _needMove;
+    // Current row, and current col, tracked by Move/AddRune only
+    int ccol, crow;
+
+    //private bool _needMove;
 
     public override void Move(int col, int row)
     {
-        this.TerminalSettings.SetCursorPosition(x: col,
-            y: row);
+        ccol = col;
+        crow = row;
 
-        if (this.Clip.Contains(x: col,
-                y: row))
-        {
-            this.CursorTop = row;
-            this.CursorLeft = col;
-            this._needMove = false;
-        }
-        else
-        {
-            this.CursorTop = this.Clip.Y;
-            this.CursorLeft = this.Clip.X;
-            this._needMove = true;
-        }
+        //this.TerminalSettings.SetCursorPosition(x: col,
+        //    y: row);
+
+        //if (this.Clip.Contains(x: col,
+        //        y: row))
+        //{
+        //    this.CursorTop = row;
+        //    this.CursorLeft = col;
+        //    this._needMove = false;
+        //}
+        //else
+        //{
+        //    this.CursorTop = this.Clip.Y;
+        //    this.CursorLeft = this.Clip.X;
+        //    this._needMove = true;
+        //}
     }
+
+    //public override void AddRune(Rune rune)
+    //{
+    //    var currentPosition = this.TerminalSettings.CursorPosition;
+    //    rune = MakePrintable(c: rune);
+    //    if (this.Clip.Contains(x: currentPosition.X,
+    //            y: currentPosition.Y))
+    //    {
+    //        if (this._needMove)
+    //            //MockConsole.CursorLeft = ccol;
+    //            //MockConsole.CursorTop = crow;
+    //            this._needMove = false;
+
+    //        this.Contents[currentPosition.Y,
+    //            currentPosition.X,
+    //            0] = (int)(uint)rune;
+    //        this.Contents[currentPosition.Y,
+    //            currentPosition.X,
+    //            1] = this._currentAttribute;
+    //        this.Contents[currentPosition.Y,
+    //            currentPosition.X,
+    //            2] = 1;
+    //        this._dirtyLine[currentPosition.Y] = true;
+    //    }
+    //    else
+    //    {
+    //        this._needMove = true;
+    //    }
+
+    //    this.TerminalSettings.SetCursorPosition(x: currentPosition.X + 1,
+    //        y: currentPosition.Y);
+    //    //if (ccol == Cols) {
+    //    //	ccol = 0;
+    //    //	if (crow + 1 < WindowRows)
+    //    //		crow++;
+    //    //}
+    //    if (sync) this.UpdateScreen();
+    //}
 
     public override void AddRune(Rune rune)
     {
-        var currentPosition = this.TerminalSettings.CursorPosition;
+        if (Contents.Length != Rows * Cols * 3)
+        {
+            return;
+        }
         rune = MakePrintable(c: rune);
-        if (this.Clip.Contains(x: currentPosition.X,
-                y: currentPosition.Y))
+        var runeWidth = Rune.ColumnWidth(rune);
+        if (this.Clip.Contains(x: ccol,
+                y: crow)
+             && ccol + Math.Max(runeWidth, 1) <= Cols)
         {
-            if (this._needMove)
-                //MockConsole.CursorLeft = ccol;
-                //MockConsole.CursorTop = crow;
-                this._needMove = false;
-
-            this.Contents[currentPosition.Y,
-                currentPosition.X,
+            this.Contents[crow,
+                ccol,
                 0] = (int)(uint)rune;
-            this.Contents[currentPosition.Y,
-                currentPosition.X,
+            this.Contents[crow,
+                ccol,
                 1] = this._currentAttribute;
-            this.Contents[currentPosition.Y,
-                currentPosition.X,
+            this.Contents[crow,
+                ccol,
                 2] = 1;
-            this._dirtyLine[currentPosition.Y] = true;
+            this._dirtyLine[crow] = true;
         }
-        else
+        else if (ccol > -1 && crow > -1
+            && ccol < Cols && crow < Rows)
         {
-            this._needMove = true;
+            Contents[crow,
+                ccol,
+                2] = 1;
+            this._dirtyLine[crow] = true;
         }
 
-        this.TerminalSettings.SetCursorPosition(x: currentPosition.X + 1,
-            y: currentPosition.Y);
+        ccol++;
+        if (runeWidth > 1)
+        {
+            for (int i = 1; i < runeWidth; i++)
+            {
+                if (ccol < Cols)
+                {
+                    Contents[crow,
+                        ccol,
+                        2] = 0;
+                }
+                else
+                {
+                    break;
+                }
+                ccol++;
+            }
+        }
         //if (ccol == Cols) {
         //	ccol = 0;
         //	if (crow + 1 < WindowRows)
@@ -260,15 +324,15 @@ public partial class WebConsoleDriver
                 }
                 this._dirtyLine[row] = false;
                 System.Text.StringBuilder output = new System.Text.StringBuilder();
+                var startCol = 0;
                 for (var col = left; col < cols; col++)
                 {
-                    if (Contents[row, col, 2] != 1)
-                    {
-                        continue;
-                    }
-                    var startCol = 0;
-                    for (; col < cols; col++)
-                    {
+                    //for (; col < cols; col++)
+                    //{
+                        if (Contents[row, col, 2] != 1)
+                        {
+                            continue;
+                        }
                         var color = this.Contents[row,
                             col,
                             1];
@@ -276,10 +340,7 @@ public partial class WebConsoleDriver
                         {
                             if (output.Length > 0)
                             {
-                                _ = this._webConsole!.DrawUpdatesToCanvas(
-                                    output: output.ToString(),
-                                    x: startCol,
-                                    y: row * TerminalSettings.FontSize);
+                                Write(output.ToString(), startCol, row);
                             }
                             startCol = col;
                             output = new System.Text.StringBuilder();
@@ -287,20 +348,23 @@ public partial class WebConsoleDriver
                         }
                         output.Append((char)Contents[row, col, 0]);
                         this.Contents[row,
-                        col,
-                        2] = 0;
+                            col,
+                            2] = 0;
                         if (col == cols - 1)
                         {
-                            _ = this._webConsole.DrawUpdatesToCanvas(
-                                output: output.ToString(),
-                                x: startCol * TerminalSettings.FontSize,
-                                y: row * TerminalSettings.FontSize);
+                            Write(output.ToString(), startCol, row);
                         }
-                    }
+                    //}
                 }
             }
 
-
+            void Write(string text, int col, int row)
+            {
+                _ = this._webConsole.DrawUpdatesToCanvas(
+                    output: text,
+                    x: col * TerminalSettings.FontSize,
+                    y: row * TerminalSettings.FontSize);
+            }
 
             //var task = this._webConsole.DrawUpdatesToCanvas(
             //    buffer: this.Contents,
@@ -569,7 +633,7 @@ public partial class WebConsoleDriver
             case EventType.Resize:
                 this.TerminalSettings.WindowColumns = TerminalSettings.BufferColumns =
                     inputEvent.ResizeEvent.Size.Width / TerminalSettings.FontSize;
-                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows = 
+                this.TerminalSettings.WindowRows = TerminalSettings.BufferRows =
                     inputEvent.ResizeEvent.Size.Height / TerminalSettings.FontSize;
                 ProcessResize();
                 break;
