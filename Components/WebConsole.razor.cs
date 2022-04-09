@@ -107,8 +107,10 @@ public partial class WebConsole : ComponentBase
         if (this.MeasuredRunes.ContainsKey(key: rune))
             return this.MeasuredRunes[key: rune];
 
+        var runeString = rune.ToString();
+        var runeStringRef = DotNetObjectReference.Create(value: runeString);
         var result = await JsInterop!.InvokeAsync<object>(identifier: "canvasMeasureText",
-            rune.ToString());
+            runeStringRef);
         var textMetrics = (TextMetrics) result;
         this.MeasuredRunes.Add(
             key: rune,
@@ -133,8 +135,9 @@ public partial class WebConsole : ComponentBase
                 maxHeight = measuredRune.height;
         }
 
+        var textRef = DotNetObjectReference.Create(value: text);
         var result = await JsInterop!.InvokeAsync<object>(identifier: "canvasMeasureText",
-            text);
+            textRef);
 
         var textMetrics = (TextMetrics)result;
 
