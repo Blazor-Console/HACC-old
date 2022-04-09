@@ -2,6 +2,7 @@
 using System.Globalization;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using Blazor.Extensions.Canvas.Model;
 using HACC.Applications;
 using HACC.Extensions;
 using HACC.Models;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using NStack;
 
 namespace HACC.Components;
 
@@ -107,16 +109,12 @@ public partial class WebConsole : ComponentBase
         if (this.MeasuredText.ContainsKey(key: text))
             return this.MeasuredText[key: text];
 
-        var textRef = DotNetObjectReference.Create(value: text);
-        var result = await JsInterop!.InvokeAsync<object>(identifier: "canvasMeasureText",
-            textRef);
-
-        var textMetrics = (TextMetrics) result;
+        var result = await this._canvas2DContext!.MeasureTextAsync(text);
 
         this.MeasuredText.Add(
             key: text,
-            value: textMetrics);
-        return textMetrics;
+            value: result!);
+        return result;
     }
 
     private async Task RedrawCanvas()
@@ -173,20 +171,25 @@ public partial class WebConsole : ComponentBase
 
         var measuredText = await this.MeasureText(text: segment.text);
         var measuredRune = await this.MeasureText(text: segment.text[index: 0].ToString());
+        var textWidthEm = measuredRune!.Width;
+        // Px = em * font-size
+        var letterWidthPx = terminalSettings.FontSizePixels;
+        //var textWidthPx = textWidthEm * letterWidthPx;
+        //var runeCount = ustring.Make(segment.text).RuneCount;
 
         //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
         //    await this.RedrawCanvas();
         await this._canvas2DContext!.SetFontAsync(
-            value: $"{measuredRune!.width}px " +
+            value: $"{measuredRune!.Width}px " +
                    $"{terminalSettings.FontType}");
         await this._canvas2DContext.SetTextBaselineAsync(value: TextBaseline.Top);
         await this._canvas2DContext!.SetFillStyleAsync(
             value: $"{background}");
         await this._canvas2DContext.FillRectAsync(
-            x: segment.col * measuredRune.width,
-            y: segment.row * measuredRune.height,
-            width: measuredText!.width,
-            height: measuredText.height);
+            x: segment.col * measuredRune.Width,
+            y: segment.row * letterWidthPx,
+            width: measuredText!.Width,
+            height: letterWidthPx);
         await this._canvas2DContext!.SetStrokeStyleAsync(
             value: $"{foreground}");
         await this._canvas2DContext.StrokeTextAsync(text: segment.text,
