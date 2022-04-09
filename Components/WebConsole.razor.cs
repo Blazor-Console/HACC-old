@@ -20,7 +20,6 @@ public partial class WebConsole : ComponentBase
     private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
 
-    private readonly Dictionary<Rune, TextMetrics> MeasuredRunes = new();
     private readonly Dictionary<string, TextMetrics> MeasuredText = new();
 
     /// <summary>
@@ -101,22 +100,6 @@ public partial class WebConsole : ComponentBase
         return await JsInterop!.InvokeAsync<object>(identifier: "canvasToPng");
     }
 
-    public async Task<TextMetrics?> MeasureRune(Rune rune)
-    {
-        if (!this.CanvasInitialized) return null;
-        if (this.MeasuredRunes.ContainsKey(key: rune))
-            return this.MeasuredRunes[key: rune];
-
-        var runeString = rune.ToString();
-        var runeStringRef = DotNetObjectReference.Create(value: runeString);
-        var result = await JsInterop!.InvokeAsync<object>(identifier: "canvasMeasureText",
-            runeStringRef);
-        var textMetrics = (TextMetrics) result;
-        this.MeasuredRunes.Add(
-            key: rune,
-            value: textMetrics);
-        return textMetrics;
-    }
 
     public async Task<TextMetrics?> MeasureText(string text)
     {
@@ -124,27 +107,12 @@ public partial class WebConsole : ComponentBase
         if (this.MeasuredText.ContainsKey(key: text))
             return this.MeasuredText[key: text];
 
-        var totalWidth = 0;
-        var maxHeight = -1;
-        foreach (var ch in text)
-        {
-            var measuredRune = await this.MeasureRune(rune: new Rune(ch: ch));
-            if (measuredRune is null) continue;
-            totalWidth += measuredRune.width;
-            if (maxHeight < measuredRune.height)
-                maxHeight = measuredRune.height;
-        }
-
         var textRef = DotNetObjectReference.Create(value: text);
         var result = await JsInterop!.InvokeAsync<object>(identifier: "canvasMeasureText",
             textRef);
 
-        var textMetrics = (TextMetrics)result;
+        var textMetrics = (TextMetrics) result;
 
-        if (totalWidth != textMetrics.width)
-            Logger.LogDebug(message: "totalWidth ({totalWidth}) != result.width ({result.width})",
-                totalWidth,
-                textMetrics.width);
         this.MeasuredText.Add(
             key: text,
             value: textMetrics);
@@ -189,6 +157,8 @@ public partial class WebConsole : ComponentBase
         TerminalSettings terminalSettings)
     {
         if (!this.CanvasInitialized) return;
+        if (!segment.text.Any()) return;
+
         Logger.LogDebug(message: "DrawBufferToFrame");
         var colorFound = this.WebConsoleDriver!.GetColors(
             value: segment.attribute,
@@ -202,7 +172,7 @@ public partial class WebConsole : ComponentBase
         }
 
         var measuredText = await this.MeasureText(text: segment.text);
-        var measuredRune = await this.MeasureRune(rune: new Rune(segment.text[0]));
+        var measuredRune = await this.MeasureText(text: segment.text[index: 0].ToString());
 
         //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
         //    await this.RedrawCanvas();
