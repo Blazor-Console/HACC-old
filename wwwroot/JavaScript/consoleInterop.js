@@ -47,6 +47,14 @@ window.consoleWindowBeforeUnload = (instance) => {
     onBeforeUnload();
 }
 
+window.canvasToPng = () =>{
+    return window.console.canvas.toDataURL("image/png");
+};
+
+window.canvasMeasureText = (rune) => {
+    return window.console.canvas.measureText(rune);
+}
+
 window.initConsole = (instance) => {
     var canvasContainer = document.getElementById('_divCanvas'),
         canvases = canvasContainer.getElementsByTagName('canvas') || [];
