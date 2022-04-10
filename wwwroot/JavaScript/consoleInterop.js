@@ -15,8 +15,10 @@ function onResize() {
     if (!window.console.canvas)
         return;
 
-    console.canvas.width = window.innerWidth;
-    console.canvas.height = window.innerHeight;
+    let body = document.getElementById("applicationBody")
+    
+    console.canvas.width = .9*body.offsetWidth;
+    console.canvas.height = .7*window.innerHeight; // this should probably have a fixed height
 
     console.instance.invokeMethodAsync('OnResize', console.canvas.width, console.canvas.height);
 }
