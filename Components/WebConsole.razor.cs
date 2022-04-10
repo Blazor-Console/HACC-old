@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Globalization;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
@@ -151,50 +151,45 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
-    public async Task DrawDirtySegmentToCanvas((int attribute, int row, int col, string text) segment,
+    public async Task DrawDirtySegmentToCanvas(List<((ConsoleColor bg, ConsoleColor fg) attribute, int row, int col, string text)> segments,
         TerminalSettings terminalSettings)
     {
         if (!this.CanvasInitialized) return;
-        if (!segment.text.Any()) return;
+        if (segments.Count == 0) return;
 
         Logger.LogDebug(message: "DrawBufferToFrame");
-        var colorFound = this.WebConsoleDriver!.GetColors(
-            value: segment.attribute,
-            foreground: out var foreground,
-            background: out var background);
+        var lastRow = segments[0].row;
+        double textWidthEm = segments[0].col;
 
-        if (!colorFound)
+        foreach (var segment in segments)
         {
-            Logger.LogDebug(message: $"Color not found for attribute {segment.attribute}");
-            return;
+            if (segment.row != lastRow)
+            {
+                lastRow = segment.row;
+                textWidthEm = segment.col;
+            }
+
+            var measuredText = await this.MeasureText(text: segment.text);
+            var letterWidthPx = terminalSettings.FontSizePixels;
+            await this._canvas2DContext!.SetFontAsync(
+                value: $"{letterWidthPx}px " +
+                       $"{terminalSettings.FontType}");
+            await this._canvas2DContext.SetTextBaselineAsync(value: TextBaseline.Top);
+            await this._canvas2DContext!.SetFillStyleAsync(
+                value: $"{segment.attribute.bg}");
+            await this._canvas2DContext.FillRectAsync(
+                x: textWidthEm,
+                y: segment.row * letterWidthPx,
+                width: segment.text.Length * measuredText!.Width,
+                height: letterWidthPx);
+            await this._canvas2DContext!.SetStrokeStyleAsync(
+                value: $"{segment.attribute.fg}");
+            await this._canvas2DContext.StrokeTextAsync(text: segment.text,
+                x: textWidthEm,
+                y: segment.row * letterWidthPx);
+
+            textWidthEm += measuredText!.Width;
         }
-
-        var measuredText = await this.MeasureText(text: segment.text);
-        var measuredRune = await this.MeasureText(text: segment.text[index: 0].ToString());
-        var textWidthEm = measuredRune!.Width;
-        // Px = em * font-size
-        var letterWidthPx = terminalSettings.FontSizePixels;
-        //var textWidthPx = textWidthEm * letterWidthPx;
-        //var runeCount = ustring.Make(segment.text).RuneCount;
-
-        //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
-        //    await this.RedrawCanvas();
-        await this._canvas2DContext!.SetFontAsync(
-            value: $"{measuredRune!.Width}px " +
-                   $"{terminalSettings.FontType}");
-        await this._canvas2DContext.SetTextBaselineAsync(value: TextBaseline.Top);
-        await this._canvas2DContext!.SetFillStyleAsync(
-            value: $"{background}");
-        await this._canvas2DContext.FillRectAsync(
-            x: segment.col * measuredRune.Width,
-            y: segment.row * letterWidthPx,
-            width: measuredText!.Width,
-            height: letterWidthPx);
-        await this._canvas2DContext!.SetStrokeStyleAsync(
-            value: $"{foreground}");
-        await this._canvas2DContext.StrokeTextAsync(text: segment.text,
-            x: segment.col,
-            y: segment.row);
         Logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 

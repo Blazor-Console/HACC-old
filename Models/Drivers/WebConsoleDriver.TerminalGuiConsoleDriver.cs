@@ -64,62 +64,7 @@ public partial class WebConsoleDriver
     {
         this.ccol = col;
         this.crow = row;
-
-        //this.TerminalSettings.SetCursorPosition(x: col,
-        //    y: row);
-
-        //if (this.Clip.Contains(x: col,
-        //        y: row))
-        //{
-        //    this.CursorTop = row;
-        //    this.CursorLeft = col;
-        //    this._needMove = false;
-        //}
-        //else
-        //{
-        //    this.CursorTop = this.Clip.Y;
-        //    this.CursorLeft = this.Clip.X;
-        //    this._needMove = true;
-        //}
     }
-
-    //public override void AddRune(Rune rune)
-    //{
-    //    var currentPosition = this.TerminalSettings.CursorPosition;
-    //    rune = MakePrintable(c: rune);
-    //    if (this.Clip.Contains(x: currentPosition.X,
-    //            y: currentPosition.Y))
-    //    {
-    //        if (this._needMove)
-    //            //MockConsole.CursorLeft = ccol;
-    //            //MockConsole.CursorTop = crow;
-    //            this._needMove = false;
-
-    //        this.Contents[currentPosition.Y,
-    //            currentPosition.X,
-    //            0] = (int)(uint)rune;
-    //        this.Contents[currentPosition.Y,
-    //            currentPosition.X,
-    //            1] = this._currentAttribute;
-    //        this.Contents[currentPosition.Y,
-    //            currentPosition.X,
-    //            2] = 1;
-    //        this._dirtyLine[currentPosition.Y] = true;
-    //    }
-    //    else
-    //    {
-    //        this._needMove = true;
-    //    }
-
-    //    this.TerminalSettings.SetCursorPosition(x: currentPosition.X + 1,
-    //        y: currentPosition.Y);
-    //    //if (ccol == Cols) {
-    //    //	ccol = 0;
-    //    //	if (crow + 1 < WindowRows)
-    //    //		crow++;
-    //    //}
-    //    if (sync) this.UpdateScreen();
-    //}
 
     public override void AddRune(Rune rune)
     {
@@ -183,6 +128,16 @@ public partial class WebConsoleDriver
         this.Clear();
     }
 
+    private static Attribute MakeColor(ConsoleColor f, ConsoleColor b)
+    {
+        // Encode the colors into the int value.
+        return new Attribute(
+            value: (((int) f & 0xffff) << 16) | ((int) b & 0xffff),
+            foreground: (Color) f,
+            background: (Color) b
+        );
+    }
+
     public override void Init(Action terminalResized)
     {
         this.TerminalSettings = new TerminalSettings();
@@ -201,124 +156,94 @@ public partial class WebConsoleDriver
             width: this.Cols,
             height: this.Rows);
 
-        Colors.TopLevel.Normal = ColorExtensions.MakeAttribute(
-            foreground: ConsoleColor.Green,
-            background: ConsoleColor.Black);
-        Colors.TopLevel.Focus = this.MakeAttribute(
-            foreground: ConsoleColor.White,
-            background: ConsoleColor.DarkCyan);
-        Colors.TopLevel.HotNormal = this.MakeAttribute(
-            foreground: ConsoleColor.DarkYellow,
-            background: ConsoleColor.Black);
-        Colors.TopLevel.HotFocus = this.MakeAttribute(
-            foreground: ConsoleColor.DarkBlue,
-            background: ConsoleColor.DarkCyan);
-        Colors.TopLevel.Disabled = this.MakeAttribute(
-            foreground: ConsoleColor.DarkGray,
-            background: ConsoleColor.Black);
+        Colors.TopLevel.Normal = MakeColor(f: ConsoleColor.Green,
+    b: ConsoleColor.Black);
+        Colors.TopLevel.Focus = MakeColor(f: ConsoleColor.White,
+            b: ConsoleColor.DarkCyan);
+        Colors.TopLevel.HotNormal = MakeColor(f: ConsoleColor.DarkYellow,
+            b: ConsoleColor.Black);
+        Colors.TopLevel.HotFocus = MakeColor(f: ConsoleColor.DarkBlue,
+            b: ConsoleColor.DarkCyan);
+        Colors.TopLevel.Disabled = MakeColor(f: ConsoleColor.DarkGray,
+            b: ConsoleColor.Black);
 
-        Colors.Base.Normal = this.MakeAttribute(
-            foreground: ConsoleColor.White,
-            background: ConsoleColor.Blue);
-        Colors.Base.Focus = this.MakeAttribute(
-            foreground: ConsoleColor.Black,
-            background: ConsoleColor.Cyan);
-        Colors.Base.HotNormal = this.MakeAttribute(
-            foreground: ConsoleColor.Yellow,
-            background: ConsoleColor.Blue);
-        Colors.Base.HotFocus = this.MakeAttribute(
-            foreground: ConsoleColor.Yellow,
-            background: ConsoleColor.Cyan);
-        Colors.Base.Disabled = this.MakeAttribute(
-            foreground: ConsoleColor.DarkGray,
-            background: ConsoleColor.DarkBlue);
+        Colors.Base.Normal = MakeColor(f: ConsoleColor.White,
+            b: ConsoleColor.Blue);
+        Colors.Base.Focus = MakeColor(f: ConsoleColor.Black,
+            b: ConsoleColor.Cyan);
+        Colors.Base.HotNormal = MakeColor(f: ConsoleColor.Yellow,
+            b: ConsoleColor.Blue);
+        Colors.Base.HotFocus = MakeColor(f: ConsoleColor.Yellow,
+            b: ConsoleColor.Cyan);
+        Colors.Base.Disabled = MakeColor(f: ConsoleColor.DarkGray,
+            b: ConsoleColor.DarkBlue);
 
         // Focused,
         //    Selected, Hot: Yellow on Black
         //    Selected, text: white on black
         //    Unselected, hot: yellow on cyan
         //    unselected, text: same as unfocused
-        Colors.Menu.HotFocus = this.MakeAttribute(
-            foreground: ConsoleColor.Yellow,
-            background: ConsoleColor.Black);
-        Colors.Menu.Focus = this.MakeAttribute(
-            foreground: ConsoleColor.White,
-            background: ConsoleColor.Black);
-        Colors.Menu.HotNormal = this.MakeAttribute(
-            foreground: ConsoleColor.Yellow,
-            background: ConsoleColor.Cyan);
-        Colors.Menu.Normal = this.MakeAttribute(
-            foreground: ConsoleColor.White,
-            background: ConsoleColor.Cyan);
-        Colors.Menu.Disabled = this.MakeAttribute(
-            foreground: ConsoleColor.DarkGray,
-            background: ConsoleColor.Cyan);
+        Colors.Menu.HotFocus = MakeColor(f: ConsoleColor.Yellow,
+            b: ConsoleColor.Black);
+        Colors.Menu.Focus = MakeColor(f: ConsoleColor.White,
+            b: ConsoleColor.Black);
+        Colors.Menu.HotNormal = MakeColor(f: ConsoleColor.Yellow,
+            b: ConsoleColor.Cyan);
+        Colors.Menu.Normal = MakeColor(f: ConsoleColor.White,
+            b: ConsoleColor.Cyan);
+        Colors.Menu.Disabled = MakeColor(f: ConsoleColor.DarkGray,
+            b: ConsoleColor.Cyan);
 
-        Colors.Dialog.Normal = this.MakeAttribute(
-            foreground: ConsoleColor.Black,
-            background: ConsoleColor.Gray);
-        Colors.Dialog.Focus = this.MakeAttribute(
-            foreground: ConsoleColor.Black,
-            background: ConsoleColor.Cyan);
-        Colors.Dialog.HotNormal = this.MakeAttribute(
-            foreground: ConsoleColor.Blue,
-            background: ConsoleColor.Gray);
-        Colors.Dialog.HotFocus = this.MakeAttribute(
-            foreground: ConsoleColor.Blue,
-            background: ConsoleColor.Cyan);
-        Colors.Dialog.Disabled = this.MakeAttribute(
-            foreground: ConsoleColor.DarkGray,
-            background: ConsoleColor.Gray);
+        Colors.Dialog.Normal = MakeColor(f: ConsoleColor.Black,
+            b: ConsoleColor.Gray);
+        Colors.Dialog.Focus = MakeColor(f: ConsoleColor.Black,
+            b: ConsoleColor.Cyan);
+        Colors.Dialog.HotNormal = MakeColor(f: ConsoleColor.Blue,
+            b: ConsoleColor.Gray);
+        Colors.Dialog.HotFocus = MakeColor(f: ConsoleColor.Blue,
+            b: ConsoleColor.Cyan);
+        Colors.Dialog.Disabled = MakeColor(f: ConsoleColor.DarkGray,
+            b: ConsoleColor.Gray);
 
-        Colors.Error.Normal = this.MakeAttribute(
-            foreground: ConsoleColor.White,
-            background: ConsoleColor.Red);
-        Colors.Error.Focus = this.MakeAttribute(
-            foreground: ConsoleColor.Black,
-            background: ConsoleColor.Gray);
-        Colors.Error.HotNormal = this.MakeAttribute(
-            foreground: ConsoleColor.Yellow,
-            background: ConsoleColor.Red);
+        Colors.Error.Normal = MakeColor(f: ConsoleColor.White,
+            b: ConsoleColor.Red);
+        Colors.Error.Focus = MakeColor(f: ConsoleColor.Black,
+            b: ConsoleColor.Gray);
+        Colors.Error.HotNormal = MakeColor(f: ConsoleColor.Yellow,
+            b: ConsoleColor.Red);
         Colors.Error.HotFocus = Colors.Error.HotNormal;
-        Colors.Error.Disabled = this.MakeAttribute(
-            foreground: ConsoleColor.DarkGray,
-            background: ConsoleColor.White);
+        Colors.Error.Disabled = MakeColor(f: ConsoleColor.DarkGray,
+            b: ConsoleColor.White);
 
         //MockConsole.Clear ();
     }
 
-    public override Attribute MakeAttribute(Color foreground, Color background)
+    public override Attribute MakeAttribute(Color fore, Color back)
     {
-        return ColorExtensions.MakeAttribute(
-            foreground: foreground,
-            background: background);
-    }
-
-    public Attribute MakeAttribute(ConsoleColor foreground, ConsoleColor background)
-    {
-        return ColorExtensions.MakeAttribute(
-            foreground: foreground,
-            background: background);
+        return MakeColor(f: (ConsoleColor) fore,
+            b: (ConsoleColor) back);
     }
 
     private int _redrawColor = -1;
 
-    private void SetAttribute(int attribute)
+    private void SetColor(int color)
     {
-        this._redrawColor = attribute;
+        this._redrawColor = color;
         var values = Enum.GetValues(enumType: typeof(ConsoleColor))
             .OfType<ConsoleColor>()
             .Select(selector: s => (int) s);
         var enumerable = values as int[] ?? values.ToArray();
-        if (enumerable.Contains(value: attribute & 0xffff)) this.BackgroundColor = (ConsoleColor) (attribute & 0xffff);
+        if (enumerable.Contains(value: color & 0xffff)) this.BackgroundColor = (ConsoleColor) (color & 0xffff);
 
-        if (enumerable.Contains(value: (attribute >> 16) & 0xffff))
-            this.ForegroundColor = (ConsoleColor) ((attribute >> 16) & 0xffff);
+        if (enumerable.Contains(value: (color >> 16) & 0xffff))
+            this.ForegroundColor = (ConsoleColor) ((color >> 16) & 0xffff);
     }
 
-    public IEnumerable<(int attribute, int row, int col, string text)> GetDirtySegments(bool markClean)
+    public override void UpdateScreen()
     {
-        var dirtySegments = new List<(int attribute, int row, int col, string text)>();
+        if (this.firstRender) return;
+
+        var dirtySegments = new List<((ConsoleColor bg, ConsoleColor fg) attribute, int row, int col, string text)>();
         lock (this.Contents)
         {
             var output = new System.Text.StringBuilder();
@@ -326,136 +251,76 @@ public partial class WebConsoleDriver
             var left = this.Left;
             var rows = Math.Min(val1: this.WindowRows + top,
                 val2: this.Rows);
-            var cols = this.Cols;
-            int? currentColor = null;
+            var cols = Math.Min(val1: this.WindowColumns + left,
+                val2: this.Cols);
             for (var row = top; row < rows; row++)
             {
                 if (!this._dirtyLine[row]) continue;
+                this._dirtyLine[row] = false;
                 var segmentStart = left;
                 for (var col = left; col < cols; col++)
                 {
+                    // no dirty flag here continue
+                    if (Contents[row, col, (int) RuneDataType.DirtyFlag] != 1)
+                        continue;
+
                     // get color at current position
                     var color = this.Contents[
                         row,
                         col,
                         (int) RuneDataType.Attribute];
 
-                    if (markClean)
-                        this.Contents[row,
-                            col,
-                            (int) RuneDataType.DirtyFlag] = 0;
+                    if (_redrawColor != color)
+                    {
+                        // we've reached a new color, add the segment and start a new one
+                        if (output.Length > 0)
+                            dirtySegments.Add(item: (
+                                attribute: (bg: this.TerminalSettings.TerminalBackground,
+                                            fg: this.TerminalSettings.TerminalForeground),
+                                row,
+                                col: segmentStart,
+                                text: output.ToString()));
+                        segmentStart = col;
+                        output.Clear();
+                        SetColor(color: color);
+                    }
 
                     // append to buffer
                     output.Append(value: (char) this.Contents[row,
                         col,
                         (int) RuneDataType.Rune]);
 
-                    // if color is same as current color, skip
-                    if (currentColor is not null && currentColor!.Value == color) continue;
-
-                    // we've reached a new color, add the segment and start a new one
-                    currentColor = color;
-                    segmentStart = col;
-                    if (output.Length <= 0) continue;
-                    dirtySegments.Add(item: (
-                        attribute: color,
-                        row,
-                        col: segmentStart,
-                        text: output.ToString()));
-                    output.Clear();
+                    // clear the flag
+                    this.Contents[row,
+                        col,
+                        (int) RuneDataType.DirtyFlag] = 0;
                 } // col
 
                 // in case the segment ends at the end of the line, add it
                 if (output.Length > 0)
                 {
                     dirtySegments.Add(item: (
-                        attribute: currentColor!.Value,
+                        attribute: (bg: this.TerminalSettings.TerminalBackground,
+                                    fg: this.TerminalSettings.TerminalForeground),
                         row,
                         col: segmentStart,
                         text: output.ToString()));
                     output.Clear();
                 }
-
-                if (markClean) this._dirtyLine[row] = false;
             } // row
+
+            if (dirtySegments.Count > 0)
+                _ = Task.Run(() => this._webConsole.DrawDirtySegmentToCanvas(
+                    segments: dirtySegments,
+                    terminalSettings: this.TerminalSettings));
         }
-
-        return dirtySegments;
-    }
-
-    public override void UpdateScreen()
-    {
-        if (this.firstRender) return;
-
-        lock (this.Contents)
-        {
-            this.CursorTop = 0;
-            this.CursorLeft = 0;
-
-            foreach (var segment in this.GetDirtySegments(markClean: true))
-            {
-                this.SetAttribute(attribute: segment.attribute);
-                _ = this._webConsole.DrawDirtySegmentToCanvas(
-                    segment: segment,
-                    terminalSettings: this.TerminalSettings);
-            }
-        }
-
-        //var task = this._webConsole.DrawUpdatesToCanvas(
-        //    buffer: this.Contents,
-        //    firstRender: firstRender);
-        // ReSharper disable once HeapView.ObjectAllocation.Evident
-        //this.NewFrame(sender: this,
-        //    e: new NewFrameEventArgs(sender: this));
-        //task.RunSynchronously();
     }
 
     public override void Refresh()
     {
         this.UpdateScreen();
 
-        //var rows = this.Rows;
-        //var cols = this.Cols;
-
-        //var savedRow = this.CursorTop;
-        //var savedCol = this.CursorLeft;
-        //for (var row = 0; row < rows; row++)
-        //{
-        //    if (!this._dirtyLine[row])
-        //        continue;
-        //    this._dirtyLine[row] = false;
-        //    for (var col = 0; col < cols; col++)
-        //    {
-        //        if (this.Contents[row,
-        //                col,
-        //                2] != 1)
-        //            continue;
-
-        //        this.CursorTop = row;
-        //        this.CursorLeft = col;
-        //        for (;
-        //             col < cols && this.Contents[row,
-        //                 col,
-        //                 2] == 1;
-        //             col++)
-        //        {
-        //            var color = this.Contents[row,
-        //                col,
-        //                1];
-        //            if (color != this._redrawColor) this.SetColor(color: color);
-
-        //            this.Write(value: (char)this.Contents[row,
-        //                col,
-        //                0]);
-        //            this.Contents[row,
-        //                col,
-        //                2] = 0;
-        //        }
-        //    }
-        //}
-
-        //this.CursorTop = savedRow;
-        //this.CursorLeft = savedCol;
+        this.UpdateCursor();
     }
 
     private Attribute _currentAttribute;
@@ -538,50 +403,50 @@ public partial class WebConsoleDriver
         switch (key)
         {
             case >= ConsoleKey.A and <= ConsoleKey.Z:
-            {
-                var delta = key - ConsoleKey.A;
-                switch (keyInfo.Modifiers)
                 {
-                    case ConsoleModifiers.Control:
-                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
-                    case ConsoleModifiers.Alt:
-                        return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
-                }
+                    var delta = key - ConsoleKey.A;
+                    switch (keyInfo.Modifiers)
+                    {
+                        case ConsoleModifiers.Control:
+                            return (Key) ((uint) Key.CtrlMask | ((uint) Key.A + delta));
+                        case ConsoleModifiers.Alt:
+                            return (Key) ((uint) Key.AltMask | ((uint) Key.A + delta));
+                    }
 
-                if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
+                    if ((keyInfo.Modifiers & (ConsoleModifiers.Alt | ConsoleModifiers.Control)) == 0)
+                        return (Key) keyInfo.KeyChar;
+                    if (keyInfo.KeyChar == 0)
+                        return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
                     return (Key) keyInfo.KeyChar;
-                if (keyInfo.KeyChar == 0)
-                    return (Key) ((uint) Key.AltMask | (uint) Key.CtrlMask | ((uint) Key.A + delta));
-                return (Key) keyInfo.KeyChar;
-            }
-            case >= ConsoleKey.D0 and <= ConsoleKey.D9:
-            {
-                var delta = key - ConsoleKey.D0;
-                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                switch (keyInfo.Modifiers)
-                {
-                    case ConsoleModifiers.Alt:
-                        return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
-                    case ConsoleModifiers.Control:
-                        return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
                 }
+            case >= ConsoleKey.D0 and <= ConsoleKey.D9:
+                {
+                    var delta = key - ConsoleKey.D0;
+                    // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                    switch (keyInfo.Modifiers)
+                    {
+                        case ConsoleModifiers.Alt:
+                            return (Key) ((uint) Key.AltMask | ((uint) Key.D0 + delta));
+                        case ConsoleModifiers.Control:
+                            return (Key) ((uint) Key.CtrlMask | ((uint) Key.D0 + delta));
+                    }
 
-                if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
-                    return MapKeyModifiers(keyInfo: keyInfo,
-                        key: (Key) ((uint) Key.D0 + delta));
+                    if (keyInfo.KeyChar == 0 || keyInfo.KeyChar == 30)
+                        return MapKeyModifiers(keyInfo: keyInfo,
+                            key: (Key) ((uint) Key.D0 + delta));
 
-                return (Key) keyInfo.KeyChar;
-            }
+                    return (Key) keyInfo.KeyChar;
+                }
             case >= ConsoleKey.F1 and <= ConsoleKey.F12:
-            {
-                var delta = key - ConsoleKey.F1;
-                if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
-                    0)
-                    return MapKeyModifiers(keyInfo: keyInfo,
-                        key: (Key) ((uint) Key.F1 + delta));
+                {
+                    var delta = key - ConsoleKey.F1;
+                    if ((keyInfo.Modifiers & (ConsoleModifiers.Shift | ConsoleModifiers.Alt | ConsoleModifiers.Control)) !=
+                        0)
+                        return MapKeyModifiers(keyInfo: keyInfo,
+                            key: (Key) ((uint) Key.F1 + delta));
 
-                return (Key) ((uint) Key.F1 + delta);
-            }
+                    return (Key) ((uint) Key.F1 + delta);
+                }
         }
 
         if (keyInfo.KeyChar != 0)
@@ -629,38 +494,38 @@ public partial class WebConsoleDriver
         switch (inputEvent.EventType)
         {
             case EventType.Key:
-            {
-                this._keyModifiers = new KeyModifiers();
-                var map = MapKey(keyInfo: inputEvent.KeyEvent.ConsoleKeyInfo);
-                if (map == (Key) 0xffffffff)
                 {
-                    var key = new KeyEvent();
-
-                    if (inputEvent.KeyEvent.KeyDown)
-                        this._keyDownHandler?.Invoke(obj: key);
-                    else
-                        this._keyUpHandler?.Invoke(obj: key);
-                }
-                else
-                {
-                    if (inputEvent.KeyEvent.KeyDown)
+                    this._keyModifiers = new KeyModifiers();
+                    var map = MapKey(keyInfo: inputEvent.KeyEvent.ConsoleKeyInfo);
+                    if (map == (Key) 0xffffffff)
                     {
-                        this._keyDownHandler?.Invoke(obj: new KeyEvent(k: map,
-                            km: this._keyModifiers));
-                        this._keyHandler?.Invoke(obj: new KeyEvent(k: map,
-                            km: this._keyModifiers));
+                        var key = new KeyEvent();
+
+                        if (inputEvent.KeyEvent.KeyDown)
+                            this._keyDownHandler?.Invoke(obj: key);
+                        else
+                            this._keyUpHandler?.Invoke(obj: key);
                     }
                     else
                     {
-                        this._keyUpHandler?.Invoke(obj: new KeyEvent(k: map,
-                            km: this._keyModifiers));
+                        if (inputEvent.KeyEvent.KeyDown)
+                        {
+                            this._keyDownHandler?.Invoke(obj: new KeyEvent(k: map,
+                                km: this._keyModifiers));
+                            this._keyHandler?.Invoke(obj: new KeyEvent(k: map,
+                                km: this._keyModifiers));
+                        }
+                        else
+                        {
+                            this._keyUpHandler?.Invoke(obj: new KeyEvent(k: map,
+                                km: this._keyModifiers));
+                        }
+
+                        if (!inputEvent.KeyEvent.KeyDown) this._keyModifiers = null;
                     }
 
-                    if (!inputEvent.KeyEvent.KeyDown) this._keyModifiers = null;
+                    break;
                 }
-
-                break;
-            }
             case EventType.Mouse:
                 this._mouseHandler?.Invoke(obj: this.ToDriverMouse(me: inputEvent.MouseEvent));
                 break;
@@ -870,19 +735,19 @@ public partial class WebConsoleDriver
         try
         {
             for (var row = 0; row < this.Rows; row++)
-            for (var c = 0; c < this.Cols; c++)
-            {
-                this.Contents[row,
-                    c,
-                    (int) RuneDataType.Rune] = ' ';
-                this.Contents[row,
-                    c,
-                    (int) RuneDataType.Attribute] = Colors.TopLevel.Normal;
-                this.Contents[row,
-                    c,
-                    (int) RuneDataType.DirtyFlag] = 0;
-                this._dirtyLine[row] = true;
-            }
+                for (var c = 0; c < this.Cols; c++)
+                {
+                    this.Contents[row,
+                        c,
+                        (int) RuneDataType.Rune] = ' ';
+                    this.Contents[row,
+                        c,
+                        (int) RuneDataType.Attribute] = Colors.TopLevel.Normal;
+                    this.Contents[row,
+                        c,
+                        (int) RuneDataType.DirtyFlag] = 0;
+                    this._dirtyLine[row] = true;
+                }
         }
         catch (IndexOutOfRangeException)
         {
