@@ -28,5 +28,5 @@ public static class Defaults
     public const float BeepVolume = 1.0f;
     public const BeepType BeepType = Enumerations.BeepType.Sine;
     public const int FontSize = 16;
-    public const string FontType = "serif";
+    public const string FontType = "Courier";
 }

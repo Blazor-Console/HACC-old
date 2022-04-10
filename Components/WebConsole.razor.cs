@@ -1,15 +1,19 @@
-﻿using System.Globalization;
+using System.Drawing;
+using System.Globalization;
 using Blazor.Extensions;
 using Blazor.Extensions.Canvas.Canvas2D;
+using Blazor.Extensions.Canvas.Model;
 using HACC.Applications;
 using HACC.Extensions;
 using HACC.Models;
 using HACC.Models.Drivers;
+using HACC.Models.Enums;
 using HACC.Models.Structs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using NStack;
 
 namespace HACC.Components;
 
@@ -17,23 +21,27 @@ public partial class WebConsole : ComponentBase
 {
     private static readonly IJSRuntime JsInterop = HaccExtensions.GetService<IJSRuntime>();
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
-    private int screenWidth = 640;
-    private int screenHeight = 480;
+
+    private readonly Dictionary<string, TextMetrics> MeasuredText = new();
 
     /// <summary>
-    /// Null until after render
+    ///     Null until after render
     /// </summary>
     private BECanvasComponent? _beCanvas;
 
     /// <summary>
-    /// Null until after render when we initialize it from the beCanvas reference
+    ///     Null until after render when we initialize it from the beCanvas reference
     /// </summary>
     private Canvas2DContext? _canvas2DContext;
 
     /// <summary>
-    /// Null until after render
+    ///     Null until after render
     /// </summary>
     private ElementReference? _divCanvas;
+
+    private Queue<InputResult> _inputResultQueue = new();
+    private int _screenHeight = 480;
+    private int _screenWidth = 640;
 
     public WebApplication? WebApplication { get; private set; }
 
@@ -43,10 +51,7 @@ public partial class WebConsole : ComponentBase
 
     public bool CanvasInitialized => this._canvas2DContext is { };
 
-    private Queue<InputResult> _inputResultQueue = new Queue<InputResult>();
-
-    [Parameter]
-    public EventCallback OnLoaded { get; set; }
+    [Parameter] public EventCallback OnLoaded { get; set; }
 
     public event Action<InputResult> ReadConsoleInput;
     public event Action RunIterationNeeded;
@@ -70,37 +75,51 @@ public partial class WebConsole : ComponentBase
         if (firstRender)
         {
             Logger.LogDebug(message: "OnAfterRenderAsync");
-            _canvas2DContext = await _beCanvas.CreateCanvas2DAsync();
+            this._canvas2DContext = await this._beCanvas.CreateCanvas2DAsync();
 
-            var thisObject = DotNetObjectReference.Create(this);
-            await JsInterop!.InvokeVoidAsync("initConsole", thisObject);
+            var thisObject = DotNetObjectReference.Create(value: this);
+            await JsInterop!.InvokeVoidAsync(identifier: "initConsole",
+                thisObject);
             // this will make sure that the viewport is correctly initialized
-            await JsInterop!.InvokeAsync<object>("consoleWindowResize", thisObject);
-            await JsInterop!.InvokeAsync<object>("consoleWindowFocus", thisObject);
-            await JsInterop!.InvokeAsync<object>("consoleWindowBeforeUnload", thisObject);
+            await JsInterop!.InvokeAsync<object>(identifier: "consoleWindowResize",
+                thisObject);
+            await JsInterop!.InvokeAsync<object>(identifier: "consoleWindowFocus",
+                thisObject);
+            await JsInterop!.InvokeAsync<object>(identifier: "consoleWindowBeforeUnload",
+                thisObject);
 
             await this.OnLoaded.InvokeAsync();
 
             Logger.LogDebug(message: "OnAfterRenderAsync: end");
         }
-        await base.OnAfterRenderAsync(firstRender);
+
+        await base.OnAfterRenderAsync(firstRender: firstRender);
     }
 
     public async Task<object?> DrawBufferToPng()
     {
-        if (!this.CanvasInitialized)
-        {
-            return null;
-        }
+        if (!this.CanvasInitialized) return null;
         return await JsInterop!.InvokeAsync<object>(identifier: "canvasToPng");
+    }
+
+
+    public async Task<TextMetrics?> MeasureText(string text)
+    {
+        if (!this.CanvasInitialized) return null;
+        if (this.MeasuredText.ContainsKey(key: text))
+            return this.MeasuredText[key: text];
+
+        var result = await this._canvas2DContext!.MeasureTextAsync(text);
+
+        this.MeasuredText.Add(
+            key: text,
+            value: result!);
+        return result;
     }
 
     private async Task RedrawCanvas()
     {
-        if (!this.CanvasInitialized)
-        {
-            return;
-        }
+        if (!this.CanvasInitialized) return;
 
         Logger.LogDebug(message: "InitializeNewCanvasFrame");
 
@@ -132,30 +151,45 @@ public partial class WebConsole : ComponentBase
         Logger.LogDebug(message: "InitializeNewCanvasFrame: end");
     }
 
-    public async Task DrawUpdatesToCanvas(string output, double x, double y)
+    public async Task DrawDirtySegmentToCanvas(List<((ConsoleColor bg, ConsoleColor fg) attribute, int row, int col, string text)> segments,
+        TerminalSettings terminalSettings)
     {
-        if (!this.CanvasInitialized)
-        {
-            return;
-        }
+        if (!this.CanvasInitialized) return;
+        if (segments.Count == 0) return;
+
         Logger.LogDebug(message: "DrawBufferToFrame");
-        //if (firstRender.HasValue && firstRender.Value || this._canvas2DContext is null)
-        //    await this.RedrawCanvas();
-        await this._canvas2DContext!.SetFontAsync(
-            value: $"{WebConsoleDriver!.TerminalSettings.FontSize}px " +
-            $"{WebConsoleDriver!.TerminalSettings.FontType}");
-        await _canvas2DContext.SetTextBaselineAsync(TextBaseline.Top);
-        await this._canvas2DContext!.SetFillStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalBackground}");
-        await _canvas2DContext.FillRectAsync(
-            x: x,
-            y: y,
-            width: output.Length * this.WebConsoleDriver!.TerminalSettings.FontSize,
-            height: this.WebConsoleDriver!.TerminalSettings.FontSize);
-        await this._canvas2DContext!.SetStrokeStyleAsync(value: $"{WebConsoleDriver!.TerminalSettings.TerminalForeground}");
-        // TODO: example text, actually implement
-        await this._canvas2DContext.StrokeTextAsync(text: output,
-            x: x,
-            y: y);
+        var lastRow = segments[0].row;
+        double textWidthEm = segments[0].col;
+
+        foreach (var segment in segments)
+        {
+            if (segment.row != lastRow)
+            {
+                lastRow = segment.row;
+                textWidthEm = segment.col;
+            }
+
+            var measuredText = await this.MeasureText(text: segment.text);
+            var letterWidthPx = terminalSettings.FontSizePixels;
+            await this._canvas2DContext!.SetFontAsync(
+                value: $"{letterWidthPx}px " +
+                       $"{terminalSettings.FontType}");
+            await this._canvas2DContext.SetTextBaselineAsync(value: TextBaseline.Top);
+            await this._canvas2DContext!.SetFillStyleAsync(
+                value: $"{segment.attribute.bg}");
+            await this._canvas2DContext.FillRectAsync(
+                x: textWidthEm,
+                y: segment.row * letterWidthPx,
+                width: segment.text.Length * measuredText!.Width,
+                height: letterWidthPx);
+            await this._canvas2DContext!.SetStrokeStyleAsync(
+                value: $"{segment.attribute.fg}");
+            await this._canvas2DContext.StrokeTextAsync(text: segment.text,
+                x: textWidthEm,
+                y: segment.row * letterWidthPx);
+
+            textWidthEm += measuredText!.Width;
+        }
         Logger.LogDebug(message: "DrawBufferToFrame: end");
     }
 
@@ -171,51 +205,51 @@ public partial class WebConsole : ComponentBase
         if (duration is not null && frequency is not null && volume is not null && type is not null)
             // ReSharper disable HeapView.ObjectAllocation
             await JsInterop.InvokeAsync<Task>(
-                identifier: "window.beep",
+                identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture),
                 type);
         if (duration is not null && frequency is not null && volume is not null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "window.beep",
+                identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.CurrentCulture),
                 volume.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is not null && volume is null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "window.beep",
+                identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.InvariantCulture),
                 frequency.Value.ToString(provider: CultureInfo.InvariantCulture));
         if (duration is not null && frequency is null && volume is null && type is null)
             await JsInterop.InvokeAsync<Task>(
-                identifier: "window.beep",
+                identifier: "beep",
                 duration.Value.ToString(provider: CultureInfo.CurrentCulture));
         if (duration is null && frequency is null && volume is null && type is null)
             await JsInterop.InvokeVoidAsync(
-                identifier: "window.beep");
+                identifier: "beep");
         // ReSharper restore HeapView.ObjectAllocation
     }
 
     private void OnReadConsoleInput(InputResult inputResult)
     {
-        ReadConsoleInput?.Invoke(inputResult);
-        RunIterationNeeded?.Invoke();
+        this.ReadConsoleInput?.Invoke(obj: inputResult);
+        this.RunIterationNeeded?.Invoke();
     }
 
     [JSInvokable]
     public async Task OnCanvasClick(MouseEventArgs obj)
     {
         // of relevance: ActiveConsole
-        var inputResult = new InputResult()
+        var inputResult = new InputResult
         {
-            EventType = Models.Enums.EventType.Mouse,
-            MouseEvent = new WebMouseEvent()
+            EventType = EventType.Mouse,
+            MouseEvent = new WebMouseEvent
             {
-                ButtonState = Models.Enums.MouseButtonState.Button1Clicked
-            }
+                ButtonState = MouseButtonState.Button1Clicked,
+            },
         };
-        OnReadConsoleInput(inputResult);
+        this.OnReadConsoleInput(inputResult: inputResult);
     }
 
     [JSInvokable]
@@ -242,29 +276,30 @@ public partial class WebConsole : ComponentBase
     [JSInvokable]
     public async ValueTask OnResize(int screenWidth, int screenHeight)
     {
-        if (_canvas2DContext == null) return;
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-        var inputResult = new InputResult()
+        if (this._canvas2DContext == null) return;
+        this._screenWidth = screenWidth;
+        this._screenHeight = screenHeight;
+        var inputResult = new InputResult
         {
-            EventType = Models.Enums.EventType.Resize,
-            ResizeEvent = new ResizeEvent()
+            EventType = EventType.Resize,
+            ResizeEvent = new ResizeEvent
             {
-                Size = new System.Drawing.Size(screenWidth, screenHeight)
-            }
+                Size = new Size(width: screenWidth,
+                    height: screenHeight),
+            },
         };
-        OnReadConsoleInput(inputResult);
+        this.OnReadConsoleInput(inputResult: inputResult);
     }
 
     [JSInvokable]
     public async ValueTask OnFocus()
     {
-        if (_canvas2DContext == null) return;
+        if (this._canvas2DContext == null) return;
     }
 
     [JSInvokable]
     public async ValueTask OnBeforeUnload()
     {
-        if (_canvas2DContext == null) return;
+        if (this._canvas2DContext == null) return;
     }
 }

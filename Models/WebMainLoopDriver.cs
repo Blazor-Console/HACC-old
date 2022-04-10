@@ -21,8 +21,8 @@ namespace HACC.Models;
 /// </remarks>
 public class WebMainLoopDriver : IMainLoopDriver
 {
+    private readonly Queue<InputResult> _inputResult = new();
     private readonly WebConsole _webConsole;
-    private Queue<InputResult> _inputResult = new Queue<InputResult>();
     private MainLoop _mainLoop;
 
     /// <summary>
@@ -37,37 +37,44 @@ public class WebMainLoopDriver : IMainLoopDriver
     /// <param name="webConsole"></param>
     public WebMainLoopDriver(WebConsole webConsole)
     {
-        this._webConsole = webConsole ?? throw new ArgumentNullException("Console driver instance must be provided.");
+        this._webConsole = webConsole ??
+                           throw new ArgumentNullException(paramName: "Console driver instance must be provided.");
     }
 
     void IMainLoopDriver.Setup(MainLoop mainLoop)
     {
         this._mainLoop = mainLoop ?? throw new ArgumentException(message: "MainLoop must be provided");
-        this._webConsole.ReadConsoleInput += WebConsole_ReadConsoleInput;
-    }
-
-    private void WebConsole_ReadConsoleInput(InputResult obj)
-    {
-        _inputResult.Enqueue(obj);
+        this._webConsole.ReadConsoleInput += this.WebConsole_ReadConsoleInput;
     }
 
     void IMainLoopDriver.Wakeup()
     {
-        _mainLoop.EventsPending(false);
+        this._mainLoop.EventsPending();
     }
 
     bool IMainLoopDriver.EventsPending(bool wait)
     {
-        return _inputResult.Count > 0 || CheckTimers(wait, out _);
+        return this._inputResult.Count > 0 || this.CheckTimers(wait: wait,
+            waitTimeout: out _);
     }
 
-    bool CheckTimers(bool wait, out int waitTimeout)
+    void IMainLoopDriver.MainIteration()
     {
-        long now = DateTime.UtcNow.Ticks;
+        while (this._inputResult.Count > 0) this.ProcessInput?.Invoke(obj: this._inputResult.Dequeue());
+    }
 
-        if (_mainLoop.Timeouts.Count > 0)
+    private void WebConsole_ReadConsoleInput(InputResult obj)
+    {
+        this._inputResult.Enqueue(item: obj);
+    }
+
+    private bool CheckTimers(bool wait, out int waitTimeout)
+    {
+        var now = DateTime.UtcNow.Ticks;
+
+        if (this._mainLoop.Timeouts.Count > 0)
         {
-            waitTimeout = (int)((_mainLoop.Timeouts.Keys[0] - now) / TimeSpan.TicksPerMillisecond);
+            waitTimeout = (int) ((this._mainLoop.Timeouts.Keys[index: 0] - now) / TimeSpan.TicksPerMillisecond);
             if (waitTimeout < 0)
                 return true;
         }
@@ -80,19 +87,11 @@ public class WebMainLoopDriver : IMainLoopDriver
             waitTimeout = 0;
 
         int ic;
-        lock (_mainLoop.IdleHandlers)
+        lock (this._mainLoop.IdleHandlers)
         {
-            ic = _mainLoop.IdleHandlers.Count;
+            ic = this._mainLoop.IdleHandlers.Count;
         }
 
         return ic > 0;
-    }
-
-    void IMainLoopDriver.MainIteration()
-    {
-        while (_inputResult.Count > 0)
-        {
-            ProcessInput?.Invoke(obj: _inputResult.Dequeue());
-        }
     }
 }

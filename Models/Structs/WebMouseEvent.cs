@@ -1,10 +1,10 @@
-﻿using HACC.Models.Enums;
-using System.Drawing;
+﻿using System.Drawing;
+using HACC.Models.Enums;
 
 namespace HACC.Models.Structs;
 
 public struct WebMouseEvent
 {
-	public Point Position;
-	public MouseButtonState ButtonState;
+    public Point Position;
+    public MouseButtonState ButtonState;
 }

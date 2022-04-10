@@ -2,6 +2,6 @@
 
 public struct WebKeyEvent
 {
-	public bool KeyDown;
-	public ConsoleKeyInfo ConsoleKeyInfo;
+    public bool KeyDown;
+    public ConsoleKeyInfo ConsoleKeyInfo;
 }
