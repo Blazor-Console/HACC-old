@@ -1,11 +1,10 @@
 using System.Drawing;
 using System.Globalization;
-using Blazor.Extensions;
-using Blazor.Extensions.Canvas.Canvas2D;
-using Blazor.Extensions.Canvas.Model;
 using HACC.Applications;
 using HACC.Extensions;
 using HACC.Models;
+using HACC.Models.Canvas;
+using HACC.Models.Canvas.Canvas2D;
 using HACC.Models.Drivers;
 using HACC.Models.Enums;
 using HACC.Models.Structs;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using NStack;
+using static HACC.Extensions.CanvasContextExtensions;
 
 namespace HACC.Components;
 
@@ -23,11 +23,6 @@ public partial class WebConsole : ComponentBase
     private static readonly ILogger Logger = HaccExtensions.CreateLogger<WebConsole>();
 
     private readonly Dictionary<string, TextMetrics> MeasuredText = new();
-
-    /// <summary>
-    ///     Null until after render
-    /// </summary>
-    private BECanvasComponent? _beCanvas;
 
     /// <summary>
     ///     Null until after render when we initialize it from the beCanvas reference
@@ -42,6 +37,17 @@ public partial class WebConsole : ComponentBase
     private Queue<InputResult> _inputResultQueue = new();
     private int _screenHeight = 480;
     private int _screenWidth = 640;
+
+    [Parameter]
+    public long Height { get; set; }
+
+    [Parameter]
+    public long Width { get; set; }
+
+    protected readonly string Id = Guid.NewGuid().ToString();
+    protected ElementReference _canvasRef;
+
+    public ElementReference CanvasReference => this._canvasRef;
 
     public WebApplication? WebApplication { get; private set; }
 
@@ -75,7 +81,7 @@ public partial class WebConsole : ComponentBase
         if (firstRender)
         {
             Logger.LogDebug(message: "OnAfterRenderAsync");
-            this._canvas2DContext = await this._beCanvas.CreateCanvas2DAsync();
+            this._canvas2DContext = await this.CreateCanvas2DAsync();
 
             var thisObject = DotNetObjectReference.Create(value: this);
             await JsInterop!.InvokeVoidAsync(identifier: "initConsole",
