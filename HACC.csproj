@@ -1,13 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <Title>HTML5 Canvas Console and Blazor Extensions</Title>
+    <Description>HTML5 Canvas API implementation and Gui.cs/Terminal.Gui and Spectre.Console components for ASP.NET Core Blazor.</Description>
+    <PackageId>HACC</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+  </PropertyGroup>
 
-    <PropertyGroup>
+  <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>HACC</RootNamespace>
         <AssemblyName>HACC</AssemblyName>
         <OutputType>Library</OutputType>
+       <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeP2POutput</TargetsForTfmSpecificBuildOutput>
     </PropertyGroup>
+
+  <Target Name="IncludeP2POutput">
+    <ItemGroup>
+      <BuildOutputInPackage Include="$(OutputPath)Blazor.Extensions.Canvas.JS.dll" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Content Update="**\*.razor">
+      <Pack>false</Pack>
+    </Content>
+  </ItemGroup>
 
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
